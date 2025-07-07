@@ -61,7 +61,9 @@ export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse<H
   }) as SupportedNetworks;
 
   try {
-    const response = await fetch('/api/sky/hat', {
+    const externalUrl = `https://vote.sky.money/api/executive/hat?network=${network}`;
+
+    const response = await fetch(externalUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
