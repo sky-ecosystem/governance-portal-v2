@@ -8,6 +8,38 @@ export async function depositMkr(amount: string) {
   const file = await readFile('./tenderlyTestnetData.json', 'utf-8');
   const { TENDERLY_RPC_URL } = JSON.parse(file);
 
+  // Check MKR balance before proceeding
+  const balanceCheckResponse = await fetch(TENDERLY_RPC_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 99,
+      method: 'eth_call',
+      params: [
+        {
+          to: mkrAddress[SupportedChainId.TENDERLY],
+          data: encodeFunctionData({
+            abi: mkrAbi,
+            functionName: 'balanceOf',
+            args: [TEST_ACCOUNTS.normal.address as `0x${string}`]
+          })
+        },
+        'latest'
+      ]
+    })
+  });
+
+  const balanceResult = await balanceCheckResponse.json();
+  const balance = BigInt(balanceResult.result || '0x0');
+  console.log(
+    `MKR balance for ${TEST_ACCOUNTS.normal.address}: ${balance.toString()} wei (${(
+      Number(balance) / 1e18
+    ).toFixed(4)} MKR)`
+  );
+
   const approvalResponse = await fetch(TENDERLY_RPC_URL, {
     method: 'POST',
     headers: {

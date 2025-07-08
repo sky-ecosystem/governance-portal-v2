@@ -17,7 +17,7 @@ interface TestAccounts {
 export const TEST_ACCOUNTS: TestAccounts = {
   [TestAccountsEnum.normal]: {
     name: 'Default test account',
-    address: '0xFebC63589D8a3bc5CD97E86C174A836c9caa6DEe'
+    address: '0xdE70d75Bee022C0706C584042836a44ABc5bB863'
   }
 };
 
