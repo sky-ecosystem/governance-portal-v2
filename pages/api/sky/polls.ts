@@ -54,12 +54,13 @@ export type SkyPollsResponse = {
       };
       results: Array<{
         optionId: number;
-        mkrSupport: string;
+        skySupport: string;
         firstPct: number;
       }>;
-      totalMkrParticipation: string;
+      totalSkyParticipation: string;
+      totalSkyActiveParticipation: string;
       winner: number | null;
-      winningOption: string | null;
+      winningOptionName: string | null;
       numVoters: number;
       voteBreakdown: any[];
       victoryConditionMatched?: number;

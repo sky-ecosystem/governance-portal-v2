@@ -44,7 +44,7 @@ async function fetchSkyExecutivesDirectly() {
 
 async function fetchSkyHatDirectly() {
   try {
-    const response = await fetch('https://vote.sky.money/api/chief/hat', {
+    const response = await fetch('https://vote.sky.money/api/executive/hat', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'

@@ -23,10 +23,8 @@ export class SkyPollingPage {
   private initializeLocators() {
     this.skyPortalButton = this.page.getByRole('button', { name: 'View on Sky Portal' });
     this.legacyPollsButton = this.page.getByRole('button', { name: 'Legacy Polls' });
-    this.noticeAlert = this.page
-      .locator('text=/The community has voted for governance to be migrated/')
-      .first();
-    this.pollsHeading = this.page.getByRole('heading', { name: 'Polls from Sky Governance' });
+    this.noticeAlert = this.page.getByText('SKY is now the sole governance token of the Sky Protocol.');
+    this.pollsHeading = this.page.getByRole('heading', { name: 'Polls' });
     this.pollCard = this.page.locator('[data-testid="sky-poll-overview-card"]');
     this.loadMoreButton = this.page.getByRole('button', { name: 'Load More Polls' });
     this.errorAlert = this.page.locator('text=/Error loading Sky polls/');
@@ -45,9 +43,7 @@ export class SkyPollingPage {
 
   async verifyNoticeAlert() {
     await expect(this.noticeAlert).toBeVisible();
-    await expect(this.noticeAlert).toContainText(
-      'The community has voted for governance to be migrated to a fully SKY-native system'
-    );
+    await expect(this.noticeAlert).toContainText('SKY is now the sole governance token of the Sky Protocol.');
   }
 
   async clickLegacyPollsButton() {
@@ -55,9 +51,9 @@ export class SkyPollingPage {
     await expect(this.page).toHaveURL('/legacy-polling');
   }
 
-  async clickSkyPortalButton() {
-    await this.skyPortalButton.click();
-  }
+  // async clickSkyPortalButton() {
+  //   await this.skyPortalButton.click();
+  // }
 
   async verifyPollsVisible() {
     await expect(this.pollCard.first()).toBeVisible();

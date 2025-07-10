@@ -44,14 +44,13 @@ const transformPoll = (poll: any): SkyPoll => {
         ...poll.parameters,
         ...poll.tally.parameters
       },
-      // Map MKR fields to Sky fields
-      totalSkyParticipation: poll.tally.totalMkrParticipation || '0',
-      totalSkyActiveParticipation: poll.tally.totalMkrParticipation || '0',
-      winningOptionName: poll.tally.winningOption,
+      totalSkyParticipation: poll.tally.totalSkyParticipation || '0',
+      totalSkyActiveParticipation: poll.tally.totalSkyActiveParticipation || '0',
+      winningOptionName: poll.tally.winningOptionName,
       votesByAddress: poll.tally.voteBreakdown || [],
       results: poll.tally.results.map((result: any) => ({
         ...result,
-        skySupport: result.mkrSupport || '0',
+        skySupport: result.skySupport || '0',
         optionName: poll.options?.[result.optionId] || `Option ${result.optionId}`,
         winner: false,
         transfer: '0',

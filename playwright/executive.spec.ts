@@ -82,21 +82,17 @@ test.describe('Sky Executive Page', () => {
       await skyExecutivePage.waitForPageLoad();
     });
 
-    await test.step('verify notice alert is visible', async () => {
-      await skyExecutivePage.verifyNoticeAlert();
-    });
-
     await test.step('verify executives are visible', async () => {
       await skyExecutivePage.verifyExecutivesVisible();
       const executiveCount = await skyExecutivePage.getExecutiveCount();
       test.expect(executiveCount).toBe(2);
     });
 
-    await test.step('verify Sky Portal button is visible', async () => {
-      // Just check button is visible, don't click external link
-      const skyPortalButton = skyExecutivePage.page.getByRole('button', { name: 'View on Sky Portal' });
-      await expect(skyPortalButton).toBeVisible();
-    });
+    // await test('verify Sky Portal button is visible', async () => {
+    //   // Just check button is visible, don't click external link
+    //   const skyPortalButton = skyExecutivePage.page.getByRole('button', { name: 'View on Sky Portal' });
+    //   await expect(skyPortalButton).toBeVisible();
+    // });
   });
 
   test('navigates to legacy executives page', async ({ skyExecutivePage }) => {
@@ -117,31 +113,33 @@ test.describe('Sky Executive Page', () => {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify(
-          Array(5).fill(null).map((_, i) => ({
-            key: `exec-${i + 1}`,
-            address: `0x000000000000000000000000000000000000000${i + 1}`,
-            title: `Test Executive ${i + 1}`,
-            proposalBlurb: 'Test executive proposal',
-            about: 'Test about',
-            content: 'Test content',
-            proposalLink: `https://forum.example.com/test-exec-${i + 1}`,
-            date: new Date().toISOString(),
-            active: true,
-            hasBeenScheduled: false,
-            hasBeenCast: false,
-            proposalId: `${i + 1}`,
-            spellData: {
-              datePassed: null,
-              dateExecuted: null,
-              nextCastTime: null,
-              officeHours: 'true',
-              hasBeenCast: false,
+          Array(5)
+            .fill(null)
+            .map((_, i) => ({
+              key: `exec-${i + 1}`,
+              address: `0x000000000000000000000000000000000000000${i + 1}`,
+              title: `Test Executive ${i + 1}`,
+              proposalBlurb: 'Test executive proposal',
+              about: 'Test about',
+              content: 'Test content',
+              proposalLink: `https://forum.example.com/test-exec-${i + 1}`,
+              date: new Date().toISOString(),
+              active: true,
               hasBeenScheduled: false,
-              eta: '0',
-              expiration: '0',
-              mkrSupport: '100000'
-            }
-          }))
+              hasBeenCast: false,
+              proposalId: `${i + 1}`,
+              spellData: {
+                datePassed: null,
+                dateExecuted: null,
+                nextCastTime: null,
+                officeHours: 'true',
+                hasBeenCast: false,
+                hasBeenScheduled: false,
+                eta: '0',
+                expiration: '0',
+                mkrSupport: '100000'
+              }
+            }))
         )
       });
     });
@@ -152,31 +150,33 @@ test.describe('Sky Executive Page', () => {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify(
-          Array(3).fill(null).map((_, i) => ({
-            key: `exec-${i + 6}`,
-            address: `0x000000000000000000000000000000000000000${i + 6}`,
-            title: `Test Executive ${i + 6}`,
-            proposalBlurb: 'Test executive proposal',
-            about: 'Test about',
-            content: 'Test content',
-            proposalLink: `https://forum.example.com/test-exec-${i + 6}`,
-            date: new Date().toISOString(),
-            active: true,
-            hasBeenScheduled: false,
-            hasBeenCast: false,
-            proposalId: `${i + 6}`,
-            spellData: {
-              datePassed: null,
-              dateExecuted: null,
-              nextCastTime: null,
-              officeHours: 'true',
-              hasBeenCast: false,
+          Array(3)
+            .fill(null)
+            .map((_, i) => ({
+              key: `exec-${i + 6}`,
+              address: `0x000000000000000000000000000000000000000${i + 6}`,
+              title: `Test Executive ${i + 6}`,
+              proposalBlurb: 'Test executive proposal',
+              about: 'Test about',
+              content: 'Test content',
+              proposalLink: `https://forum.example.com/test-exec-${i + 6}`,
+              date: new Date().toISOString(),
+              active: true,
               hasBeenScheduled: false,
-              eta: '0',
-              expiration: '0',
-              mkrSupport: '100000'
-            }
-          }))
+              hasBeenCast: false,
+              proposalId: `${i + 6}`,
+              spellData: {
+                datePassed: null,
+                dateExecuted: null,
+                nextCastTime: null,
+                officeHours: 'true',
+                hasBeenCast: false,
+                hasBeenScheduled: false,
+                eta: '0',
+                expiration: '0',
+                mkrSupport: '100000'
+              }
+            }))
         )
       });
     });

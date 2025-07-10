@@ -23,11 +23,9 @@ export class SkyExecutivePage {
   private initializeLocators() {
     this.skyPortalButton = this.page.getByRole('button', { name: 'View on Sky Portal' });
     this.legacyExecutivesButton = this.page.getByRole('button', { name: 'Legacy Executives' });
-    this.noticeAlert = this.page
-      .locator('text=/The community has voted for governance to be migrated/')
-      .first();
+    this.noticeAlert = this.page.getByText('SKY is now the sole governance token of the Sky Protocol.');
     this.executivesHeading = this.page.getByRole('heading', {
-      name: 'Executive Proposals from Sky Governance'
+      name: 'Executive Proposals'
     });
     this.executiveCard = this.page.locator('[data-testid="sky-executive-overview-card"]');
     this.loadMoreButton = this.page.getByRole('button', { name: 'Load More Executives' });
@@ -47,9 +45,7 @@ export class SkyExecutivePage {
 
   async verifyNoticeAlert() {
     await expect(this.noticeAlert).toBeVisible();
-    await expect(this.noticeAlert).toContainText(
-      'The community has voted for governance to be migrated to a fully SKY-native system'
-    );
+    await expect(this.noticeAlert).toContainText('SKY is now the sole governance token of the Sky Protocol.');
   }
 
   async clickLegacyExecutivesButton() {
@@ -57,9 +53,9 @@ export class SkyExecutivePage {
     await expect(this.page).toHaveURL('/legacy-executive');
   }
 
-  async clickSkyPortalButton() {
-    await this.skyPortalButton.click();
-  }
+  // async clickSkyPortalButton() {
+  //   await this.skyPortalButton.click();
+  // }
 
   async verifyExecutivesVisible() {
     await expect(this.executiveCard.first()).toBeVisible();
