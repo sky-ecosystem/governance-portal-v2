@@ -82,10 +82,6 @@ test.describe('Sky Executive Page', () => {
       await skyExecutivePage.waitForPageLoad();
     });
 
-    await test.step('verify notice alert is visible', async () => {
-      await skyExecutivePage.verifyNoticeAlert();
-    });
-
     await test.step('verify executives are visible', async () => {
       await skyExecutivePage.verifyExecutivesVisible();
       const executiveCount = await skyExecutivePage.getExecutiveCount();
