@@ -51,9 +51,9 @@ export class SkyPollingPage {
     await expect(this.page).toHaveURL('/legacy-polling');
   }
 
-  async clickSkyPortalButton() {
-    await this.skyPortalButton.click();
-  }
+  // async clickSkyPortalButton() {
+  //   await this.skyPortalButton.click();
+  // }
 
   async verifyPollsVisible() {
     await expect(this.pollCard.first()).toBeVisible();

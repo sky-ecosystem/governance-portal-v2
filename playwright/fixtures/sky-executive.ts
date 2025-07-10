@@ -53,9 +53,9 @@ export class SkyExecutivePage {
     await expect(this.page).toHaveURL('/legacy-executive');
   }
 
-  async clickSkyPortalButton() {
-    await this.skyPortalButton.click();
-  }
+  // async clickSkyPortalButton() {
+  //   await this.skyPortalButton.click();
+  // }
 
   async verifyExecutivesVisible() {
     await expect(this.executiveCard.first()).toBeVisible();
