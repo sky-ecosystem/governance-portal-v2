@@ -10,8 +10,7 @@ import { getActivePollIds, getPollsPaginated } from 'modules/polling/api/fetchPo
 import { SupportedNetworks } from 'modules/web3/constants/networks';
 import { fetchJson } from 'lib/fetchJson';
 import { PollInputFormat, PollOrderByEnum, PollStatusEnum } from '../polling.constants';
-import { PollsPaginatedResponse } from '../types/pollsResponse';
-import { PollingPageProps } from 'pages/polling';
+import { PollsPaginatedResponse, PollingPageProps } from '../types/pollsResponse';
 import { PollListItem } from '../types';
 import { PollingReviewPageProps } from 'pages/polling/review';
 import { TagCount } from 'modules/app/types/tag';

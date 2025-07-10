@@ -13,7 +13,7 @@ const SkeletonThemed = (props: SkeletonProps): React.ReactElement => {
   const { theme } = useThemeUI();
 
   const colorProps: SkeletonThemeProps = {
-    color: theme?.colors?.skeletonColor as string,
+    baseColor: theme?.colors?.skeletonColor as string,
     highlightColor: theme?.colors?.skeletonHighlightColor as string
   };
 

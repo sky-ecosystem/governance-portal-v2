@@ -1,6 +1,5 @@
 import { gqlRequest } from 'modules/gql/gqlRequest';
 import { allDelegateAddresses } from 'modules/gql/queries/subgraph/allDelegateAddresses';
-import { Query } from 'modules/gql/generated/graphql';
 import { allDelegatesExecSupportKey } from 'modules/cache/constants/cache-keys';
 import { cacheGet, cacheSet } from 'modules/cache/cache';
 import { SupportedNetworks } from 'modules/web3/constants/networks';

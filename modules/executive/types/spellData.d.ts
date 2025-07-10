@@ -19,6 +19,19 @@ export type SpellData = {
   officeHours?: boolean;
 };
 
+export type SkySpellData = {
+  hasBeenCast?: boolean;
+  hasBeenScheduled: boolean;
+  eta?: Date;
+  expiration?: Date;
+  nextCastTime?: Date;
+  datePassed?: Date;
+  dateExecuted?: Date;
+  skySupport: string;
+  executiveHash?: string;
+  officeHours?: boolean;
+};
+
 export type DecodedDiffAPIResponse = {
   contract: string;
   location: string;

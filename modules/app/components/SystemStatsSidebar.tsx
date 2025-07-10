@@ -270,7 +270,7 @@ export default function SystemStatsSidebar({
     <Box sx={{ display: ['none', 'block'] }} className={className}>
       <Flex sx={{ flexDirection: 'row', justifyContent: 'space-between', mb: 2, mt: 3 }}>
         <Heading as="h3" variant="microHeading">
-          System Info
+          Legacy System Info
         </Heading>
         <ExternalLink
           href="https://daistats.com/"

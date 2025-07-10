@@ -65,7 +65,7 @@ export function StatusFilter({
               }}
             />
             <Flex sx={{ justifyContent: 'space-between', width: '100%' }}>
-              <Text>Ended Polls</Text>
+              <Text>Legacy Polls</Text>
               <Text sx={{ color: 'secondaryEmphasis', ml: 3 }}>{stats.finished}</Text>
             </Flex>
           </Label>

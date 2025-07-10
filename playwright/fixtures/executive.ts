@@ -1,7 +1,7 @@
 import { expect, Page } from '@playwright/test';
 import { closeModal } from '../shared';
 
-export class ExecutivePage {
+export class LegacyExecutivePage {
   readonly page: Page;
 
   // Locators
@@ -47,7 +47,7 @@ export class ExecutivePage {
   }
 
   async goto() {
-    await this.page.goto('/executive');
+    await this.page.goto('/legacy-executive'); // Legacy executive page
   }
 
   async verifyVotingContract() {

@@ -70,7 +70,7 @@ export function DelegatesSystemInfo({ stats }: { stats: DelegatesAPIStats }): Re
   return (
     <Box sx={{ mt: 3 }}>
       <Heading mt={3} mb={2} as="h3" variant="microHeading">
-        System Info
+        Legacy System Info
       </Heading>
       <Card variant="compact">
         <StackLayout gap={3}>
