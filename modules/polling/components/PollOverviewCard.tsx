@@ -18,7 +18,6 @@ import CountdownTimer from 'modules/app/components/CountdownTimer';
 import { InternalLink } from 'modules/app/components/InternalLink';
 import { PollListItem } from 'modules/polling/types';
 import { useBreakpointIndex } from '@theme-ui/match-media';
-import QuickVote from './poll-vote-input/QuickVote';
 import { PollCategoryTag } from './PollCategoryTag';
 import { PluralityVoteSummary } from './vote-summary/PluralityVoteSummary';
 import PollWinningOptionBox from './PollWinningOptionBox';
@@ -61,7 +60,7 @@ const PollOverviewCard = memo(
     const { account } = useAccount();
     const bpi = useBreakpointIndex({ defaultIndex: 2 });
     const canVote = !!account && isActivePoll(poll);
-    const showQuickVote = canVote && showVoting;
+    // const showQuickVote = canVote && showVoting;
     const { tally, error: errorTally, isValidating } = usePollTally(hideTally ? 0 : poll.pollId);
 
     return (
@@ -143,7 +142,7 @@ const PollOverviewCard = memo(
                     </Flex>
                   )}
                 </Flex>
-                {showQuickVote && bpi > 0 && (
+                {/* {showQuickVote && bpi > 0 && (
                   <Box sx={{ ml: 2, minWidth: '265px' }}>
                     <ErrorBoundary componentName="Vote in Poll">
                       <Box sx={{ maxWidth: 7 }}>
@@ -151,7 +150,7 @@ const PollOverviewCard = memo(
                       </Box>
                     </ErrorBoundary>
                   </Box>
-                )}
+                )} */}
               </Flex>
 
               <Box>
@@ -186,13 +185,13 @@ const PollOverviewCard = memo(
                     {bpi === 0 && <PollVoteTypeIndicator poll={poll} />}
                   </Flex>
 
-                  {showQuickVote && bpi === 0 && (
+                  {/* {showQuickVote && bpi === 0 && (
                     <Box sx={{ mt: 3, width: '100%' }}>
                       <ErrorBoundary componentName="Vote in Poll">
                         <QuickVote poll={poll} showStatus={!reviewPage} disabled={disableVoting} />
                       </ErrorBoundary>
                     </Box>
-                  )}
+                  )} */}
 
                   <Box sx={{ width: bpi > 0 ? '265px' : '100%' }}>
                     {bpi > 0 && (
