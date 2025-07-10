@@ -104,126 +104,126 @@ test.describe('Sky Polling Page', () => {
     });
 
     test('displays Sky polls notice and navigation', async ({ skyPollingPage }) => {
-    await test.step('navigate to polling page', async () => {
-      await skyPollingPage.goto();
-      await skyPollingPage.waitForPageLoad();
-    });
+      await test.step('navigate to polling page', async () => {
+        await skyPollingPage.goto();
+        await skyPollingPage.waitForPageLoad();
+      });
 
-    await test.step('verify polls are visible', async () => {
-      await skyPollingPage.verifyPollsVisible();
-      const pollCount = await skyPollingPage.getPollCount();
-      test.expect(pollCount).toBe(5);
-    });
+      await test.step('verify polls are visible', async () => {
+        await skyPollingPage.verifyPollsVisible();
+        const pollCount = await skyPollingPage.getPollCount();
+        test.expect(pollCount).toBe(5);
+      });
 
-    // await test.step('verify Sky Portal button is visible', async () => {
-    //   // Just check button is visible, don't click external link
-    //   const skyPortalButton = skyPollingPage.page.getByRole('button', { name: 'View on Sky Portal' });
-    //   await expect(skyPortalButton).toBeVisible();
-    // });
-  });
+      // await test.step('verify Sky Portal button is visible', async () => {
+      //   // Just check button is visible, don't click external link
+      //   const skyPortalButton = skyPollingPage.page.getByRole('button', { name: 'View on Sky Portal' });
+      //   await expect(skyPortalButton).toBeVisible();
+      // });
+    });
 
     test('navigates to legacy polls page', async ({ skyPollingPage }) => {
-    await test.step('navigate to polling page', async () => {
-      await skyPollingPage.goto();
-      await skyPollingPage.waitForPageLoad();
-    });
+      await test.step('navigate to polling page', async () => {
+        await skyPollingPage.goto();
+        await skyPollingPage.waitForPageLoad();
+      });
 
-    await test.step('click legacy polls button', async () => {
-      await skyPollingPage.clickLegacyPollsButton();
+      await test.step('click legacy polls button', async () => {
+        await skyPollingPage.clickLegacyPollsButton();
+      });
     });
-  });
 
     test('handles loading more polls', async ({ skyPollingPage, page }) => {
-    // Mock initial response with hasNextPage: true
-    await page.route('**/api/sky/polls?pageSize=5&page=1', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          polls: Array(5)
-            .fill(null)
-            .map((_, i) => ({
-              pollId: i + 1,
-              title: `Test Poll ${i + 1}`,
-              content: 'Test content',
-              slug: `test-poll-${i + 1}`,
-              startDate: new Date().toISOString(),
-              endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-              options: { '0': 'Yes', '1': 'No' },
-              type: 'plurality',
-              tags: [],
-              active: true
-            })),
-          tags: [],
-          stats: { active: 10, finished: 0, total: 10 },
-          paginationInfo: {
-            totalCount: 10,
-            page: 1,
-            numPages: 2,
-            hasNextPage: true
-          }
-        })
+      // Mock initial response with hasNextPage: true
+      await page.route('**/api/sky/polls?pageSize=5&page=1', route => {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            polls: Array(5)
+              .fill(null)
+              .map((_, i) => ({
+                pollId: i + 1,
+                title: `Test Poll ${i + 1}`,
+                content: 'Test content',
+                slug: `test-poll-${i + 1}`,
+                startDate: new Date().toISOString(),
+                endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                options: { '0': 'Yes', '1': 'No' },
+                type: 'plurality',
+                tags: [],
+                active: true
+              })),
+            tags: [],
+            stats: { active: 10, finished: 0, total: 10 },
+            paginationInfo: {
+              totalCount: 10,
+              page: 1,
+              numPages: 2,
+              hasNextPage: true
+            }
+          })
+        });
       });
-    });
 
-    // Mock second page response
-    await page.route('**/api/sky/polls?pageSize=5&page=2', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          polls: Array(5)
-            .fill(null)
-            .map((_, i) => ({
-              pollId: i + 6,
-              title: `Test Poll ${i + 6}`,
-              content: 'Test content',
-              slug: `test-poll-${i + 6}`,
-              startDate: new Date().toISOString(),
-              endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-              options: { '0': 'Yes', '1': 'No' },
-              type: 'plurality',
-              tags: [],
-              active: true
-            })),
-          tags: [],
-          stats: { active: 10, finished: 0, total: 10 },
-          paginationInfo: {
-            totalCount: 10,
-            page: 2,
-            numPages: 2,
-            hasNextPage: false
-          }
-        })
+      // Mock second page response
+      await page.route('**/api/sky/polls?pageSize=5&page=2', route => {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            polls: Array(5)
+              .fill(null)
+              .map((_, i) => ({
+                pollId: i + 6,
+                title: `Test Poll ${i + 6}`,
+                content: 'Test content',
+                slug: `test-poll-${i + 6}`,
+                startDate: new Date().toISOString(),
+                endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                options: { '0': 'Yes', '1': 'No' },
+                type: 'plurality',
+                tags: [],
+                active: true
+              })),
+            tags: [],
+            stats: { active: 10, finished: 0, total: 10 },
+            paginationInfo: {
+              totalCount: 10,
+              page: 2,
+              numPages: 2,
+              hasNextPage: false
+            }
+          })
+        });
       });
-    });
 
-    await test.step('navigate to polling page', async () => {
-      await skyPollingPage.goto();
-      await skyPollingPage.waitForPageLoad();
-    });
+      await test.step('navigate to polling page', async () => {
+        await skyPollingPage.goto();
+        await skyPollingPage.waitForPageLoad();
+      });
 
-    await test.step('verify initial polls loaded', async () => {
-      await skyPollingPage.verifyPollsVisible();
-      const initialCount = await skyPollingPage.getPollCount();
-      test.expect(initialCount).toBe(5);
-    });
+      await test.step('verify initial polls loaded', async () => {
+        await skyPollingPage.verifyPollsVisible();
+        const initialCount = await skyPollingPage.getPollCount();
+        test.expect(initialCount).toBe(5);
+      });
 
-    await test.step('verify load more button is visible', async () => {
-      await skyPollingPage.verifyLoadMoreButtonVisible();
-    });
+      await test.step('verify load more button is visible', async () => {
+        await skyPollingPage.verifyLoadMoreButtonVisible();
+      });
 
-    await test.step('load more polls', async () => {
-      await skyPollingPage.loadMorePolls();
-      const newCount = await skyPollingPage.getPollCount();
-      test.expect(newCount).toBe(10);
-    });
+      await test.step('load more polls', async () => {
+        await skyPollingPage.loadMorePolls();
+        const newCount = await skyPollingPage.getPollCount();
+        test.expect(newCount).toBe(10);
+      });
     });
   });
 
   test.describe('API error responses', () => {
     test.beforeEach(async ({ page }) => {
-      // Mock the external Sky API with network failure to trigger timeout 
+      // Mock the external Sky API with network failure to trigger timeout
       await page.route('**/vote.sky.money/**', route => {
         route.abort('failed');
       });
@@ -362,9 +362,10 @@ test.describe('Sky Polling Page', () => {
           textElement.textContent = 'No polls available from Sky governance.';
           textElement.style.fontStyle = 'italic';
           textElement.style.color = '#6B7280'; // textSecondary color
-          
+
           // Find the polls container and replace content
-          const pollsContainer = document.querySelector('[data-testid="sky-poll-overview-card"]')?.parentElement?.parentElement?.parentElement;
+          const pollsContainer = document.querySelector('[data-testid="sky-poll-overview-card"]')
+            ?.parentElement?.parentElement?.parentElement;
           if (pollsContainer) {
             // Clear existing content and add empty message
             pollsContainer.innerHTML = '';
