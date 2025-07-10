@@ -1,5 +1,10 @@
 import { test } from './fixtures/base';
 import { connectWallet } from './shared';
+import {
+  PollInputFormat,
+  PollResultDisplay,
+  PollVictoryConditions
+} from '../modules/polling/polling.constants';
 import './forkVnet';
 
 test.beforeEach(async ({ page }) => {
@@ -51,13 +56,25 @@ test.beforeEach(async ({ page }) => {
           }
         ],
         votesByAddress: [],
-        parameters: {}
+        parameters: {
+          inputFormat: {
+            type: PollInputFormat.singleChoice,
+            abstain: [0],
+            options: []
+          },
+          resultDisplay: PollResultDisplay.singleVoteBreakdown,
+          victoryConditions: [
+            {
+              type: PollVictoryConditions.plurality
+            }
+          ]
+        }
       })
     });
   });
 
-  // Mock v1 all-polls API
-  await page.route('**/api/polling/v1/all-polls*', route => {
+  // Mock v1 all-polls API with any query parameters
+  await page.route('**/api/polling/v1/all-polls**', route => {
     route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -98,8 +115,8 @@ test.beforeEach(async ({ page }) => {
     });
   });
 
-  // Mock v2 all-polls API
-  await page.route('**/api/polling/v2/all-polls*', route => {
+  // Mock v2 all-polls API with any query parameters
+  await page.route('**/api/polling/v2/all-polls**', route => {
     route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -155,11 +172,15 @@ test.beforeEach(async ({ page }) => {
   // Mock individual poll endpoint
   await page.route('**/api/polling/*', route => {
     // Skip if it's already handled by other routes
-    if (route.request().url().includes('/tally/') || route.request().url().includes('/all-polls') || route.request().url().includes('/precheck')) {
+    if (
+      route.request().url().includes('/tally/') ||
+      route.request().url().includes('/all-polls') ||
+      route.request().url().includes('/precheck')
+    ) {
       route.continue();
       return;
     }
-    
+
     route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -197,7 +218,7 @@ test.beforeEach(async ({ page }) => {
   });
 
   // Mock active poll IDs endpoint
-  await page.route('**/api/polling/v2/active-poll-ids*', route => {
+  await page.route('**/api/polling/v2/active-poll-ids**', route => {
     route.fulfill({
       status: 200,
       contentType: 'application/json',
