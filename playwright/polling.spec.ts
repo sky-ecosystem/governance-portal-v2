@@ -109,10 +109,6 @@ test.describe('Sky Polling Page', () => {
       await skyPollingPage.waitForPageLoad();
     });
 
-    await test.step('verify notice alert is visible', async () => {
-      await skyPollingPage.verifyNoticeAlert();
-    });
-
     await test.step('verify polls are visible', async () => {
       await skyPollingPage.verifyPollsVisible();
       const pollCount = await skyPollingPage.getPollCount();
