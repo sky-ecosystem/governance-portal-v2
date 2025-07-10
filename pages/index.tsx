@@ -31,6 +31,7 @@ import { VIDEO_URLS } from 'modules/app/client/videos.constants';
 import { fetchLandingPageData } from 'modules/home/api/fetchLandingPageData';
 import { LandingPageData } from 'modules/home/api/fetchLandingPageData';
 import { useNetwork } from 'modules/app/hooks/useNetwork';
+import { useMigrationToast } from 'modules/app/hooks/useMigrationToast';
 
 const LandingPage = ({ skyExecutive, skyHatInfo, skyPolls, mkrInChief }: LandingPageData) => {
   const [videoOpen, setVideoOpen] = useState(false);
@@ -43,6 +44,9 @@ const LandingPage = ({ skyExecutive, skyHatInfo, skyPolls, mkrInChief }: Landing
 
   // account
   useAccount();
+
+  // Show governance migration toast
+  useMigrationToast();
 
   return (
     <div>
