@@ -11,6 +11,7 @@ import useUiFiltersStore from 'modules/app/stores/uiFilters';
 import shallow from 'zustand/shallow';
 import { Tag, TagCount } from 'modules/app/types/tag';
 import { Box } from 'theme-ui';
+import pollTagsDefinitions from 'modules/tags/constants/poll-tags-definitions.json';
 
 export function PollCategoryTag({
   tag,
@@ -21,7 +22,29 @@ export function PollCategoryTag({
   allTags?: TagCount[];
   disableTagFilter?: boolean;
 }): React.ReactElement {
-  const foundTag = allTags?.find(t => t.id === tag) || (tag as Tag);
+  let foundTag = allTags?.find(t => t.id === tag);
+  
+  // If not found in allTags, look it up in poll-tags-definitions.json
+  if (!foundTag && typeof tag === 'string') {
+    const tagDefinition = pollTagsDefinitions.find(t => t.id === tag);
+    if (tagDefinition) {
+      foundTag = {
+        id: tagDefinition.id,
+        shortname: tagDefinition.shortname,
+        longname: tagDefinition.longname,
+        description: tagDefinition.description,
+        related_link: tagDefinition.related_link,
+        recommend_ui: tagDefinition.recommend_ui,
+        precedence: tagDefinition.precedence,
+        count: 0
+      } as TagCount;
+    }
+  }
+  
+  // Fallback to tag as TagCount if still not found
+  if (!foundTag && typeof tag === 'object') {
+    foundTag = { ...tag, count: 0 } as TagCount;
+  }
 
   const [categoryFilter, setCategoryFilter] = useUiFiltersStore(
     state => [state.pollFilters.categoryFilter, state.setCategoryFilter],
@@ -155,8 +178,20 @@ export function PollCategoryTag({
     >
       <TagComponent
         tag={foundTag}
-        color={categories[foundTag.id]?.color}
-        backgroundColor={categories[foundTag.id]?.backgroundColor}
+        color={
+          foundTag.id
+            ? categories[foundTag.id]?.color
+            : tag
+            ? categories[tag as string]?.color
+            : 'tagColorOne'
+        }
+        backgroundColor={
+          foundTag.id
+            ? categories[foundTag.id]?.backgroundColor
+            : tag
+            ? categories[tag as string]?.backgroundColor
+            : 'tagColorOneBg'
+        }
       />
     </Box>
   ) : (

@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { SpellData } from './spellData';
+import { SpellData, SkySpellData } from './spellData';
 
 export type CMSProposal = {
   active: boolean;
@@ -25,4 +25,8 @@ export type CMSProposal = {
 
 export type Proposal = CMSProposal & {
   spellData: SpellData;
+};
+
+export type SkyProposal = Omit<CMSProposal, 'spellData'> & {
+  spellData: SkySpellData;
 };

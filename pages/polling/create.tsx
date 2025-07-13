@@ -42,6 +42,8 @@ const editMarkdown = (content, title) => {
   return content.replace(/^<h1>.*<\/h1>|^<h2>.*<\/h2>/, `<h2>${title}</h2>`);
 };
 
+console.log('^^^ READ_ONLY', config.READ_ONLY);
+
 const CreateText = ({ children }) => {
   return (
     <Box

@@ -3,8 +3,8 @@ import { connectWallet } from './shared';
 import './forkVnet';
 import { depositMkr } from './helpers/depositMkr';
 
-test('navigates to executives and can withdraw from chief', async ({ page, executivePage }) => {
-  await test.step('navigate to executives page', async () => {
+test('navigates to legacy executives and can withdraw from chief', async ({ page, executivePage }) => {
+  await test.step('navigate to legacy executives page', async () => {
     await executivePage.goto();
   });
 
