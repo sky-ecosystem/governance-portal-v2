@@ -10,7 +10,6 @@ import { useRouter } from 'next/router';
 import { Flex, NavLink, Container, Close, Box, IconButton, Divider, Text, useColorMode } from 'theme-ui';
 import Icon from '../Icon';
 import AccountSelect from './header/AccountSelect';
-import BallotStatus from 'modules/polling/components/BallotStatus';
 import React, { useState, useEffect } from 'react';
 import { useBreakpointIndex } from '@theme-ui/match-media';
 import NetworkSelect from './header/NetworkSelect';
@@ -228,7 +227,6 @@ const Header = (): JSX.Element => {
             </Flex>
           </ExternalLink>
         )}
-        {bpi > 3 && account && router.pathname.includes('polling') && <BallotStatus mr={3} />}
         {!isProduction && bpi > 1 && (
           <Flex mr={3}>
             <NetworkSelect />
