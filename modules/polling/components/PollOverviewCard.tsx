@@ -44,6 +44,7 @@ type Props = {
   hideTally?: boolean;
   disableTagFilter?: boolean;
   onVisitPoll?: () => void;
+  basePath?: string; // Allow customizing the base path for legacy polls
 };
 const PollOverviewCard = memo(
   function PollOverviewCard({
@@ -55,7 +56,8 @@ const PollOverviewCard = memo(
     children,
     onVisitPoll,
     hideTally = false,
-    disableTagFilter = false
+    disableTagFilter = false,
+    basePath = '/polling'
   }: Props): JSX.Element {
     const { account } = useAccount();
     const bpi = useBreakpointIndex({ defaultIndex: 2 });
@@ -111,7 +113,7 @@ const PollOverviewCard = memo(
                           text={`Posted ${formatDateWithTime(poll.startDate)} | Poll ID ${poll.pollId}`}
                           styles={{ mb: 2 }}
                         />
-                        <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
+                        <InternalLink href={`${basePath}/${poll.slug}`} title="View poll details">
                           <CardTitle
                             title={poll.title}
                             dataTestId="poll-overview-card-poll-title"
@@ -119,7 +121,7 @@ const PollOverviewCard = memo(
                           />
                         </InternalLink>
                       </Box>
-                      <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
+                      <InternalLink href={`${basePath}/${poll.slug}`} title="View poll details">
                         <CardSummary text={poll.summary} styles={{ my: 2 }} onVisit={onVisitPoll} />
                       </InternalLink>
                     </Box>
@@ -170,7 +172,7 @@ const PollOverviewCard = memo(
                       p: 0
                     }}
                   >
-                    <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
+                    <InternalLink href={`${basePath}/${poll.slug}`} title="View poll details">
                       <Button
                         variant="outline"
                         sx={{
@@ -201,7 +203,7 @@ const PollOverviewCard = memo(
                     )}
                     {tally && +tally.totalMkrParticipation > 0 && (
                       <InternalLink
-                        href={`/polling/${poll.slug}`}
+                        href={`${basePath}/${poll.slug}`}
                         hash="vote-breakdown"
                         title="View poll vote breakdown"
                       >
