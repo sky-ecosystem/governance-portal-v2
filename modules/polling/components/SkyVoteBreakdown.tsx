@@ -23,63 +23,53 @@ const SkyVoteBreakdown = ({ poll, tally, shownOptions }: SkyVoteBreakdownProps):
   const totalSkySupport = tally.results.reduce((sum, result) => sum + Number(result.skySupport), 0);
 
   return (
-    <Box sx={{ p: [3, 4] }}>
+    <Box sx={{ p: [3, 4] }} data-testid="vote-breakdown">
+      <Text variant="microHeading" sx={{ display: 'block', mb: 3 }}>
+        Vote Breakdown
+      </Text>
       {visibleOptions.map(([optionId, optionName]) => {
         const result = tally.results.find(r => r.optionId.toString() === optionId);
         const skySupport = result ? Number(result.skySupport) : 0;
         const percentage = totalSkySupport > 0 ? (skySupport / totalSkySupport) * 100 : 0;
-        const isWinner = result?.winner || false;
 
         return (
-          <Box key={optionId} sx={{ mb: 4 }}>
-            <Flex sx={{ justifyContent: 'space-between', alignItems: 'baseline', mb: 2 }}>
+          <Box key={optionId} sx={{ mb: 3 }}>
+            <Flex sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
               <Text 
+                as="p"
                 sx={{ 
-                  fontWeight: isWinner ? 'bold' : 'normal',
-                  color: isWinner ? 'primary' : 'text'
+                  color: 'textSecondary',
+                  mr: 2
                 }}
               >
-                {optionName} {isWinner && '(Winner)'}
+                {optionName}
               </Text>
-              <Flex sx={{ alignItems: 'baseline', gap: 2 }}>
-                <Text sx={{ fontSize: 1, color: 'textSecondary' }}>
-                  {skySupport.toLocaleString(undefined, { maximumFractionDigits: 2 })} SKY
-                </Text>
-                <Text sx={{ fontSize: 1, color: 'textSecondary' }}>
-                  {percentage.toFixed(1)}%
-                </Text>
-              </Flex>
+              <Text
+                as="p"
+                sx={{
+                  color: 'textSecondary',
+                  textAlign: 'right'
+                }}
+              >
+                {`${skySupport.toLocaleString(undefined, { maximumFractionDigits: 0 })} SKY Voting (${percentage.toFixed(1)}%)`}
+              </Text>
             </Flex>
-            <Progress
-              value={percentage}
-              max={100}
-              sx={{
-                height: 8,
-                backgroundColor: 'muted',
-                color: isWinner ? 'primary' : 'secondary',
-                borderRadius: 4
-              }}
-            />
+            <Box my={2}>
+              <Progress
+                sx={{
+                  backgroundColor: 'secondary',
+                  mb: '3',
+                  height: 2,
+                  color: 'primary'
+                }}
+                max={totalSkySupport}
+                value={skySupport}
+              />
+            </Box>
           </Box>
         );
       })}
 
-      {/* Summary info */}
-      <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'muted' }}>
-        <Flex sx={{ justifyContent: 'space-between', mb: 2 }}>
-          <Text sx={{ color: 'textSecondary' }}>Total Participation:</Text>
-          <Text>
-            {Number(tally.totalSkyActiveParticipation).toLocaleString(undefined, {
-              maximumFractionDigits: 2
-            })}{' '}
-            SKY
-          </Text>
-        </Flex>
-        <Flex sx={{ justifyContent: 'space-between' }}>
-          <Text sx={{ color: 'textSecondary' }}>Total Voters:</Text>
-          <Text>{tally.numVoters}</Text>
-        </Flex>
-      </Box>
     </Box>
   );
 };
