@@ -13,13 +13,15 @@ import { parseEther } from 'viem';
 import { StatusText } from 'modules/app/components/StatusText';
 import { ErrorBoundary } from 'modules/app/components/ErrorBoundary';
 import { SkyPoll } from './SkyPollOverviewCard';
+import { SkyPollDetailResponse } from 'pages/api/sky/polls/[poll-id-or-slug]';
+import { SkyPollTallyResponse } from 'pages/api/sky/polls/tally/[poll-id]';
 
 export default function SkyPollWinningOptionBox({
   tally,
   poll
 }: {
-  poll: SkyPoll;
-  tally: SkyPoll['tally'];
+  poll: SkyPoll | SkyPollDetailResponse;
+  tally: SkyPoll['tally'] | SkyPollTallyResponse;
 }): React.ReactElement {
   if (!tally || !tally.results || tally.results.length === 0) {
     return (

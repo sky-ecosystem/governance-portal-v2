@@ -15,6 +15,8 @@ import { cutMiddle } from 'lib/string';
 import { SkyPollDetailResponse } from 'pages/api/sky/polls/[poll-id-or-slug]';
 import { SkyPollTallyResponse } from 'pages/api/sky/polls/tally/[poll-id]';
 import { getVoteColor } from 'modules/polling/helpers/getVoteColor';
+import { PollInputFormat, PollResultDisplay } from 'modules/polling/polling.constants';
+import { PollParameters } from 'modules/polling/types';
 
 type CircleProps = {
   poll: SkyPollDetailResponse;
@@ -80,9 +82,13 @@ export const CirclesSvg = ({ poll, tally, diameter }: CircleProps): JSX.Element 
       })
       .style('fill', d => {
         // Convert poll parameters for compatibility with getVoteColor
-        const pollParameters = {
-          inputFormat: poll.parameters?.inputFormat || { type: 'single-choice', abstain: [0], options: [] },
-          resultDisplay: poll.parameters?.resultDisplay || 'single-vote-breakdown',
+        const pollParameters: PollParameters = {
+          inputFormat: {
+            type: (poll.parameters?.inputFormat?.type || 'single-choice') as PollInputFormat,
+            abstain: poll.parameters?.inputFormat?.abstain || [0],
+            options: poll.parameters?.inputFormat?.options || []
+          },
+          resultDisplay: (poll.parameters?.resultDisplay || 'single-vote-breakdown') as PollResultDisplay,
           victoryConditions: poll.parameters?.victoryConditions || []
         };
         return getVoteColor(d.data.ballot[0], pollParameters, true);

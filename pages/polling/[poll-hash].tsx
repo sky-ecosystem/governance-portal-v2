@@ -123,12 +123,12 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
                       color: 'textSecondary'
                     }}
                   >
-                    Posted {formatDateWithTime(poll.startDate)} | Poll ID {poll.pollId}
+                    Posted {formatDateWithTime(new Date(poll.startDate))} | Poll ID {poll.pollId}
                   </Text>
                   <CountdownTimer
                     key={poll.multiHash}
                     endText="Poll ended"
-                    endDate={poll.endDate}
+                    endDate={new Date(poll.endDate)}
                     sx={{ ml: [0, 'auto'] }}
                   />
                 </Flex>
@@ -291,7 +291,7 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
               <Text sx={{ textAlign: 'center', color: 'textSecondary' }}>
                 This is a Sky governance poll. Voting is only available on{' '}
                 <ExternalLink href="https://vote.sky.money" title="Sky voting portal">
-                  vote.sky.money
+                  <Text>vote.sky.money</Text>
                 </ExternalLink>
               </Text>
             </Flex>
