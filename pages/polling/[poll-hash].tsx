@@ -107,14 +107,14 @@ const PollView = ({ poll }: { poll: Poll }) => {
 
         <div>
           <Flex mb={2} sx={{ justifyContent: 'space-between', flexDirection: 'row' }}>
-            <InternalLink href={'/polling'} title="View polling page">
+            <InternalLink href="/legacy-polling" title="View legacy polling page">
               <Button variant="mutedOutline">
                 <Flex sx={{ display: ['none', 'block'], alignItems: 'center', whiteSpace: 'nowrap' }}>
                   <Icon name="chevron_left" sx={{ size: 2, mr: 2 }} />
-                  Back to All Polls
+                  Back to Legacy Polls
                 </Flex>
                 <Flex sx={{ display: ['block', 'none'], alignItems: 'center', whiteSpace: 'nowrap' }}>
-                  Back to all
+                  Back to Legacy
                 </Flex>
               </Button>
             </InternalLink>

@@ -162,11 +162,11 @@ const ProposalView = ({ proposal, spellDiffs }: Props): JSX.Element => {
       )}
       <SidebarLayout>
         <Box>
-          <InternalLink href={'/executive'} title="View executive proposals">
+          <InternalLink href="/legacy-executive" title="View legacy executive proposals">
             <Button variant="mutedOutline" mb={2}>
               <Flex sx={{ alignItems: 'center', whiteSpace: 'nowrap' }}>
                 <Icon name="chevron_left" sx={{ size: 2, mr: 2 }} />
-                Back to {bpi === 0 ? 'All' : 'Executive'} Proposals
+                Back to Legacy Execs
               </Flex>
             </Button>
           </InternalLink>
