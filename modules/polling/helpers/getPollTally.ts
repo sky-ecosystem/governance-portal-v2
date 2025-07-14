@@ -18,8 +18,6 @@ export async function getPollTally(poll: Poll, network: SupportedNetworks): Prom
   // Builds poll tally
   const tally: PollTally = await fetchPollTally(poll, network);
 
-  console.log('^^^API fetchPollTally:', tally);
-
   const pollEnded = pollHasEnded(poll);
 
   const cacheKey = getPollTallyCacheKey(poll.pollId);

@@ -171,8 +171,6 @@ export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse) 
   } else {
     const poll = await fetchSinglePoll(network, pollId);
 
-    console.log('^^^API fetchSinglePoll', poll?.pollId);
-
     if (!poll) {
       throw new ApiError('Poll not found', 404, 'Poll not found');
     }

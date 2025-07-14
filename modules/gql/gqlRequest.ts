@@ -44,8 +44,6 @@ export const gqlRequest = async <TQuery = any>({
       );
     }
 
-    console.log('&&&url to use', url);
-
     const resp = await backoffRetry(
       1,
       () => request(url, query, variables),
