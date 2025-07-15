@@ -37,7 +37,7 @@ const SkyExecutiveSupportersBreakdown = ({
   const [sortBy, setSortBy] = useState<'skySupport' | 'percentage'>('skySupport');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  const hasNoSupporters = supporters.length === 0;
+  const hasNoSupporters = !supporters || supporters.length === 0;
 
   const sortedSupporters = useMemo(() => {
     if (!supporters) return [];
@@ -85,7 +85,7 @@ const SkyExecutiveSupportersBreakdown = ({
             minHeight: '200px'
           }}
         >
-          <Spinner size={32} />
+          <Spinner size={32} data-testid="loading-spinner" />
         </Flex>
       </Box>
     );
@@ -256,7 +256,7 @@ const SkyExecutiveSupportersBreakdown = ({
         </Flex>
         <Flex sx={{ justifyContent: 'space-between' }}>
           <Text sx={{ color: 'textSecondary' }}>Total Supporters</Text>
-          <Text sx={{ fontWeight: 'semiBold' }}>{supporters.length}</Text>
+          <Text sx={{ fontWeight: 'semiBold' }}>{supporters?.length || 0}</Text>
         </Flex>
       </Box>
     </Box>

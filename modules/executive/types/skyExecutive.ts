@@ -59,7 +59,7 @@ export type SkyExecutiveListItem = {
 // Type guard to check if an executive is a Sky executive
 export function isSkyExecutive(executive: any): executive is SkyExecutiveDetailResponse {
   return (
-    executive &&
+    !!executive &&
     typeof executive === 'object' &&
     'key' in executive &&
     'spellData' in executive &&
@@ -70,7 +70,7 @@ export function isSkyExecutive(executive: any): executive is SkyExecutiveDetailR
 // Type guard to check if spell data is Sky spell data
 export function isSkySpellData(spellData: any): spellData is SkyExecutiveSpellData {
   return (
-    spellData &&
+    !!spellData &&
     typeof spellData === 'object' &&
     'skySupport' in spellData
   );

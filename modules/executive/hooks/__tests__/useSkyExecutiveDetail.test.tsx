@@ -2,10 +2,11 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { SWRConfig } from 'swr';
 import { useSkyExecutiveDetail } from '../useSkyExecutiveDetail';
 import { SkyExecutiveDetailResponse } from 'modules/executive/types';
+import { vi } from 'vitest';
 
 // Mock fetchJson
-jest.mock('lib/fetchJson', () => ({
-  fetchJson: jest.fn()
+vi.mock('lib/fetchJson', () => ({
+  fetchJson: vi.fn()
 }));
 
 const mockExecutive: SkyExecutiveDetailResponse = {
@@ -44,7 +45,7 @@ const createWrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('useSkyExecutiveDetail', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('returns undefined when no proposalIdOrKey is provided', () => {
@@ -58,8 +59,8 @@ describe('useSkyExecutiveDetail', () => {
   });
 
   it('fetches executive data when proposalIdOrKey is provided', async () => {
-    const { fetchJson } = require('lib/fetchJson');
-    fetchJson.mockResolvedValueOnce(mockExecutive);
+    const { fetchJson } = await import('lib/fetchJson');
+    vi.mocked(fetchJson).mockResolvedValueOnce(mockExecutive);
 
     const { result } = renderHook(() => useSkyExecutiveDetail('test-executive'), {
       wrapper: createWrapper
@@ -69,15 +70,15 @@ describe('useSkyExecutiveDetail', () => {
       expect(result.current.executive).toEqual(mockExecutive);
     });
 
-    expect(fetchJson).toHaveBeenCalledWith('/api/sky/executives/test-executive');
+    expect(vi.mocked(fetchJson)).toHaveBeenCalledWith('/api/sky/executives/test-executive');
     expect(result.current.error).toBeUndefined();
     expect(result.current.isValidating).toBe(false);
   });
 
   it('handles API errors correctly', async () => {
-    const { fetchJson } = require('lib/fetchJson');
+    const { fetchJson } = await import('lib/fetchJson');
     const error = new Error('API Error');
-    fetchJson.mockRejectedValueOnce(error);
+    vi.mocked(fetchJson).mockRejectedValueOnce(error);
 
     const { result } = renderHook(() => useSkyExecutiveDetail('test-executive'), {
       wrapper: createWrapper
@@ -92,8 +93,8 @@ describe('useSkyExecutiveDetail', () => {
   });
 
   it('uses custom refresh interval', async () => {
-    const { fetchJson } = require('lib/fetchJson');
-    fetchJson.mockResolvedValueOnce(mockExecutive);
+    const { fetchJson } = await import('lib/fetchJson');
+    vi.mocked(fetchJson).mockResolvedValueOnce(mockExecutive);
 
     const { result } = renderHook(() => useSkyExecutiveDetail('test-executive', 30000), {
       wrapper: createWrapper
@@ -103,12 +104,12 @@ describe('useSkyExecutiveDetail', () => {
       expect(result.current.executive).toEqual(mockExecutive);
     });
 
-    expect(fetchJson).toHaveBeenCalledWith('/api/sky/executives/test-executive');
+    expect(vi.mocked(fetchJson)).toHaveBeenCalledWith('/api/sky/executives/test-executive');
   });
 
   it('provides mutate function', async () => {
-    const { fetchJson } = require('lib/fetchJson');
-    fetchJson.mockResolvedValueOnce(mockExecutive);
+    const { fetchJson } = await import('lib/fetchJson');
+    vi.mocked(fetchJson).mockResolvedValueOnce(mockExecutive);
 
     const { result } = renderHook(() => useSkyExecutiveDetail('test-executive'), {
       wrapper: createWrapper
@@ -132,8 +133,8 @@ describe('useSkyExecutiveDetail', () => {
   });
 
   it('handles different proposalIdOrKey formats', async () => {
-    const { fetchJson } = require('lib/fetchJson');
-    fetchJson.mockResolvedValueOnce(mockExecutive);
+    const { fetchJson } = await import('lib/fetchJson');
+    vi.mocked(fetchJson).mockResolvedValueOnce(mockExecutive);
 
     const { result } = renderHook(() => useSkyExecutiveDetail('exec-123'), {
       wrapper: createWrapper
@@ -143,6 +144,6 @@ describe('useSkyExecutiveDetail', () => {
       expect(result.current.executive).toEqual(mockExecutive);
     });
 
-    expect(fetchJson).toHaveBeenCalledWith('/api/sky/executives/exec-123');
+    expect(vi.mocked(fetchJson)).toHaveBeenCalledWith('/api/sky/executives/exec-123');
   });
 });

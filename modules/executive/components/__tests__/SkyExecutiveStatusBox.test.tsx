@@ -4,9 +4,11 @@ import theme from 'lib/theme';
 import SkyExecutiveStatusBox from '../SkyExecutiveStatusBox';
 import { SkyExecutiveDetailResponse } from 'modules/executive/types';
 
+import { vi } from 'vitest';
+
 // Mock the getSkyStatusText function
-jest.mock('modules/executive/helpers/getStatusText', () => ({
-  getSkyStatusText: jest.fn(() => 'Scheduled for execution')
+vi.mock('modules/executive/helpers/getStatusText', () => ({
+  getSkyStatusText: vi.fn(() => 'Scheduled for execution')
 }));
 
 const mockExecutive: SkyExecutiveDetailResponse = {

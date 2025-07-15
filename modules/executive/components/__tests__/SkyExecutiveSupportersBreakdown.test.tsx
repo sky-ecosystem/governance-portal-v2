@@ -3,24 +3,29 @@ import { ThemeProvider } from 'theme-ui';
 import theme from 'lib/theme';
 import SkyExecutiveSupportersBreakdown from '../SkyExecutiveSupportersBreakdown';
 import { SkyExecutiveDetailResponse } from 'modules/executive/types';
+import { vi } from 'vitest';
 
 // Mock the AddressIconBox component
-jest.mock('modules/address/components/AddressIconBox', () => {
-  return function MockAddressIconBox({ address }: { address: string }) {
-    return <div data-testid="address-icon-box">{address.slice(0, 6)}...</div>;
+vi.mock('modules/address/components/AddressIconBox', () => {
+  return {
+    default: function MockAddressIconBox({ address }: { address: string }) {
+      return <div data-testid="address-icon-box">{address.slice(0, 6)}...</div>;
+    }
   };
 });
 
 // Mock the InternalLink component
-jest.mock('modules/app/components/InternalLink', () => {
-  return function MockInternalLink({ 
-    children, 
-    href 
-  }: { 
-    children: React.ReactNode; 
-    href: string; 
-  }) {
-    return <a href={href} data-testid="internal-link">{children}</a>;
+vi.mock('modules/app/components/InternalLink', () => {
+  return {
+    InternalLink: function MockInternalLink({ 
+      children, 
+      href 
+    }: { 
+      children: React.ReactNode; 
+      href: string; 
+    }) {
+      return <a href={href} data-testid="internal-link">{children}</a>;
+    }
   };
 });
 
@@ -62,17 +67,37 @@ const mockExecutive: SkyExecutiveDetailResponse = {
   ]
 };
 
+const mockSupporters = [
+  {
+    address: '0x1234567890123456789012345678901234567890',
+    deposits: '500000000000000000000000',
+    percent: '50.00'
+  },
+  {
+    address: '0x2345678901234567890123456789012345678901',
+    deposits: '300000000000000000000000',
+    percent: '30.00'
+  },
+  {
+    address: '0x3456789012345678901234567890123456789012',
+    deposits: '200000000000000000000000',
+    percent: '20.00'
+  }
+];
+
 const renderWithTheme = (component: React.ReactElement) => {
   return render(<ThemeProvider theme={theme}>{component}</ThemeProvider>);
 };
 
 describe('SkyExecutiveSupportersBreakdown', () => {
   it('renders supporters table correctly', () => {
-    const mockOnShowAll = jest.fn();
+    const mockOnShowAll = vi.fn();
     
     renderWithTheme(
       <SkyExecutiveSupportersBreakdown
         executive={mockExecutive}
+        supporters={mockSupporters}
+        loading={false}
         showAll={false}
         onShowAll={mockOnShowAll}
       />
@@ -85,11 +110,13 @@ describe('SkyExecutiveSupportersBreakdown', () => {
   });
 
   it('displays supporter information correctly', () => {
-    const mockOnShowAll = jest.fn();
+    const mockOnShowAll = vi.fn();
     
     renderWithTheme(
       <SkyExecutiveSupportersBreakdown
         executive={mockExecutive}
+        supporters={mockSupporters}
+        loading={false}
         showAll={false}
         onShowAll={mockOnShowAll}
       />
@@ -110,11 +137,13 @@ describe('SkyExecutiveSupportersBreakdown', () => {
   });
 
   it('handles sorting by SKY support', async () => {
-    const mockOnShowAll = jest.fn();
+    const mockOnShowAll = vi.fn();
     
     renderWithTheme(
       <SkyExecutiveSupportersBreakdown
         executive={mockExecutive}
+        supporters={mockSupporters}
+        loading={false}
         showAll={false}
         onShowAll={mockOnShowAll}
       />
@@ -130,11 +159,13 @@ describe('SkyExecutiveSupportersBreakdown', () => {
   });
 
   it('handles sorting by percentage', async () => {
-    const mockOnShowAll = jest.fn();
+    const mockOnShowAll = vi.fn();
     
     renderWithTheme(
       <SkyExecutiveSupportersBreakdown
         executive={mockExecutive}
+        supporters={mockSupporters}
+        loading={false}
         showAll={false}
         onShowAll={mockOnShowAll}
       />
@@ -149,11 +180,13 @@ describe('SkyExecutiveSupportersBreakdown', () => {
   });
 
   it('displays summary stats correctly', () => {
-    const mockOnShowAll = jest.fn();
+    const mockOnShowAll = vi.fn();
     
     renderWithTheme(
       <SkyExecutiveSupportersBreakdown
         executive={mockExecutive}
+        supporters={mockSupporters}
+        loading={false}
         showAll={false}
         onShowAll={mockOnShowAll}
       />
@@ -166,15 +199,13 @@ describe('SkyExecutiveSupportersBreakdown', () => {
   });
 
   it('handles empty supporters list', () => {
-    const emptyExecutive = {
-      ...mockExecutive,
-      supporters: []
-    };
-    const mockOnShowAll = jest.fn();
+    const mockOnShowAll = vi.fn();
     
     renderWithTheme(
       <SkyExecutiveSupportersBreakdown
-        executive={emptyExecutive}
+        executive={mockExecutive}
+        supporters={[]}
+        loading={false}
         showAll={false}
         onShowAll={mockOnShowAll}
       />
@@ -184,40 +215,37 @@ describe('SkyExecutiveSupportersBreakdown', () => {
   });
 
   it('handles missing supporters data', () => {
-    const executiveWithoutSupporters = {
-      ...mockExecutive,
-      supporters: undefined
-    };
-    const mockOnShowAll = jest.fn();
+    const mockOnShowAll = vi.fn();
     
     renderWithTheme(
       <SkyExecutiveSupportersBreakdown
-        executive={executiveWithoutSupporters}
+        executive={mockExecutive}
+        supporters={[]}
+        loading={true}
         showAll={false}
         onShowAll={mockOnShowAll}
       />
     );
 
-    // Should show loading spinner when supporters is undefined
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    // Should show loading spinner when loading is true
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
   });
 
   it('calls onShowAll when show all button is clicked', () => {
-    // Create executive with many supporters to show the button
-    const executiveWithManySupporters = {
-      ...mockExecutive,
-      supporters: Array.from({ length: 15 }, (_, i) => ({
-        address: `0x${i.toString().padStart(40, '0')}`,
-        skySupport: '10000',
-        percentage: 1.0
-      }))
-    };
+    // Create many supporters to show the button
+    const manySupporters = Array.from({ length: 15 }, (_, i) => ({
+      address: `0x${i.toString().padStart(40, '0')}`,
+      deposits: '10000000000000000000000',
+      percent: '1.00'
+    }));
     
-    const mockOnShowAll = jest.fn();
+    const mockOnShowAll = vi.fn();
     
     renderWithTheme(
       <SkyExecutiveSupportersBreakdown
-        executive={executiveWithManySupporters}
+        executive={mockExecutive}
+        supporters={manySupporters}
+        loading={false}
         showAll={false}
         onShowAll={mockOnShowAll}
       />

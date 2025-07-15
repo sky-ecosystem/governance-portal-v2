@@ -386,7 +386,7 @@ export default function ProposalPage({
   const proposalId = query['proposal-id'] as string;
 
   // Try to fetch Sky executive if legacy executive fails or isn't found
-  const { executive: skyExecutive, error: skyError } = useSkyExecutiveDetail(
+  const { executive: skyExecutive, error: skyError, isValidating: isSkyExecutiveLoading } = useSkyExecutiveDetail(
     (!prefetchedProposal || error) && proposalId ? proposalId : undefined
   );
 
@@ -428,7 +428,12 @@ export default function ProposalPage({
     );
   }
 
-  // Now check for actual errors or missing proposals AFTER fallback is resolved
+  // Show loading state if Sky executive is still loading
+  if (isSkyExecutiveLoading && (!prefetchedProposal || error)) {
+    return <LoadingIndicator />;
+  }
+
+  // Now check for actual errors or missing proposals AFTER fallback is resolved and loading is complete
   if ((error || (isDefaultNetwork(network) && !prefetchedProposal?.key)) && skyError) {
     return (
       <PrimaryLayout sx={{ maxWidth: 'dashboard' }}>
