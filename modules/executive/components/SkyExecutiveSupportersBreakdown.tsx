@@ -12,27 +12,31 @@ import { SkyExecutiveDetailResponse, SkyExecutiveSupporter } from 'modules/execu
 import { InternalLink } from 'modules/app/components/InternalLink';
 import AddressIconBox from 'modules/address/components/AddressIconBox';
 import { formatValue } from 'lib/string';
-import { parseEther } from 'viem';
+import { parseUnits } from 'viem';
 import Icon from 'modules/app/components/Icon';
 
 const INITIAL_SUPPORTERS_COUNT = 10;
 
 type SkyExecutiveSupportersBreakdownProps = {
   executive: SkyExecutiveDetailResponse;
+  supporters: { address: string; deposits: string; percent: string }[];
+  loading: boolean;
+  error?: Error;
   showAll: boolean;
   onShowAll: () => void;
 };
 
 const SkyExecutiveSupportersBreakdown = ({ 
   executive, 
+  supporters,
+  loading,
+  error,
   showAll, 
   onShowAll 
 }: SkyExecutiveSupportersBreakdownProps): JSX.Element => {
   const [sortBy, setSortBy] = useState<'skySupport' | 'percentage'>('skySupport');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  const supporters = executive.supporters || [];
-  const loading = !supporters;
   const hasNoSupporters = supporters.length === 0;
 
   const sortedSupporters = useMemo(() => {
@@ -43,11 +47,11 @@ const SkyExecutiveSupportersBreakdown = ({
       let bValue: number;
       
       if (sortBy === 'skySupport') {
-        aValue = parseFloat(a.skySupport);
-        bValue = parseFloat(b.skySupport);
+        aValue = parseFloat(a.deposits);
+        bValue = parseFloat(b.deposits);
       } else {
-        aValue = a.percentage;
-        bValue = b.percentage;
+        aValue = parseFloat(a.percent);
+        bValue = parseFloat(b.percent);
       }
       
       return sortOrder === 'desc' ? bValue - aValue : aValue - bValue;
@@ -207,7 +211,7 @@ const SkyExecutiveSupportersBreakdown = ({
                 mr: 3
               }}
             >
-              {formatValue(parseEther(supporter.skySupport), undefined, undefined, true, true)} SKY
+              {formatValue(parseUnits(supporter.deposits, 18), undefined, undefined, true, true)} SKY
             </Text>
             
             <Text
@@ -218,7 +222,7 @@ const SkyExecutiveSupportersBreakdown = ({
                 textAlign: 'right'
               }}
             >
-              {supporter.percentage > 0.01 ? supporter.percentage.toFixed(2) : '<0.01'}%
+              {parseFloat(supporter.percent) > 0.01 ? parseFloat(supporter.percent).toFixed(2) : '<0.01'}%
             </Text>
           </Flex>
         ))}
@@ -245,7 +249,7 @@ const SkyExecutiveSupportersBreakdown = ({
           <Text sx={{ color: 'textSecondary' }}>Total SKY Support</Text>
           <Text sx={{ fontWeight: 'semiBold' }}>
             {executive.spellData?.skySupport ? 
-              Math.floor(parseFloat(executive.spellData.skySupport)).toLocaleString() : 
+              formatValue(parseUnits(executive.spellData.skySupport, 18)) : 
               '0'
             } SKY
           </Text>

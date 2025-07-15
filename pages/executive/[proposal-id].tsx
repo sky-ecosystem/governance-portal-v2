@@ -507,9 +507,21 @@ export default function ProposalPage({
     );
   }
 
+  // Check if proposal is null before rendering
+  if (!proposal) {
+    return (
+      <PrimaryLayout sx={{ maxWidth: 'dashboard' }}>
+        <ErrorPage
+          statusCode={404}
+          title="Executive proposal either does not exist, or could not be fetched at this time"
+        />
+      </PrimaryLayout>
+    );
+  }
+
   return (
     <ErrorBoundary componentName="Executive Page">
-      <ProposalView proposal={proposal as Proposal} spellDiffs={[]} />
+      <ProposalView proposal={proposal} spellDiffs={[]} />
     </ErrorBoundary>
   );
 }

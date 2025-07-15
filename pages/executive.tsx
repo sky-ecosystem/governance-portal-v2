@@ -139,7 +139,7 @@ export default function ExecutivePage(): JSX.Element {
                               }
                             }}
                             isHat={executive.address === hatAddress}
-                            skyOnHat={skyOnHat}
+                            skyOnHat={skyOnHat || undefined}
                           />
                         </Box>
                       ))}
