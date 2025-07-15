@@ -306,7 +306,12 @@ export const ExecutiveOverview = ({ proposals }: { proposals?: Proposal[] }): JS
         <SidebarLayout>
           <Box>
             <Stack gap={3}>
-              <Heading as="h1">Legacy Executive Proposals</Heading>
+              <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Heading as="h1">Legacy Executive Proposals</Heading>
+                <InternalLink href="/executive" title="Sky Executive Proposals">
+                  <Button variant="outline">Sky Executives</Button>
+                </InternalLink>
+              </Flex>
               {!isLoadingInitialData && (
                 <Stack gap={4} sx={{ mb: 4 }}>
                   {flattenedProposals
@@ -321,6 +326,7 @@ export const ExecutiveOverview = ({ proposals }: { proposals?: Proposal[] }): JS
                             account={account}
                             votedProposals={votedProposals}
                             mkrOnHat={mkrOnHat}
+                            isLegacy={true}
                           />
                         </Box>
                       );
@@ -384,6 +390,7 @@ export const ExecutiveOverview = ({ proposals }: { proposals?: Proposal[] }): JS
                             account={account}
                             votedProposals={votedProposals}
                             mkrOnHat={mkrOnHat}
+                            isLegacy={true}
                           />
                         </Box>
                       ))}

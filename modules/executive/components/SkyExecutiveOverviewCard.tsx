@@ -7,7 +7,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 */
 
 import { useState, useEffect } from 'react';
-import { Text, Flex, Box, Button, Divider, Card } from 'theme-ui';
+import { Text, Flex, Box, Button, Divider, Card, Badge } from 'theme-ui';
 import Skeleton from 'modules/app/components/SkeletonThemed';
 import { formatDateWithoutTime } from 'lib/datetime';
 import { getSkyStatusText } from 'modules/executive/helpers/getStatusText';
@@ -39,9 +39,11 @@ export default function SkyExecutiveOverviewCard({ proposal, isHat, skyOnHat }: 
       data-testid="sky-executive-overview-card"
       sx={{
         p: [0, 0],
-        width: '100%'
+        width: '100%',
+        position: 'relative'
       }}
     >
+      <Badge variant="sky" sx={{ position: 'absolute', top: 3, right: 3 }}>Sky Governance</Badge>
       <Flex
         sx={{
           flexDirection: 'column',

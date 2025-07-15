@@ -170,7 +170,8 @@ const ProposalView = ({ proposal, spellDiffs }: Props): JSX.Element => {
               </Flex>
             </Button>
           </InternalLink>
-          <Card sx={{ p: [0, 0] }}>
+          <Card sx={{ p: [0, 0], position: 'relative' }}>
+            <Badge variant="sky" sx={{ position: 'absolute', top: 3, right: 3 }}>Sky Governance</Badge>
             <Heading pt={[3, 4]} px={[3, 4]} pb="3" sx={{ fontSize: [5, 6] }}>
               {proposal.title ? proposal.title : proposal.address}
             </Heading>

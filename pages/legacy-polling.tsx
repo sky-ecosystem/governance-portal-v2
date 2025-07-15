@@ -44,6 +44,7 @@ import { PollingPageProps } from 'modules/polling/types/pollsResponse';
 import { PollOrderByEnum, PollStatusEnum } from 'modules/polling/polling.constants';
 import SkeletonThemed from 'modules/app/components/SkeletonThemed';
 import { useNetwork } from 'modules/app/hooks/useNetwork';
+import { InternalLink } from 'modules/app/components/InternalLink';
 
 const emptyStats = {
   active: 0,
@@ -320,6 +321,12 @@ const PollingOverview = ({
         </Flex>
         <SidebarLayout>
           <Box>
+            <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Heading as="h1">Legacy Polls</Heading>
+              <InternalLink href="/polling" title="Sky Polls">
+                <Button variant="outline">Sky Polls</Button>
+              </InternalLink>
+            </Flex>
             {[...activePolls, ...endedPolls].length === 0 && !loading && (
               <Flex sx={{ flexDirection: 'column', alignItems: 'center', pt: [5, 5, 5, 6] }}>
                 <Flex

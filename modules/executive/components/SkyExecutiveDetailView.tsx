@@ -212,7 +212,7 @@ const SkyExecutiveDetailView = ({ executive, skyOnHat }: SkyExecutiveDetailViewP
           {/* Read-only notice for Sky executives */}
           <Card sx={{ p: 3, backgroundColor: 'background', border: '1px solid', borderColor: 'muted' }}>
             <Flex sx={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="info" sx={{ mr: 2, color: 'primary' }} />
+              <Icon name="info" sx={{ mr: 2, color: 'primary', size: 4 }} />
               <Text sx={{ textAlign: 'center', color: 'textSecondary' }}>
                 This is a Sky governance executive. Voting is only available on{' '}
                 <ExternalLink href="https://vote.sky.money" title="Sky voting portal">

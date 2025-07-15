@@ -30,6 +30,7 @@ type Props = {
   account?: string;
   votedProposals: string[];
   mkrOnHat?: bigint;
+  isLegacy?: boolean;
 };
 
 export default function ExecutiveOverviewCard({
@@ -37,7 +38,8 @@ export default function ExecutiveOverviewCard({
   isHat,
   account,
   votedProposals,
-  mkrOnHat
+  mkrOnHat,
+  isLegacy = false
 }: Props): JSX.Element {
   const [voting, setVoting] = useState(false);
   const [postedDateString, setPostedDateString] = useState('');
@@ -63,6 +65,7 @@ export default function ExecutiveOverviewCard({
   }
 
   const canVote = !!account;
+  const executiveUrl = isLegacy ? `/legacy-executive/${proposal.key}` : `/executive/${proposal.key}`;
 
   return (
     <Card
@@ -83,7 +86,7 @@ export default function ExecutiveOverviewCard({
           <Box>
             <Flex sx={{ flexDirection: 'column' }}>
               <InternalLink 
-                href={`/executive/${proposal.key}`} 
+                href={executiveUrl} 
                 title="View executive details"
               >
                 <>
@@ -131,7 +134,7 @@ export default function ExecutiveOverviewCard({
               }}
             >
               <InternalLink 
-                href={`/executive/${proposal.key}`} 
+                href={executiveUrl} 
                 title="View executive details"
               >
                 <Button
