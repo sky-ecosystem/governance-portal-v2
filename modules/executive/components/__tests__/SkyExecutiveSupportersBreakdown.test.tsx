@@ -70,17 +70,17 @@ const mockExecutive: SkyExecutiveDetailResponse = {
 const mockSupporters = [
   {
     address: '0x1234567890123456789012345678901234567890',
-    deposits: '500000000000000000000000',
+    deposits: '500000',
     percent: '50.00'
   },
   {
     address: '0x2345678901234567890123456789012345678901',
-    deposits: '300000000000000000000000',
+    deposits: '300000',
     percent: '30.00'
   },
   {
     address: '0x3456789012345678901234567890123456789012',
-    deposits: '200000000000000000000000',
+    deposits: '200000',
     percent: '20.00'
   }
 ];
@@ -235,7 +235,7 @@ describe('SkyExecutiveSupportersBreakdown', () => {
     // Create many supporters to show the button
     const manySupporters = Array.from({ length: 15 }, (_, i) => ({
       address: `0x${i.toString().padStart(40, '0')}`,
-      deposits: '10000000000000000000000',
+      deposits: '10000',
       percent: '1.00'
     }));
     
