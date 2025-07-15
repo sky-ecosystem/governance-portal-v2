@@ -7,7 +7,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 */
 
 import { useState } from 'react';
-import { Card, Flex, Divider, Heading, Text, Box, Button, Spinner } from 'theme-ui';
+import { Card, Flex, Divider, Heading, Text, Box, Button, Spinner, Badge } from 'theme-ui';
 import { useBreakpointIndex } from '@theme-ui/match-media';
 import Icon from 'modules/app/components/Icon';
 import { formatDateWithTime } from 'lib/datetime';
@@ -124,6 +124,7 @@ const SkyExecutiveDetailView = ({ executive, skyOnHat }: SkyExecutiveDetailViewP
                   >
                     Posted {formatDateWithTime(new Date(executive.date))}
                   </Text>
+                  <Badge variant="sky">Sky Governance</Badge>
                 </Flex>
 
                 <Flex sx={{ mb: 2, flexDirection: 'column' }}>

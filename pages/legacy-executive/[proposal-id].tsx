@@ -19,10 +19,9 @@ import { useSpellData } from 'modules/executive/hooks/useSpellData';
 import { useVotedProposals } from 'modules/executive/hooks/useVotedProposals';
 import { useHat } from 'modules/executive/hooks/useHat';
 import { useMkrOnHat } from 'modules/executive/hooks/useMkrOnHat';
-import { cutMiddle, formatValue } from 'lib/string';
+import { formatValue } from 'lib/string';
 import { getStatusText } from 'modules/executive/helpers/getStatusText';
 import { isDefaultNetwork } from 'modules/web3/helpers/networks';
-import VoteModal from 'modules/executive/components/VoteModal/index';
 import Stack from 'modules/app/components/layout/layouts/Stack';
 import Tabs from 'modules/app/components/Tabs';
 import PrimaryLayout from 'modules/app/components/layout/layouts/Primary';
@@ -130,36 +129,6 @@ const ProposalView = ({ proposal, spellDiffs }: Props): JSX.Element => {
           proposal['title'] ? proposal['title'] : proposal.address
         }.`}
       />
-
-      {voting && <VoteModal close={close} proposal={proposal} />}
-      {account && bpi === 0 && (
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            backgroundColor: 'surface',
-            width: '100vw',
-            borderTopLeftRadius: 'roundish',
-            borderTopRightRadius: 'roundish',
-            px: 3,
-            py: 4,
-            border: '1px solid #D4D9E1',
-            zIndex: 10
-          }}
-        >
-          <Button
-            variant="primaryLarge"
-            onClick={() => {
-              setVoting(true);
-            }}
-            sx={{ width: '100%' }}
-            disabled={hasVotedFor && votedProposals && votedProposals.length === 1}
-          >
-            Vote for this proposal
-          </Button>
-        </Box>
-      )}
       <SidebarLayout>
         <Box>
           <InternalLink href="/legacy-executive" title="View legacy executive proposals">
@@ -170,8 +139,7 @@ const ProposalView = ({ proposal, spellDiffs }: Props): JSX.Element => {
               </Flex>
             </Button>
           </InternalLink>
-          <Card sx={{ p: [0, 0], position: 'relative' }}>
-            <Badge variant="sky" sx={{ position: 'absolute', top: 3, right: 3 }}>Sky Governance</Badge>
+          <Card sx={{ p: [0, 0] }}>
             <Heading pt={[3, 4]} px={[3, 4]} pb="3" sx={{ fontSize: [5, 6] }}>
               {proposal.title ? proposal.title : proposal.address}
             </Heading>
@@ -273,25 +241,6 @@ const ProposalView = ({ proposal, spellDiffs }: Props): JSX.Element => {
           </Card>
         </Box>
         <Stack gap={3} sx={{ mb: [5, 0] }}>
-          {account && bpi !== 0 && (
-            <Box sx={{ mt: 4, pt: 3 }}>
-              <Card variant="compact">
-                <Text sx={{ fontSize: 5 }}>
-                  {proposal.title ? proposal.title : cutMiddle(proposal.address)}
-                </Text>
-                <Button
-                  variant="primaryLarge"
-                  onClick={() => {
-                    setVoting(true);
-                  }}
-                  sx={{ width: '100%', mt: 3 }}
-                  disabled={hasVotedFor && votedProposals && votedProposals.length === 1}
-                >
-                  Vote for this proposal
-                </Button>
-              </Card>
-            </Box>
-          )}
           <Box>
             <Flex sx={{ mt: 3, mb: 2, alignItems: 'center', justifyContent: 'space-between' }}>
               <Heading as="h3" variant="microHeading" sx={{ mr: 1 }}>

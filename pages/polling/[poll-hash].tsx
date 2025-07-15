@@ -11,7 +11,7 @@ import { GetServerSideProps } from 'next';
 import ErrorPage from 'modules/app/components/ErrorPage';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { Card, Flex, Divider, Heading, Text, Box, Button } from 'theme-ui';
+import { Card, Flex, Divider, Heading, Text, Box, Button, Badge } from 'theme-ui';
 import { useBreakpointIndex } from '@theme-ui/match-media';
 import Icon from 'modules/app/components/Icon';
 import { formatDateWithTime } from 'lib/datetime';
@@ -112,7 +112,10 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
               )}
             </Flex>
           </Flex>
-          <Card sx={{ p: [0, 0] }}>
+          <Card sx={{ p: [0, 0], position: 'relative' }}>
+            <Badge variant="sky" sx={{ position: 'absolute', top: 3, right: 3 }}>
+              Sky Governance
+            </Badge>
             <Flex sx={{ flexDirection: 'column', px: [3, 4], pt: [3, 4] }}>
               <Box>
                 <Flex sx={{ justifyContent: 'space-between', flexDirection: ['column', 'row'] }}>
@@ -287,7 +290,7 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
           {/* Read-only notice for Sky polls */}
           <Card sx={{ p: 3, backgroundColor: 'background', border: '1px solid', borderColor: 'muted' }}>
             <Flex sx={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="info" sx={{ mr: 2, color: 'primary' }} />
+              <Icon name="info" sx={{ mr: 2, color: 'primary', size: 4 }} />
               <Text sx={{ textAlign: 'center', color: 'textSecondary' }}>
                 This is a Sky governance poll. Voting is only available on{' '}
                 <ExternalLink href="https://vote.sky.money" title="Sky voting portal">
