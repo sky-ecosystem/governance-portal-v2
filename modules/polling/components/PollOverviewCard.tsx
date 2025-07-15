@@ -113,7 +113,7 @@ const PollOverviewCard = memo(
                           text={`Posted ${formatDateWithTime(poll.startDate)} | Poll ID ${poll.pollId}`}
                           styles={{ mb: 2 }}
                         />
-                        <InternalLink href={`${basePath}/${poll.slug}`} title="View poll details">
+                        <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
                           <CardTitle
                             title={poll.title}
                             dataTestId="poll-overview-card-poll-title"
@@ -121,7 +121,7 @@ const PollOverviewCard = memo(
                           />
                         </InternalLink>
                       </Box>
-                      <InternalLink href={`${basePath}/${poll.slug}`} title="View poll details">
+                      <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
                         <CardSummary text={poll.summary} styles={{ my: 2 }} onVisit={onVisitPoll} />
                       </InternalLink>
                     </Box>
@@ -172,7 +172,7 @@ const PollOverviewCard = memo(
                       p: 0
                     }}
                   >
-                    <InternalLink href={`${basePath}/${poll.slug}`} title="View poll details">
+                    <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
                       <Button
                         variant="outline"
                         sx={{
