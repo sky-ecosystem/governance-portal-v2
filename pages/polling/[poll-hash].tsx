@@ -128,12 +128,6 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
                   >
                     Posted {formatDateWithTime(new Date(poll.startDate))} | Poll ID {poll.pollId}
                   </Text>
-                  <CountdownTimer
-                    key={poll.multiHash}
-                    endText="Poll ended"
-                    endDate={new Date(poll.endDate)}
-                    sx={{ ml: [0, 'auto'] }}
-                  />
                 </Flex>
 
                 <Flex sx={{ mb: 2, flexDirection: 'column' }}>
@@ -148,6 +142,13 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
                       </Box>
                     ))}
                   </Flex>
+
+                  <CountdownTimer
+                    key={poll.multiHash}
+                    endText="Poll ended"
+                    endDate={new Date(poll.endDate)}
+                    sx={{ mb: 2 }}
+                  />
 
                   <Flex sx={{ justifyContent: 'space-between', mb: 2, flexDirection: 'column' }}>
                     {poll.discussionLink && (
