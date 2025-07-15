@@ -163,11 +163,11 @@ const SkyPollOverviewCard = function SkyPollOverviewCard({ poll, hideTally = fal
                         />
                         <Badge variant="sky">Sky Governance</Badge>
                       </Flex>
-                      <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
+                      <InternalLink href={`/sky-polling/${poll.slug}`} title="View poll details">
                         <CardTitle title={poll.title} dataTestId="sky-poll-overview-card-poll-title" />
                       </InternalLink>
                     </Box>
-                    <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
+                    <InternalLink href={`/sky-polling/${poll.slug}`} title="View poll details">
                       <CardSummary text={poll.summary} styles={{ my: 2 }} />
                     </InternalLink>
                   </Box>
@@ -210,7 +210,7 @@ const SkyPollOverviewCard = function SkyPollOverviewCard({ poll, hideTally = fal
                     p: 0
                   }}
                 >
-                  <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
+                  <InternalLink href={`/sky-polling/${poll.slug}`} title="View poll details">
                     <Button variant="outline">View Details</Button>
                   </InternalLink>
 
@@ -232,7 +232,7 @@ const SkyPollOverviewCard = function SkyPollOverviewCard({ poll, hideTally = fal
                     )}
                     {poll.tally && +poll.tally.totalSkyActiveParticipation > 0 && (
                       <InternalLink
-                        href={`/polling/${poll.slug}#vote-breakdown`}
+                        href={`/sky-polling/${poll.slug}#vote-breakdown`}
                         title="View poll vote breakdown"
                       >
                         <Box sx={{ mt: 2 }}>

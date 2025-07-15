@@ -7,32 +7,47 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 */
 
 import { useEffect, useState } from 'react';
-import { GetServerSideProps } from 'next';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import ErrorPage from 'modules/app/components/ErrorPage';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { Card, Flex, Divider, Heading, Text, Box, Button, Badge } from 'theme-ui';
+import { Card, Flex, Divider, Heading, Text, Box, Button } from 'theme-ui';
 import { useBreakpointIndex } from '@theme-ui/match-media';
 import Icon from 'modules/app/components/Icon';
+import { fetchJson } from 'lib/fetchJson';
+import { isActivePoll } from 'modules/polling/helpers/utils';
 import { formatDateWithTime } from 'lib/datetime';
+import { isDefaultNetwork } from 'modules/web3/helpers/networks';
+import { Poll } from 'modules/polling/types';
 import Skeleton from 'modules/app/components/SkeletonThemed';
 import CountdownTimer from 'modules/app/components/CountdownTimer';
 import PrimaryLayout from 'modules/app/components/layout/layouts/Primary';
 import SidebarLayout from 'modules/app/components/layout/layouts/Sidebar';
 import Stack from 'modules/app/components/layout/layouts/Stack';
 import Tabs from 'modules/app/components/Tabs';
+import VoteBreakdown from 'modules/polling/components/VoteBreakdown';
+import VoteBox from 'modules/polling/components/poll-vote-input/VoteBox';
 import SystemStatsSidebar from 'modules/app/components/SystemStatsSidebar';
 import ResourceBox from 'modules/app/components/ResourceBox';
+import MobileVoteSheet from 'modules/polling/components/MobileVoteSheet';
+import VotesByAddress from 'modules/polling/components/VotesByAddress';
 import { PollCategoryTag } from 'modules/polling/components/PollCategoryTag';
 import { HeadComponent } from 'modules/app/components/layout/Head';
+import PollWinningOptionBox from 'modules/polling/components/PollWinningOptionBox';
+import { usePollTally } from 'modules/polling/hooks/usePollTally';
+import { useAccount } from 'modules/app/hooks/useAccount';
+import { fetchSinglePoll } from 'modules/polling/api/fetchPollBy';
+import { DEFAULT_NETWORK, SupportedNetworks } from 'modules/web3/constants/networks';
 import { ErrorBoundary } from 'modules/app/components/ErrorBoundary';
+import { getPollsPaginated } from 'modules/polling/api/fetchPolls';
 import { InternalLink } from 'modules/app/components/InternalLink';
 import { ExternalLink } from 'modules/app/components/ExternalLink';
-import { SkyPollDetailResponse } from '../api/sky/polls/[poll-id-or-slug]';
-import SkyVoteBreakdown from 'modules/polling/components/SkyVoteBreakdown';
-import SkyPollWinningOptionBox from 'modules/polling/components/SkyPollWinningOptionBox';
-import SkyVotesByAddress from 'modules/polling/components/SkyVotesByAddress';
-import { useSkyPollTally } from 'modules/polling/hooks/useSkyPollTally';
+import usePollsStore from 'modules/polling/stores/polls';
+import { DialogOverlay, DialogContent } from 'modules/app/components/Dialog';
+import BoxWithClose from 'modules/app/components/BoxWithClose';
+import { PollOrderByEnum } from 'modules/polling/polling.constants';
+import { useNetwork } from 'modules/app/hooks/useNetwork';
+import { formatEther } from 'viem';
 
 const editMarkdown = (content: string) => {
   // hide the duplicate proposal title
@@ -51,42 +66,61 @@ const parseRawUrl = (rawUrl: string) => {
   return url + '#review';
 };
 
-const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
+const PollView = ({ poll }: { poll: Poll }) => {
+  const filteredPollData = usePollsStore(state => state.filteredPolls);
+  const [prevSlug, setPrevSlug] = useState(poll.ctx?.prev?.slug);
+  const [nextSlug, setNextSlug] = useState(poll.ctx?.next?.slug);
+
+  const { account } = useAccount();
   const bpi = useBreakpointIndex({ defaultIndex: 2 });
   const [shownOptions, setShownOptions] = useState(6);
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
-  const SkyVoteWeightVisual = dynamic(() => import('../../modules/polling/components/SkyVoteWeightVisual'), {
+  const VotingWeightComponent = dynamic(() => import('../../modules/polling/components/VoteWeightVisual'), {
     ssr: false
   });
 
-  // Fetch tally data separately from Sky API
-  const { tally, error: tallyError, isValidating } = useSkyPollTally(poll.pollId, 60000);
+  const [mobileVotingPoll, setMobileVotingPoll] = useState<Poll>(poll);
+
+  const { tally } = usePollTally(poll.pollId, 60000);
+
+  useEffect(() => {
+    if (filteredPollData && filteredPollData.length > 0) {
+      const currentIdx = filteredPollData?.findIndex(({ pollId }) => pollId === poll.pollId);
+      const previousPoll = filteredPollData[currentIdx - 1];
+      const nextPoll = filteredPollData[currentIdx + 1];
+      setPrevSlug(previousPoll?.slug);
+      setNextSlug(nextPoll?.slug);
+    } else {
+      setPrevSlug(poll.ctx?.prev?.slug);
+      setNextSlug(poll.ctx?.next?.slug);
+    }
+  }, [filteredPollData, poll]);
 
   return (
     <PrimaryLayout sx={{ maxWidth: 'dashboard' }}>
+      {bpi === 0 && account && isActivePoll(poll) && (
+        <MobileVoteSheet setPoll={setMobileVotingPoll} poll={mobileVotingPoll} withStart />
+      )}
       <SidebarLayout>
         <HeadComponent title={poll.title} description={`${poll.title}. End Date: ${poll.endDate}.`} />
 
         <div>
           <Flex mb={2} sx={{ justifyContent: 'space-between', flexDirection: 'row' }}>
-            <InternalLink href="/polling" title="View polling page">
+            <InternalLink href={'/polling'} title="View polling page">
               <Button variant="mutedOutline">
                 <Flex sx={{ display: ['none', 'block'], alignItems: 'center', whiteSpace: 'nowrap' }}>
                   <Icon name="chevron_left" sx={{ size: 2, mr: 2 }} />
-                  Back to Polls
+                  Back to All Polls
                 </Flex>
                 <Flex sx={{ display: ['block', 'none'], alignItems: 'center', whiteSpace: 'nowrap' }}>
-                  Back to Polls
+                  Back to all
                 </Flex>
               </Button>
             </InternalLink>
             <Flex sx={{ justifyContent: 'space-between' }}>
-              {poll.ctx?.prev?.slug && (
-                <InternalLink
-                  href={`/polling/${poll.ctx.prev.slug}`}
-                  title="View previous poll"
-                  scroll={false}
-                >
+              {prevSlug && (
+                <InternalLink href={`/polling/${prevSlug}`} title="View previous poll" scroll={false}>
                   <Button variant="mutedOutline">
                     <Flex sx={{ alignItems: 'center', whiteSpace: 'nowrap' }}>
                       <Icon name="chevron_left" sx={{ size: 2, mr: 2 }} />
@@ -95,9 +129,9 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
                   </Button>
                 </InternalLink>
               )}
-              {poll.ctx?.next?.slug && (
+              {nextSlug && (
                 <InternalLink
-                  href={`/polling/${poll.ctx.next.slug}`}
+                  href={`/polling/${nextSlug}`}
                   title="View next poll"
                   scroll={false}
                   styles={{ ml: 2 }}
@@ -112,10 +146,7 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
               )}
             </Flex>
           </Flex>
-          <Card sx={{ p: [0, 0], position: 'relative' }}>
-            <Badge variant="sky" sx={{ position: 'absolute', top: 3, right: 3 }}>
-              Sky Governance
-            </Badge>
+          <Card sx={{ p: [0, 0] }}>
             <Flex sx={{ flexDirection: 'column', px: [3, 4], pt: [3, 4] }}>
               <Box>
                 <Flex sx={{ justifyContent: 'space-between', flexDirection: ['column', 'row'] }}>
@@ -126,8 +157,14 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
                       color: 'textSecondary'
                     }}
                   >
-                    Posted {formatDateWithTime(new Date(poll.startDate))} | Poll ID {poll.pollId}
+                    Posted {formatDateWithTime(poll.startDate)} | Poll ID {poll.pollId}
                   </Text>
+                  <CountdownTimer
+                    key={poll.multiHash}
+                    endText="Poll ended"
+                    endDate={poll.endDate}
+                    sx={{ ml: [0, 'auto'] }}
+                  />
                 </Flex>
 
                 <Flex sx={{ mb: 2, flexDirection: 'column' }}>
@@ -136,19 +173,49 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
                   </Heading>
 
                   <Flex sx={{ my: 2, flexWrap: 'wrap' }}>
-                    {poll.tags.map(tag => (
-                      <Box key={tag.id} sx={{ my: 2, mr: 2 }}>
-                        <PollCategoryTag tag={tag} />
+                    {poll.tags.map(c => (
+                      <Box key={c.id} sx={{ my: 2, mr: 2 }}>
+                        <PollCategoryTag tag={c} />
                       </Box>
                     ))}
+                    {poll.tags.some(tag => tag.id.includes('impact')) && (
+                      <>
+                        <Flex onClick={() => setOverlayOpen(true)} sx={{ cursor: 'pointer' }}>
+                          <Icon name="info" color="primary" sx={{ mt: 3 }} />
+                        </Flex>
+                        {overlayOpen && (
+                          <DialogOverlay isOpen={overlayOpen} onDismiss={() => setOverlayOpen(false)}>
+                            <DialogContent ariaLabel="Impact tags info">
+                              <BoxWithClose close={() => setOverlayOpen(false)}>
+                                <Flex
+                                  sx={{
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                  }}
+                                >
+                                  <Heading sx={{ mb: 3 }}>Impact estimation tags</Heading>
+                                  <Text sx={{ textAlign: 'center' }}>
+                                    The Governance Facilitators apply impact estimations to active governance
+                                    items.
+                                    <br />
+                                    To know more about impact tags please visit the{' '}
+                                    <ExternalLink
+                                      title="Maker Operational Manual"
+                                      href="https://manual.makerdao.com/governance-processes/off-chain/impact-estimations"
+                                    >
+                                      <Text>Maker Operational Manual</Text>
+                                    </ExternalLink>
+                                    .
+                                  </Text>
+                                </Flex>
+                              </BoxWithClose>
+                            </DialogContent>
+                          </DialogOverlay>
+                        )}
+                      </>
+                    )}
                   </Flex>
-
-                  <CountdownTimer
-                    key={poll.multiHash}
-                    endText="Poll ended"
-                    endDate={new Date(poll.endDate)}
-                    sx={{ mb: 2 }}
-                  />
 
                   <Flex sx={{ justifyContent: 'space-between', mb: 2, flexDirection: 'column' }}>
                     {poll.discussionLink && (
@@ -181,105 +248,123 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
               tabTitles={['Vote Breakdown', 'Poll Detail']}
               tabRoutes={['Vote Breakdown', 'Poll Detail']}
               tabPanels={[
-                <div key="vote-breakdown">
-                  {!tally || isValidating ? (
-                    <Box sx={{ m: 4 }}>
-                      <Skeleton />
-                      {tallyError && (
-                        <Text sx={{ color: 'error', mt: 2, textAlign: 'center' }}>
-                          Error loading vote data. Please refresh to try again.
-                        </Text>
-                      )}
-                    </Box>
-                  ) : (
-                    <>
-                      <SkyVoteBreakdown poll={poll} shownOptions={shownOptions} tally={tally} />
-                      {shownOptions < Object.keys(poll.options).length && (
-                        <Box sx={{ px: 4, pb: 3 }}>
-                          <Button
-                            variant="mutedOutline"
-                            onClick={() => {
-                              setShownOptions(shownOptions + 6);
-                            }}
-                          >
-                            <Flex sx={{ alignItems: 'center' }}>
-                              View more
-                              <Icon name="chevron_down" sx={{ size: 2, ml: 2 }} />
-                            </Flex>
-                          </Button>
-                        </Box>
-                      )}
-                      <Divider />
-                      <Flex data-testid="voting-stats" sx={{ p: [3, 4], flexDirection: 'column' }}>
-                        <Text variant="microHeading" sx={{ mb: 3 }}>
-                          Voting Stats
-                        </Text>
-                        <Flex sx={{ justifyContent: 'space-between', mb: 3 }}>
-                          <Text sx={{ color: 'textSecondary' }}>Total Voting Power</Text>
+                !tally ? (
+                  <Box sx={{ m: 4 }} key={1}>
+                    <Skeleton />
+                  </Box>
+                ) : (
+                  [
+                    <VoteBreakdown
+                      poll={poll}
+                      shownOptions={shownOptions}
+                      tally={tally}
+                      key={'vote breakdown'}
+                    />,
+                    shownOptions < Object.keys(poll.options).length && (
+                      <Box sx={{ px: 4, pb: 3 }} key={'view more'}>
+                        <Button
+                          variant="mutedOutline"
+                          onClick={() => {
+                            setShownOptions(shownOptions + 6);
+                          }}
+                        >
+                          <Flex sx={{ alignItems: 'center' }}>
+                            View more
+                            <Icon name="chevron_down" sx={{ size: 2, ml: 2 }} />
+                          </Flex>
+                        </Button>
+                      </Box>
+                    ),
+                    <Divider key={'divider'} />,
+                    <Flex
+                      data-testid="voting-stats"
+                      sx={{ p: [3, 4], flexDirection: 'column' }}
+                      key={'voting stats'}
+                    >
+                      <Text variant="microHeading" sx={{ mb: 3 }}>
+                        Voting Stats
+                      </Text>
+                      <Flex sx={{ justifyContent: 'space-between', mb: 3 }}>
+                        <Text sx={{ color: 'textSecondary' }}>Total Voting Power</Text>
+                        {tally ? (
                           <Text>
-                            {Number(tally.totalSkyParticipation).toLocaleString(undefined, {
+                            {Number(
+                              formatEther(BigInt(tally.totalMkrParticipation.toString()))
+                            ).toLocaleString(undefined, {
                               maximumFractionDigits: 3
                             })}{' '}
-                            SKY
+                            MKR
                           </Text>
-                        </Flex>
-                        <Flex sx={{ justifyContent: 'space-between' }}>
-                          <Text sx={{ color: 'textSecondary' }}>Total Votes</Text>
-                          <Text>{tally.numVoters}</Text>
-                        </Flex>
-                      </Flex>
-                      <Divider />
-                      <Flex data-testid="voting-by-address" sx={{ p: [3, 4], flexDirection: 'column' }}>
-                        <Text variant="microHeading" sx={{ mb: 3 }}>
-                          Voting By Address
-                        </Text>
-                        {tally.votesByAddress && tally.numVoters > 0 ? (
-                          <SkyVotesByAddress tally={tally} poll={poll} />
-                        ) : tally.numVoters === 0 ? (
-                          <Text sx={{ color: 'textSecondary' }}>No votes yet</Text>
                         ) : (
-                          <Box sx={{ width: '100%' }}>
-                            <Box mb={2}>
-                              <Skeleton width="100%" />
-                            </Box>
-                            <Box mb={2}>
-                              <Skeleton width="100%" />
-                            </Box>
-                            <Box mb={2}>
-                              <Skeleton width="100%" />
-                            </Box>
+                          <Box sx={{ width: 4 }}>
+                            <Skeleton />
                           </Box>
                         )}
                       </Flex>
-                      <Divider />
-                      <Flex sx={{ p: [3, 4], flexDirection: 'column' }}>
-                        <Text variant="microHeading" sx={{ mb: 3 }}>
-                          Voting Weight
-                        </Text>
-                        {tally && tally.numVoters > 0 && <SkyVoteWeightVisual tally={tally} poll={poll} />}
-                        {tally && tally.numVoters === 0 && (
-                          <Text sx={{ color: 'textSecondary' }}>No votes yet</Text>
+
+                      <Flex sx={{ justifyContent: 'space-between' }}>
+                        <Text sx={{ color: 'textSecondary' }}>Total Votes</Text>
+                        {tally ? (
+                          <Text>{tally.numVoters}</Text>
+                        ) : (
+                          <Box sx={{ width: 4 }}>
+                            <Skeleton />
+                          </Box>
                         )}
                       </Flex>
-                    </>
-                  )}
-                </div>,
-                <div key="poll-detail">
+                    </Flex>,
+                    <Divider key={'divider 2'} />,
+                    <Flex
+                      data-testid="voting-by-address"
+                      sx={{ p: [3, 4], flexDirection: 'column' }}
+                      key={'votes by address'}
+                    >
+                      <Text variant="microHeading" sx={{ mb: 3 }}>
+                        Voting By Address
+                      </Text>
+                      {tally && tally.votesByAddress && tally.numVoters > 0 ? (
+                        <VotesByAddress tally={tally} poll={poll} />
+                      ) : tally && tally.numVoters === 0 ? (
+                        <Text sx={{ color: 'textSecondary' }}>No votes yet</Text>
+                      ) : (
+                        <Box sx={{ width: '100%' }}>
+                          <Box mb={2}>
+                            <Skeleton width="100%" />
+                          </Box>
+                          <Box mb={2}>
+                            <Skeleton width="100%" />
+                          </Box>
+                          <Box mb={2}>
+                            <Skeleton width="100%" />
+                          </Box>
+                        </Box>
+                      )}
+                    </Flex>,
+                    <Divider key={'divider 3'} />,
+                    <Flex sx={{ p: [3, 4], flexDirection: 'column' }} key={'vote weight circles'}>
+                      <Text variant="microHeading" sx={{ mb: 3 }}>
+                        Voting Weight
+                      </Text>
+                      {tally && tally.numVoters > 0 && <VotingWeightComponent tally={tally} poll={poll} />}
+                      {tally && tally.numVoters === 0 && (
+                        <Text sx={{ color: 'textSecondary' }}>No votes yet</Text>
+                      )}
+                    </Flex>
+                  ]
+                ),
+                <div key={2}>
                   <Box
                     data-testid="poll-detail"
                     sx={{ variant: 'markdown.default', p: [3, 4] }}
-                    dangerouslySetInnerHTML={{ __html: editMarkdown(poll.content || poll.summary) }}
+                    dangerouslySetInnerHTML={{ __html: editMarkdown(poll.content) }}
                   />
                 </div>
               ]}
               banner={
-                tally &&
-                tally.totalSkyActiveParticipation &&
-                +tally.totalSkyActiveParticipation > 0 &&
-                tally.winningOptionName ? (
+                tally && (tally.totalMkrParticipation as number) > 0 && tally.winningOptionName ? (
                   <Box>
                     <Divider my={0} />
-                    <SkyPollWinningOptionBox tally={tally} poll={poll} />
+                    <PollWinningOptionBox tally={tally} poll={poll} />
                     <Divider my={0} />
                   </Box>
                 ) : null
@@ -288,18 +373,11 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
           </Card>
         </div>
         <Stack gap={3}>
-          {/* Read-only notice for Sky polls */}
-          <Card sx={{ p: 3, backgroundColor: 'background', border: '1px solid', borderColor: 'muted' }}>
-            <Flex sx={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="info" sx={{ mr: 2, color: 'primary', size: 4 }} />
-              <Text sx={{ textAlign: 'center', color: 'textSecondary' }}>
-                This is a Sky governance poll. Voting is only available on{' '}
-                <ExternalLink href="https://vote.sky.money" title="Sky voting portal">
-                  <Text>vote.sky.money</Text>
-                </ExternalLink>
-              </Text>
-            </Flex>
-          </Card>
+          {!!account && bpi > 0 && (
+            <ErrorBoundary componentName="Poll Voting">
+              <VoteBox poll={poll} />
+            </ErrorBoundary>
+          )}
           <ErrorBoundary componentName="System Info">
             <SystemStatsSidebar
               fields={[
@@ -321,112 +399,89 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
   );
 };
 
-export default function SkyPollPage({
-  poll: prefetchedPoll,
-  error: initialError
-}: {
-  poll?: SkyPollDetailResponse;
-  error?: string;
-}): JSX.Element {
-  const [poll, setPoll] = useState<SkyPollDetailResponse | undefined>(prefetchedPoll);
-  const [error, setError] = useState<string | undefined>(initialError);
-  const [loading, setLoading] = useState(false);
-  const { query } = useRouter();
+export default function PollPage({ poll: prefetchedPoll }: { poll?: Poll }): JSX.Element {
+  const [_poll, _setPoll] = useState<Poll>();
+  const [error, setError] = useState<string>();
+  const { query, isFallback } = useRouter();
+  const network = useNetwork();
 
-  // Client-side fetching fallback if SSR fails
+  // fetch poll contents at run-time if on any network other than the default
   useEffect(() => {
-    if (!poll && !error && query['poll-hash']) {
-      setLoading(true);
-      fetch(`/api/sky/polls/${query['poll-hash']}`)
+    if (!network) return;
+    if (query['poll-hash'] && !isDefaultNetwork(network)) {
+      fetchJson(`/api/polling/${query['poll-hash']}?network=${network}`)
         .then(response => {
-          if (!response.ok) {
-            throw new Error(`Failed to fetch poll: ${response.status}`);
-          }
-          return response.json();
+          _setPoll(response);
         })
-        .then((data: SkyPollDetailResponse) => {
-          setPoll(data);
-        })
-        .catch(err => {
-          console.error('Error fetching poll:', err);
-          setError(err.message);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+        .catch(setError);
     }
-  }, [query['poll-hash'], poll, error]);
+  }, [query['poll-hash'], network]);
 
-  if (loading) {
-    return (
-      <PrimaryLayout sx={{ maxWidth: 'dashboard' }}>
-        <p>Loading...</p>
-      </PrimaryLayout>
-    );
-  }
+  const poll = (isDefaultNetwork(network) ? prefetchedPoll : _poll) as Poll;
 
-  if (error || !poll) {
+  if (!poll && (error || (isDefaultNetwork(network) && !isFallback && !prefetchedPoll?.multiHash))) {
     return (
       <PrimaryLayout sx={{ maxWidth: 'dashboard' }}>
         <ErrorPage
           statusCode={404}
-          title={error || 'Poll either does not exist, or could not be fetched at this time'}
+          title="Poll either does not exist, or could not be fetched at this time"
         />
       </PrimaryLayout>
     );
   }
 
+  if (isFallback || (!isDefaultNetwork(network) && !_poll))
+    return (
+      <PrimaryLayout sx={{ maxWidth: 'dashboard' }}>
+        <p>Loading…</p>
+      </PrimaryLayout>
+    );
+
   return (
-    <ErrorBoundary componentName="Sky Poll Page">
-      <SkyPollView poll={poll} />
+    <ErrorBoundary componentName="Poll Page">
+      <PollView poll={poll} />
     </ErrorBoundary>
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  // fetch poll contents at build-time if on the default network
   const pollIdOrSlug = params?.['poll-hash'] as string;
+  // invariant(pollSlug, 'getStaticProps poll hash not found in params');
 
-  if (!pollIdOrSlug) {
-    return {
-      props: {
-        error: 'Poll ID or slug is required'
-      }
-    };
+  const poll = await fetchSinglePoll(DEFAULT_NETWORK.network, pollIdOrSlug);
+
+  if (!poll) {
+    return { revalidate: 30, props: { poll: null } };
   }
 
-  try {
-    // Try to fetch the poll data server-side
-    const apiUrl = `https://vote.sky.money/api/polling/${pollIdOrSlug}`;
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      signal: AbortSignal.timeout(5000)
-    });
-
-    if (!response.ok) {
-      console.error('Failed to fetch Sky poll:', response.status);
-      return {
-        props: {
-          error: `Failed to fetch poll (status: ${response.status})`
-        }
-      };
+  return {
+    revalidate: 30, // allow revalidation every 30 seconds
+    props: {
+      key: poll.pollId, // makes sure state updates when navigating to a new dynamic route
+      poll
     }
+  };
+};
 
-    const poll: SkyPollDetailResponse = await response.json();
+export const getStaticPaths: GetStaticPaths = async () => {
+  const pollsResponse = await getPollsPaginated({
+    network: SupportedNetworks.MAINNET,
+    page: 1,
+    pageSize: 5,
+    orderBy: PollOrderByEnum.nearestEnd,
+    title: null,
+    tags: null,
+    status: null,
+    type: null,
+    startDate: null,
+    endDate: null
+  });
 
-    return {
-      props: {
-        poll
-      }
-    };
-  } catch (error) {
-    console.error('Error fetching Sky poll:', error);
-    return {
-      props: {
-        error: 'Failed to connect to Sky governance API'
-      }
-    };
-  }
+  const paths = pollsResponse.polls.map(p => `/polling/${p.slug}`);
+
+  return {
+    paths,
+    fallback: true
+  };
 };
