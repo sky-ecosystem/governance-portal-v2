@@ -391,9 +391,6 @@ const PollingOverview = ({
 
                 {showHistorical ? (
                   <div>
-                    <Heading mb={3} as="h4" sx={{ display: stats.finished > 0 ? undefined : 'none' }}>
-                      <Flex sx={{ justifyContent: 'space-between' }}>Legacy Polls</Flex>
-                    </Heading>
                     <Stack>
                       {groupedEndedPolls.map(([groupTitle, pollGroup]) => (
                         <div key={groupTitle}>
