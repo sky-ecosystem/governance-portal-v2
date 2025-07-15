@@ -306,7 +306,12 @@ export const ExecutiveOverview = ({ proposals }: { proposals?: Proposal[] }): JS
         <SidebarLayout>
           <Box>
             <Stack gap={3}>
-              <Heading as="h1">Legacy Executive Proposals</Heading>
+              <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Heading as="h1">Legacy Executive Proposals</Heading>
+                <InternalLink href="/executive" title="Sky Executive Proposals">
+                  <Button variant="outline">Sky Executives</Button>
+                </InternalLink>
+              </Flex>
               {!isLoadingInitialData && (
                 <Stack gap={4} sx={{ mb: 4 }}>
                   {flattenedProposals
@@ -321,6 +326,7 @@ export const ExecutiveOverview = ({ proposals }: { proposals?: Proposal[] }): JS
                             account={account}
                             votedProposals={votedProposals}
                             mkrOnHat={mkrOnHat}
+                            isLegacy={true}
                           />
                         </Box>
                       );
@@ -384,6 +390,7 @@ export const ExecutiveOverview = ({ proposals }: { proposals?: Proposal[] }): JS
                             account={account}
                             votedProposals={votedProposals}
                             mkrOnHat={mkrOnHat}
+                            isLegacy={true}
                           />
                         </Box>
                       ))}
@@ -416,21 +423,6 @@ export const ExecutiveOverview = ({ proposals }: { proposals?: Proposal[] }): JS
             </Stack>
           </Box>
           <Stack gap={3}>
-            <Box sx={{ mb: 3 }}>
-              <Heading mt={3} mb={2} as="h3" variant="microHeading">
-                Custom Spell Voting
-              </Heading>
-              <Card variant="compact">
-                <Text as="p" sx={{ mb: 3, color: 'textSecondary' }}>
-                  It is also possible to vote on a custom spell address—only use this in case of emergencies!
-                </Text>
-                <Box>
-                  <InternalLink href={'/custom-spell'} title="View custom spell voting page">
-                    <Text color="accentBlue">View Custom Spell Voting Page</Text>
-                  </InternalLink>
-                </Box>
-              </Card>
-            </Box>
             <ErrorBoundary componentName="System Info">
               <SystemStatsSidebar
                 fields={['chief contract', 'mkr in chief', 'savings rate', 'total dai', 'debt ceiling']}

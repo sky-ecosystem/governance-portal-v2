@@ -86,6 +86,9 @@ test.describe('Sky Executive Page', () => {
       await skyExecutivePage.verifyExecutivesVisible();
       const executiveCount = await skyExecutivePage.getExecutiveCount();
       test.expect(executiveCount).toBe(2);
+      
+      // Check Sky Governance badge is visible on executive cards
+      await expect(skyExecutivePage.page.getByText('Sky Governance').first()).toBeVisible();
     });
 
     // await test('verify Sky Portal button is visible', async () => {

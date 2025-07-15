@@ -7,11 +7,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 */
 
 import { useState, useEffect } from 'react';
-import { Text, Flex, Box, Button, Divider, Card } from 'theme-ui';
+import { Text, Flex, Box, Button, Divider, Card, Badge } from 'theme-ui';
 import Skeleton from 'modules/app/components/SkeletonThemed';
 import { formatDateWithoutTime } from 'lib/datetime';
 import { getSkyStatusText } from 'modules/executive/helpers/getStatusText';
 import { ExternalLink } from 'modules/app/components/ExternalLink';
+import { InternalLink } from 'modules/app/components/InternalLink';
 import { SkyProposal } from 'modules/executive/types';
 import { CardHeader } from 'modules/app/components/Card/CardHeader';
 import { CardTitle } from 'modules/app/components/Card/CardTitle';
@@ -38,9 +39,11 @@ export default function SkyExecutiveOverviewCard({ proposal, isHat, skyOnHat }: 
       data-testid="sky-executive-overview-card"
       sx={{
         p: [0, 0],
-        width: '100%'
+        width: '100%',
+        position: 'relative'
       }}
     >
+      <Badge variant="sky" sx={{ position: 'absolute', top: 3, right: 3 }}>Sky Governance</Badge>
       <Flex
         sx={{
           flexDirection: 'column',
@@ -52,8 +55,8 @@ export default function SkyExecutiveOverviewCard({ proposal, isHat, skyOnHat }: 
         <Flex sx={{ justifyContent: 'space-between' }}>
           <Box>
             <Flex sx={{ flexDirection: 'column' }}>
-              <ExternalLink
-                href={`https://vote.sky.money/executive/${proposal.key}`}
+              <InternalLink
+                href={`/executive/${proposal.key}`}
                 title="View executive details"
               >
                 <>
@@ -61,7 +64,7 @@ export default function SkyExecutiveOverviewCard({ proposal, isHat, skyOnHat }: 
                   <CardTitle title={proposal.title} styles={{ mt: 2 }} />
                   <CardSummary text={proposal.proposalBlurb} styles={{ my: 2 }} />
                 </>
-              </ExternalLink>
+              </InternalLink>
               <Flex sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
                 {isHat && proposal.address !== ZERO_ADDRESS ? (
                   // TODO this should be made the primary badge component in our theme
@@ -100,8 +103,8 @@ export default function SkyExecutiveOverviewCard({ proposal, isHat, skyOnHat }: 
                 gap: [0, 3]
               }}
             >
-              <ExternalLink
-                href={`https://vote.sky.money/executive/${proposal.key}`}
+              <InternalLink
+                href={`/executive/${proposal.key}`}
                 title="View executive details"
               >
                 <Button
@@ -113,7 +116,7 @@ export default function SkyExecutiveOverviewCard({ proposal, isHat, skyOnHat }: 
                 >
                   View Details
                 </Button>
-              </ExternalLink>
+              </InternalLink>
             </Flex>
             <Flex sx={{ flexShrink: 0 }}>
               {proposal.spellData?.skySupport === undefined ? (

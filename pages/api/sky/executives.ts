@@ -9,28 +9,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 import { NextApiRequest, NextApiResponse } from 'next';
 import withApiHandler from 'modules/app/api/withApiHandler';
 import { ApiError } from 'modules/app/api/ApiError';
+import { SkyExecutiveListItem } from 'modules/executive/types';
 
 // Sky executives API response types
-export type SkyExecutivesResponse = 
-  Array<{
-    title: string;
-    proposalBlurb: string;
-    key: string;
-    address: string;
-    date: string;
-    active: boolean;
-    proposalLink: string;
-    spellData: {
-        hasBeenCast: boolean;
-        hasBeenScheduled: boolean;
-        nextCastTime: string;
-        datePassed: string;
-        dateExecuted: string;
-        skySupport: string;
-        executiveHash: string;
-        officeHours: string;
-    }
-  }>;
+export type SkyExecutivesResponse = SkyExecutiveListItem[];
 
 async function fetchSkyExecutives({
   pageSize = 5,
@@ -60,6 +42,28 @@ async function fetchSkyExecutives({
     }
 
     const data = await response.json();
+    
+    // Transform string dates to Date objects and convert officeHours to boolean
+    if (Array.isArray(data)) {
+      data.forEach(executive => {
+        if (executive.spellData) {
+          if (executive.spellData.nextCastTime) {
+            executive.spellData.nextCastTime = new Date(executive.spellData.nextCastTime);
+          }
+          if (executive.spellData.datePassed) {
+            executive.spellData.datePassed = new Date(executive.spellData.datePassed);
+          }
+          if (executive.spellData.dateExecuted) {
+            executive.spellData.dateExecuted = new Date(executive.spellData.dateExecuted);
+          }
+          // Convert officeHours string to boolean
+          if (typeof executive.spellData.officeHours === 'string') {
+            executive.spellData.officeHours = executive.spellData.officeHours === 'true';
+          }
+        }
+      });
+    }
+    
     return data;
   } catch (error) {
     console.error('Error fetching Sky executives:', error);

@@ -14,7 +14,7 @@ export class LegacyPollingPage {
   }
 
   private initializeLocators() {
-    this.pollHeading = this.page.getByRole('heading', { name: /Active Polls|Ended Polls|Legacy Polls/ });
+    this.pollHeading = this.page.locator('h1').filter({ hasText: /Legacy Polls/ });
     this.pollOverviewCard = this.page.locator('[data-testid="poll-overview-card"]');
     this.votingWeightText = this.page.locator('[data-testid="voting-weight"]');
   }

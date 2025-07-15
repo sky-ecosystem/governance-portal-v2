@@ -27,15 +27,23 @@ export default function ExecutivePage(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const [hatAddress, setHatAddress] = useState<any>(null);
-  const [skyOnHat, setSkyOnHat] = useState<any>(null);
+  const [hatAddress, setHatAddress] = useState<string | null>(null);
+  const [skyOnHat, setSkyOnHat] = useState<bigint | null>(null);
 
   const fetchSkyHatInfo = async () => {
-    //TOD: change url to production endpoint
-    const response = await fetch('/api/sky/hat');
-    const data = await response.json();
-    setHatAddress(data.hatAddress);
-    setSkyOnHat(data.skyOnHat);
+    try {
+      //TOD: change url to production endpoint
+      const response = await fetch('/api/sky/hat');
+      const data = await response.json();
+      setHatAddress(data.hatAddress);
+      // Convert skyOnHat to BigInt if it exists and is valid
+      setSkyOnHat(data.skyOnHat ? BigInt(data.skyOnHat) : null);
+    } catch (error) {
+      console.error('Error fetching Sky hat info:', error);
+      // Set defaults if API fails
+      setHatAddress(null);
+      setSkyOnHat(null);
+    }
   };
 
   const fetchSkyExecutives = async (pageNum = 1) => {
@@ -127,11 +135,11 @@ export default function ExecutivePage(): JSX.Element {
                                 dateExecuted: executive.spellData.dateExecuted
                                   ? new Date(executive.spellData.dateExecuted)
                                   : undefined,
-                                officeHours: executive.spellData.officeHours === 'true'
+                                officeHours: executive.spellData.officeHours
                               }
                             }}
                             isHat={executive.address === hatAddress}
-                            skyOnHat={skyOnHat}
+                            skyOnHat={skyOnHat || undefined}
                           />
                         </Box>
                       ))}

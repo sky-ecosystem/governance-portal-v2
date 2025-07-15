@@ -155,6 +155,9 @@ test.describe('Sky Poll Detail Page', () => {
       // Check external links
       await expect(page.getByRole('link', { name: 'Forum Discussion' })).toBeVisible();
       await expect(page.getByRole('link', { name: 'Review resources on GitHub' })).toBeVisible();
+      
+      // Check Sky Governance badge
+      await expect(page.getByText('Sky Governance')).toBeVisible();
     });
 
     await test.step('verify read-only notice', async () => {
