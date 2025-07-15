@@ -9,14 +9,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 // Sky executive types for the governance portal
 
 export type SkyExecutiveSpellData = {
-  hasBeenCast: boolean;
+  hasBeenCast?: boolean;
   hasBeenScheduled: boolean;
-  nextCastTime: string;
-  datePassed: string;
-  dateExecuted: string;
+  nextCastTime?: Date;
+  datePassed?: Date;
+  dateExecuted?: Date;
   skySupport: string;
-  executiveHash: string;
-  officeHours: string;
+  executiveHash?: string;
+  officeHours?: boolean;
 };
 
 export type SkyExecutiveSupporter = {

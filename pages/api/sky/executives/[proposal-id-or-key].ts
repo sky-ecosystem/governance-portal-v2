@@ -29,6 +29,24 @@ async function fetchSkyExecutiveDetail(proposalIdOrKey: string): Promise<SkyExec
     }
 
     const data = await response.json();
+    
+    // Transform string dates to Date objects and convert officeHours to boolean
+    if (data.spellData) {
+      if (data.spellData.nextCastTime) {
+        data.spellData.nextCastTime = new Date(data.spellData.nextCastTime);
+      }
+      if (data.spellData.datePassed) {
+        data.spellData.datePassed = new Date(data.spellData.datePassed);
+      }
+      if (data.spellData.dateExecuted) {
+        data.spellData.dateExecuted = new Date(data.spellData.dateExecuted);
+      }
+      // Convert officeHours string to boolean
+      if (typeof data.spellData.officeHours === 'string') {
+        data.spellData.officeHours = data.spellData.officeHours === 'true';
+      }
+    }
+    
     return data;
   } catch (error) {
     console.error('Error fetching Sky executive detail:', error);

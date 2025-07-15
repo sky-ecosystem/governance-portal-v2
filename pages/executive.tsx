@@ -135,7 +135,7 @@ export default function ExecutivePage(): JSX.Element {
                                 dateExecuted: executive.spellData.dateExecuted
                                   ? new Date(executive.spellData.dateExecuted)
                                   : undefined,
-                                officeHours: executive.spellData.officeHours === 'true'
+                                officeHours: executive.spellData.officeHours
                               }
                             }}
                             isHat={executive.address === hatAddress}
