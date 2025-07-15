@@ -30,7 +30,6 @@ import { DateFilter } from 'modules/polling/components/filters/DateFilter';
 import ResourceBox from 'modules/app/components/ResourceBox';
 import SystemStatsSidebar from 'modules/app/components/SystemStatsSidebar';
 import useUiFiltersStore from 'modules/app/stores/uiFilters';
-import BallotStatus from 'modules/polling/components/BallotStatus';
 import PageLoadingPlaceholder from 'modules/app/components/PageLoadingPlaceholder';
 import { useAllUserVotes } from 'modules/polling/hooks/useAllUserVotes';
 import { HeadComponent } from 'modules/app/components/layout/Head';
@@ -350,15 +349,12 @@ const PollingOverview = ({
               </Flex>
             )}
 
-            {activePolls.length === 0 && bpi <= 2 && account && <BallotStatus />}
-
             {[...activePolls, ...endedPolls].length !== 0 && (
               <Stack>
                 {activePolls.length > 0 && (
                   <div>
                     <Flex sx={{ alignItems: 'center', justifyContent: 'space-between', my: 3 }}>
                       <Heading as="h4">Active Polls</Heading>
-                      {bpi <= 2 && account && <BallotStatus />}
                     </Flex>
                     <Stack>
                       {groupedActivePolls.map(([groupTitle, pollGroup]) => (
