@@ -9,6 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 import { Card, Flex, Box, Button, ThemeUIStyleObject, Badge, Divider } from 'theme-ui';
 import CountdownTimer from 'modules/app/components/CountdownTimer';
 import { ExternalLink } from 'modules/app/components/ExternalLink';
+import { InternalLink } from 'modules/app/components/InternalLink';
 import { useBreakpointIndex } from '@theme-ui/match-media';
 import { PollCategoryTag } from './PollCategoryTag';
 import SkyPollWinningOptionBox from './SkyPollWinningOptionBox';
@@ -162,13 +163,13 @@ const SkyPollOverviewCard = function SkyPollOverviewCard({ poll, hideTally = fal
                         />
                         <Badge variant="sky">Sky Governance</Badge>
                       </Flex>
-                      <ExternalLink href={getSkyPortalPollUrl(poll)} title="View poll details on Sky Portal">
+                      <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
                         <CardTitle title={poll.title} dataTestId="sky-poll-overview-card-poll-title" />
-                      </ExternalLink>
+                      </InternalLink>
                     </Box>
-                    <ExternalLink href={getSkyPortalPollUrl(poll)} title="View poll details on Sky Portal">
+                    <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
                       <CardSummary text={poll.summary} styles={{ my: 2 }} />
-                    </ExternalLink>
+                    </InternalLink>
                   </Box>
 
                   <Flex sx={{ flexWrap: 'wrap' }}>
@@ -209,9 +210,9 @@ const SkyPollOverviewCard = function SkyPollOverviewCard({ poll, hideTally = fal
                     p: 0
                   }}
                 >
-                  <ExternalLink href={getSkyPortalPollUrl(poll)} title="View poll details on Sky Portal">
+                  <InternalLink href={`/polling/${poll.slug}`} title="View poll details">
                     <Button variant="outline">View Details</Button>
-                  </ExternalLink>
+                  </InternalLink>
 
                   {isActive && (
                     <ExternalLink href={getSkyPortalPollUrl(poll)} title="Vote on Sky Portal">
@@ -230,9 +231,9 @@ const SkyPollOverviewCard = function SkyPollOverviewCard({ poll, hideTally = fal
                       </Flex>
                     )}
                     {poll.tally && +poll.tally.totalSkyActiveParticipation > 0 && (
-                      <ExternalLink
-                        href={`${getSkyPortalPollUrl(poll)}#vote-breakdown`}
-                        title="View poll vote breakdown on Sky Portal"
+                      <InternalLink
+                        href={`/polling/${poll.slug}#vote-breakdown`}
+                        title="View poll vote breakdown"
                       >
                         <Box sx={{ mt: 2 }}>
                           <ErrorBoundary componentName="Poll Results">
@@ -248,7 +249,7 @@ const SkyPollOverviewCard = function SkyPollOverviewCard({ poll, hideTally = fal
                             ) : null}
                           </ErrorBoundary>
                         </Box>
-                      </ExternalLink>
+                      </InternalLink>
                     )}
                     {!poll.tally && <SkeletonThemed width={'265px'} height={'30px'} />}
                     {poll.tally && +poll.tally.totalSkyActiveParticipation === 0 && (

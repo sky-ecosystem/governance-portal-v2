@@ -371,6 +371,7 @@ const PollingOverview = ({
                                   showVoting={true}
                                   reviewPage={false}
                                   onVisitPoll={onVisitPoll}
+                                  basePath="/legacy-polling"
                                 />
                               </Box>
                             ))}
@@ -401,6 +402,7 @@ const PollingOverview = ({
                                   reviewPage={false}
                                   showVoting={false}
                                   onVisitPoll={onVisitPoll}
+                                  basePath="/legacy-polling"
                                 />
                               </Box>
                             ))}

@@ -4,7 +4,7 @@ export class SkyPollingPage {
   readonly page: Page;
 
   // Locators
-  private skyPortalButton: any;
+  private viewDetailsButton: any;
   private legacyPollsButton: any;
   private noticeAlert: any;
   private pollsHeading: any;
@@ -21,7 +21,7 @@ export class SkyPollingPage {
   }
 
   private initializeLocators() {
-    this.skyPortalButton = this.page.getByRole('button', { name: 'View on Sky Portal' });
+    this.viewDetailsButton = this.page.getByRole('button', { name: 'View Details' });
     this.legacyPollsButton = this.page.getByRole('button', { name: 'Legacy Polls' });
     this.noticeAlert = this.page.getByText('SKY is now the sole governance token of the Sky Protocol.');
     this.pollsHeading = this.page.getByRole('heading', { name: 'Polls' });
@@ -51,9 +51,11 @@ export class SkyPollingPage {
     await expect(this.page).toHaveURL('/legacy-polling');
   }
 
-  // async clickSkyPortalButton() {
-  //   await this.skyPortalButton.click();
-  // }
+  async clickViewDetailsButton() {
+    await this.viewDetailsButton.first().click();
+    // Should navigate to local poll detail page
+    await expect(this.page).toHaveURL(/\/polling\/[a-zA-Z0-9-]+/);
+  }
 
   async verifyPollsVisible() {
     await expect(this.pollCard.first()).toBeVisible();
