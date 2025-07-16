@@ -130,9 +130,6 @@ test.describe('Sky Executive Detail Page', () => {
       
       // Check supporters count
       await expect(page.getByText(/5/)).toBeVisible();
-      
-      // Check Sky Governance badge
-      await expect(page.getByText('Sky Governance')).toBeVisible();
     });
 
     await test.step('verify external links', async () => {

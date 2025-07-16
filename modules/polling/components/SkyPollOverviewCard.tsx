@@ -161,7 +161,6 @@ const SkyPollOverviewCard = function SkyPollOverviewCard({ poll, hideTally = fal
                           }`}
                           styles={{ mb: 0 }}
                         />
-                        <Badge variant="sky">Sky Governance</Badge>
                       </Flex>
                       <InternalLink href={`/sky-polling/${poll.slug}`} title="View poll details">
                         <CardTitle title={poll.title} dataTestId="sky-poll-overview-card-poll-title" />
