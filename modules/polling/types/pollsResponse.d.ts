@@ -8,6 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { TagCount } from 'modules/app/types/tag';
 import { Poll, PollListItem } from './poll';
+import { PollInputFormat } from '../polling.constants';
 
 export type PollFilters = {
   startDate?: Date | null;
@@ -42,4 +43,8 @@ export type PollsPaginatedResponse = {
   stats: PollsResponse['stats'];
   polls: PollListItem[];
   tags: PollsResponse['tags'];
+};
+
+export type PollingPageProps = PollsPaginatedResponse & {
+  activePollIds: number[];
 };

@@ -15,6 +15,7 @@ import '@reach/listbox/styles.css';
 import '@reach/menu-button/styles.css';
 import '@reach/tabs/styles.css';
 import '@reach/tooltip/styles.css';
+import 'react-loading-skeleton/dist/skeleton.css';
 import { fetchJson } from 'lib/fetchJson';
 import theme from 'lib/theme';
 import Header from 'modules/app/components/layout/Header';
@@ -33,7 +34,6 @@ import { WagmiProvider } from 'wagmi';
 import { wagmiConfigDev, wagmiConfigProd } from 'modules/wagmi/config/config.default';
 import { mockWagmiConfig } from 'modules/wagmi/config/config.e2e';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useMigrationToast } from 'modules/app/hooks/useMigrationToast';
 
 const vitalslog = debug('govpo:vitals');
 export const reportWebVitals = vitalslog;
@@ -45,9 +45,6 @@ const App = ({ Component, pageProps }: AppProps): React.ReactElement => {
     process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'development';
   const wagmiConfig = useMockWallet ? mockWagmiConfig : isProduction ? wagmiConfigProd : wagmiConfigDev;
   const queryClient = new QueryClient();
-
-  // Show governance migration toast
-  useMigrationToast();
 
   const activeBannerContent = bannerContent.find(({ active }) => active === true);
   const banners = useMemo(() => {

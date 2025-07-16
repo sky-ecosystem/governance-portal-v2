@@ -52,5 +52,11 @@ export async function fetchSinglePoll(
 
   const { allPolls } = await refetchPolls(network, githubHash as string);
 
-  return allPolls.find(poll => poll.pollId === pollIdOrSlug || poll.slug === pollIdOrSlug) || null;
+  // Convert to number if it's a numeric string
+  const parsedId = typeof pollIdOrSlug === 'string' ? parseInt(pollIdOrSlug) : pollIdOrSlug;
+  const isNumericId = !Number.isNaN(parsedId);
+
+  return allPolls.find(poll => 
+    (isNumericId && poll.pollId === parsedId) || poll.slug === pollIdOrSlug
+  ) || null;
 }

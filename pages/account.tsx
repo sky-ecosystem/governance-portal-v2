@@ -6,8 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { useState } from 'react';
-import { Alert, Box, Button, Card, Checkbox, Flex, Heading, Label, Text } from 'theme-ui';
+import { Box, Card, Flex, Heading, Label, Text } from 'theme-ui';
 import { formatValue } from 'lib/string';
 import { useLockedMkr } from 'modules/mkr/hooks/useLockedMkr';
 import PrimaryLayout from 'modules/app/components/layout/layouts/Primary';
@@ -15,14 +14,13 @@ import SidebarLayout from 'modules/app/components/layout/layouts/Sidebar';
 import Stack from 'modules/app/components/layout/layouts/Stack';
 import SystemStatsSidebar from 'modules/app/components/SystemStatsSidebar';
 import ResourceBox from 'modules/app/components/ResourceBox';
-import { DelegateDetail, TxDisplay } from 'modules/delegates/components';
+import { DelegateDetail } from 'modules/delegates/components';
 import Withdraw from 'modules/mkr/components/Withdraw';
 import Icon from 'modules/app/components/Icon';
 import { HeadComponent } from 'modules/app/components/layout/Head';
 import { useAccount } from 'modules/app/hooks/useAccount';
 import { AddressDetail } from 'modules/address/components/AddressDetail';
 import ManageDelegation from 'modules/delegates/components/ManageDelegation';
-import { useDelegateCreate } from 'modules/delegates/hooks/useDelegateCreate';
 import SkeletonThemed from 'modules/app/components/SkeletonThemed';
 import { ErrorBoundary } from 'modules/app/components/ErrorBoundary';
 import { useAddressInfo } from 'modules/app/hooks/useAddressInfo';
@@ -32,48 +30,18 @@ import { ExternalLink } from 'modules/app/components/ExternalLink';
 import AccountSelect from 'modules/app/components/layout/header/AccountSelect';
 import { ClientRenderOnly } from 'modules/app/components/ClientRenderOnly';
 import EtherscanLink from 'modules/web3/components/EtherscanLink';
-import { DialogContent, DialogOverlay } from 'modules/app/components/Dialog';
 import { useNetwork } from 'modules/app/hooks/useNetwork';
-import { TxStatus } from 'modules/web3/constants/transaction';
 
 const AccountPage = (): React.ReactElement => {
   const network = useNetwork();
-  const {
-    account,
-    mutate: mutateAccount,
-    voteDelegateContractAddress,
-    voteProxyContractAddress,
-    votingAccount
-  } = useAccount();
+  const { account, voteDelegateContractAddress, voteProxyContractAddress, votingAccount } = useAccount();
 
-  const { latestOwnerConnected, latestOwnerHasDelegateContract, originalOwnerAddress } =
-    useLinkedDelegateInfo();
+  const { latestOwnerConnected, originalOwnerAddress } = useLinkedDelegateInfo();
   const { data: addressInfo, error: errorLoadingAddressInfo } = useAddressInfo(votingAccount, network);
   const { data: originalOwnerContractAddress } = useVoteDelegateAddress(
     originalOwnerAddress as `0x${string}` | undefined
   );
   const { data: chiefBalance } = useLockedMkr(voteProxyContractAddress || account);
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const [warningRead, setWarningRead] = useState(false);
-  const [txStatus, setTxStatus] = useState<TxStatus>(TxStatus.IDLE);
-  const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
-
-  const createDelegate = useDelegateCreate({
-    onStart: (hash: `0x${string}`) => {
-      setTxHash(hash);
-      setTxStatus(TxStatus.LOADING);
-    },
-    onSuccess: (hash: `0x${string}`) => {
-      setTxHash(hash);
-      setTxStatus(TxStatus.SUCCESS);
-      mutateAccount?.();
-      setModalOpen(false);
-    },
-    onError: () => {
-      setTxStatus(TxStatus.ERROR);
-    }
-  });
 
   return (
     <PrimaryLayout sx={{ maxWidth: [null, null, null, 'page', 'dashboard'] }}>
@@ -119,7 +87,7 @@ const AccountPage = (): React.ReactElement => {
                   </Heading>
                 </Box>
                 <Card>
-                  {voteDelegateContractAddress && !modalOpen && (
+                  {voteDelegateContractAddress && (
                     <Box sx={{ mb: 2 }}>
                       <Label>Your delegate contract address:</Label>
 
@@ -143,7 +111,7 @@ const AccountPage = (): React.ReactElement => {
                       />
                     </Box>
                   )}
-                  {voteDelegateContractAddress && !modalOpen && (
+                  {voteDelegateContractAddress && (
                     <Box sx={{ mb: 2 }}>
                       <Label>FAQ</Label>
                       <ExternalLink

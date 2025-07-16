@@ -17,7 +17,7 @@ export const StatusText = (props: Props): JSX.Element => (
   <Text
     as="p"
     variant="caps"
-    datatest-id={props.testId}
+    data-testid={props.testId}
     sx={{ textAlign: 'center', px: [3, 4], wordBreak: 'break-word' }}
   >
     {props.children}

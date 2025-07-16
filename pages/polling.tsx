@@ -6,559 +6,232 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { useEffect, useState, useRef, useMemo } from 'react';
-import { Heading, Box, Flex, Button, Text } from 'theme-ui';
-import { useBreakpointIndex } from '@theme-ui/match-media';
-import Icon from 'modules/app/components/Icon';
-import ErrorPage from 'modules/app/components/ErrorPage';
-import { GetStaticProps } from 'next';
-import { useRouter } from 'next/router';
-import shallow from 'zustand/shallow';
-import useSWR, { useSWRConfig } from 'swr';
-import groupBy from 'lodash/groupBy';
-import { PollListItem } from 'modules/polling/types';
-import { formatDateWithTime } from 'lib/datetime';
+import { GetServerSideProps } from 'next';
+import { Heading, Box, Button, Text, Alert, Spinner, Flex } from 'theme-ui';
 import PrimaryLayout from 'modules/app/components/layout/layouts/Primary';
 import SidebarLayout from 'modules/app/components/layout/layouts/Sidebar';
 import Stack from 'modules/app/components/layout/layouts/Stack';
-import PollOverviewCard from 'modules/polling/components/PollOverviewCard';
-import { SearchBar } from 'modules/app/components/filters/SearchBar';
-import { CategoryFilter } from 'modules/polling/components/filters/CategoryFilter';
-import { StatusFilter } from 'modules/polling/components/filters/StatusFilter';
-import { PollTypeFilter } from 'modules/polling/components/filters/PollTypeFilter';
-import { DateFilter } from 'modules/polling/components/filters/DateFilter';
-import BallotBox from 'modules/polling/components/BallotBox';
 import ResourceBox from 'modules/app/components/ResourceBox';
 import SystemStatsSidebar from 'modules/app/components/SystemStatsSidebar';
-import useUiFiltersStore from 'modules/app/stores/uiFilters';
-import BallotStatus from 'modules/polling/components/BallotStatus';
-import PageLoadingPlaceholder from 'modules/app/components/PageLoadingPlaceholder';
-import { useAllUserVotes } from 'modules/polling/hooks/useAllUserVotes';
 import { HeadComponent } from 'modules/app/components/layout/Head';
-import { useAccount } from 'modules/app/hooks/useAccount';
-import { isDefaultNetwork } from 'modules/web3/helpers/networks';
+import { InternalLink } from 'modules/app/components/InternalLink';
 import { ErrorBoundary } from 'modules/app/components/ErrorBoundary';
-import { useIntersectionObserver } from 'modules/app/hooks/useIntersectionObserver';
-import { fetchPollingPageData } from 'modules/polling/api/fetchPollingPageData';
-import { SupportedNetworks } from 'modules/web3/constants/networks';
-import PollsSort from 'modules/polling/components/filters/PollsSort';
-import { PollsPaginatedResponse } from 'modules/polling/types/pollsResponse';
-import { PollOrderByEnum, PollStatusEnum } from 'modules/polling/polling.constants';
+import SkyPollOverviewCard, { SkyPoll } from 'modules/polling/components/SkyPollOverviewCard';
+import { TagCount } from 'modules/app/types/tag';
+import { useState, useEffect } from 'react';
+import { SkyPollsResponse } from './api/sky/polls';
 import SkeletonThemed from 'modules/app/components/SkeletonThemed';
-import { useNetwork } from 'modules/app/hooks/useNetwork';
 
-export type PollingPageProps = PollsPaginatedResponse & {
-  activePollIds: number[];
+type PollingPageProps = {
+  initialData?: SkyPollsResponse;
+  error?: string;
 };
 
-const emptyStats = {
-  active: 0,
-  finished: 0,
-  total: 0
+// Transform API poll data to match SkyPoll type
+const transformPoll = (poll: any): SkyPoll => {
+  const transformed: any = {
+    ...poll,
+    options: Array.isArray(poll.options)
+      ? poll.options.reduce((acc: any, opt: any, idx: number) => ({ ...acc, [idx.toString()]: opt }), {})
+      : poll.options || {}
+  };
+
+  // Transform tally if it exists
+  if (poll.tally) {
+    transformed.tally = {
+      ...poll.tally,
+      parameters: {
+        ...poll.parameters,
+        ...poll.tally.parameters
+      },
+      totalSkyParticipation: poll.tally.totalSkyParticipation || '0',
+      totalSkyActiveParticipation: poll.tally.totalSkyActiveParticipation || '0',
+      winningOptionName: poll.tally.winningOptionName,
+      votesByAddress: poll.tally.voteBreakdown || [],
+      results: poll.tally.results.map((result: any) => ({
+        ...result,
+        skySupport: result.skySupport || '0',
+        optionName: poll.options?.[result.optionId] || `Option ${result.optionId}`,
+        winner: false,
+        transfer: '0',
+        transferPct: 0
+      }))
+    };
+  }
+
+  return transformed as SkyPoll;
 };
 
-const PollingOverview = ({
-  polls: propPolls,
-  tags: propTags,
-  stats: propStats,
-  paginationInfo: propPaginationInfo,
-  activePollIds
-}: PollingPageProps) => {
-  const [
-    { categoryFilter, pollVictoryCondition, startDate, endDate, showPollActive, showPollEnded },
-    setCategoryFilter,
-    resetPollFilters,
-    sort,
-    title,
-    setTitle,
-    fetchOnLoad,
-    setFetchOnLoad
-  ] = useUiFiltersStore(
-    state => [
-      state.pollFilters,
-      state.setCategoryFilter,
-      state.resetPollFilters,
-      state.pollsSortBy,
-      state.pollFilters.title,
-      state.setTitle,
-      state.fetchOnLoad,
-      state.setFetchOnLoad
-    ],
-    shallow
+export default function PollingPage({ initialData, error: initialError }: PollingPageProps): JSX.Element {
+  const [skyPolls, setSkyPolls] = useState<SkyPoll[]>(initialData?.polls?.map(transformPoll) || []);
+  const [tags, setTags] = useState<TagCount[]>(
+    initialData?.tags?.map(tag => ({ ...tag, count: tag.count || 0 })) || []
   );
+  const [loading, setLoading] = useState(!initialData);
+  const [error, setError] = useState<string | null>(initialError || null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(initialData?.paginationInfo?.hasNextPage || false);
 
-  const onVisitPoll = () => {
-    setFetchOnLoad(true);
-  };
-
-  const onResetClick = () => {
-    setShowHistorical(false);
-    resetPollFilters();
-    setFetchOnLoad(false);
-  };
-
-  const router = useRouter();
-
-  useEffect(() => {
-    if (router.query.category) {
-      const category = router.query.category as string;
-      setCategoryFilter([category]);
-    }
-  }, [router]);
-
-  const bpi = useBreakpointIndex();
-  const network = useNetwork();
-
-  const [loading, setLoading] = useState(fetchOnLoad);
-  const [isRendering, setIsRendering] = useState(true);
-  const [shouldLoadMore, setShouldLoadMore] = useState(false);
-  const [polls, setPolls] = useState(fetchOnLoad ? [] : propPolls);
-  const [tags, setTags] = useState(fetchOnLoad ? [] : propTags);
-  const [stats, setStats] = useState(fetchOnLoad ? emptyStats : propStats);
-  const [paginationInfo, setPaginationInfo] = useState(propPaginationInfo);
-  const [showHistorical, setShowHistorical] = useState(false);
-  const [filters, setFilters] = useState({
-    page: 1,
-    sort,
-    title,
-    queryTags: categoryFilter,
-    type: pollVictoryCondition,
-    startDate,
-    endDate,
-    status:
-      (showPollActive && showPollEnded) || (!showPollActive && !showPollEnded)
-        ? null
-        : showPollEnded
-        ? PollStatusEnum.ended
-        : PollStatusEnum.active
-  });
-
-  // only for mobile
-  const [showFilters, setShowFilters] = useState(false);
-
-  useEffect(() => {
-    setIsRendering(false);
-  }, []);
-
-  useEffect(() => {
-    if (shouldLoadMore) {
-      if (paginationInfo.hasNextPage) {
-        setLoading(true);
-        setFilters(({ page: prevPage, ...prevFilters }) => ({
-          ...prevFilters,
-          page: prevPage + 1
-        }));
-      } else {
-        setShouldLoadMore(false);
-      }
-    }
-  }, [shouldLoadMore]);
-
-  useEffect(() => {
-    if (!isRendering || fetchOnLoad) {
-      let mounted = true;
-
-      const fetchPolls = async () => {
-        const queryParams = {
-          page: filters.page,
-          type: filters.type,
-          orderBy: filters.sort,
-          title: filters.title,
-          queryTags: filters.queryTags,
-          startDate: filters.startDate,
-          endDate: filters.endDate,
-          status: filters.status
-        };
-
-        const res = await fetchPollingPageData(network, true, queryParams);
-
-        setLoading(false);
-        setPolls(prevPolls => [...prevPolls, ...res.polls]);
-        setTags(res.tags);
-        setStats(res.stats);
-        setPaginationInfo(res.paginationInfo);
-        setShouldLoadMore(false);
-      };
-
-      if (mounted) {
-        fetchPolls();
-      }
-      return () => {
-        mounted = false;
-      };
-    }
-  }, [filters]);
-
-  useEffect(() => {
-    setPolls(fetchOnLoad ? polls : propPolls);
-    setTags(fetchOnLoad ? tags : propTags);
-    setStats(fetchOnLoad ? stats : propStats);
-    setPaginationInfo(propPaginationInfo);
-  }, [propPolls, propTags, propStats, propPaginationInfo, fetchOnLoad]);
-
-  useEffect(() => {
-    if (!isRendering) {
+  const fetchSkyPolls = async (pageNum = 1, append = false) => {
+    try {
       setLoading(true);
-      setPolls([]);
-      setFilters({
-        page: 1,
-        sort,
-        title,
-        queryTags: categoryFilter,
-        type: pollVictoryCondition,
-        startDate,
-        endDate,
-        status:
-          (showPollActive && showPollEnded) || (!showPollActive && !showPollEnded)
-            ? null
-            : showPollEnded
-            ? PollStatusEnum.ended
-            : PollStatusEnum.active
-      });
+      setError(null);
+
+      const response = await fetch(`/api/sky/polls?pageSize=5&page=${pageNum}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch polls: ${response.status}`);
+      }
+
+      const data: SkyPollsResponse = await response.json();
+
+      const transformedPolls = data.polls.map(transformPoll);
+
+      if (append) {
+        setSkyPolls(prev => [...prev, ...transformedPolls]);
+      } else {
+        setSkyPolls(transformedPolls);
+        setTags(data.tags.map(tag => ({ ...tag, count: tag.count || 0 })));
+      }
+
+      setHasMore(data.paginationInfo.hasNextPage);
+    } catch (err) {
+      console.error('Error fetching Sky polls:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch Sky polls');
+    } finally {
+      setLoading(false);
     }
-  }, [sort, title, categoryFilter, pollVictoryCondition, startDate, endDate, showPollActive, showPollEnded]);
+  };
 
-  // Load more on scroll
-  const loader = useRef<HTMLDivElement>(null);
-  useIntersectionObserver(showHistorical ? loader : null, () => setShouldLoadMore(true));
-
-  const { account, votingAccount } = useAccount();
-  const { mutate: mutateAllUserVotes } = useAllUserVotes(votingAccount);
-
-  // revalidate user votes if connected address changes
-  useEffect(() => {
-    mutateAllUserVotes();
-  }, [votingAccount]);
-
-  const [activePolls, endedPolls, groupedActivePolls, groupedEndedPolls] = useMemo(() => {
-    const active = polls.filter(poll => new Date(poll.endDate) > new Date());
-    const ended = polls.filter(poll => new Date(poll.endDate) <= new Date());
-
-    const [groupByKey, activePollsVerb, endedPollsVerb] =
-      sort === PollOrderByEnum.nearestEnd || sort === PollOrderByEnum.furthestEnd
-        ? ['endDate', 'ending', 'ended']
-        : ['startDate', 'started', 'started'];
-
-    const groupedActive = Object.entries(groupBy(active, groupByKey)).map(
-      ([date, pollList]: [string, PollListItem[]]) => [
-        `${pollList.length} Poll${pollList.length === 1 ? '' : 's'} - ${activePollsVerb} ${formatDateWithTime(
-          date
-        )}`,
-        pollList
-      ]
-    ) as [string, PollListItem[]][];
-
-    const groupedEnded = Object.entries(groupBy(ended, groupByKey)).map(
-      ([date, pollList]: [string, PollListItem[]]) => [
-        `${pollList.length} Poll${pollList.length === 1 ? '' : 's'} - ${endedPollsVerb} ${formatDateWithTime(
-          date
-        )}`,
-        pollList
-      ]
-    ) as [string, PollListItem[]][];
-
-    return [active, ended, groupedActive, groupedEnded];
-  }, [polls, propPolls]);
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchSkyPolls(nextPage, true);
+  };
 
   useEffect(() => {
-    if (activePolls.length === 0 && endedPolls.length > 0) {
-      setShowHistorical(true);
+    if (!initialData) {
+      fetchSkyPolls(1);
     }
-  }, [activePolls.length, endedPolls.length]);
-
+  }, [initialData]);
   return (
     <PrimaryLayout sx={{ maxWidth: [null, null, null, 'page', 'dashboard'] }}>
-      <HeadComponent
-        title="Polling"
-        description={`${polls.length > 0 ? `Lastest poll: ${polls[0].title}. ` : ''}Active Polls: ${
-          activePolls.length
-        }. Total Polls: ${polls.length}. .`}
-      />
+      <HeadComponent title="Polls" />
 
-      <Stack gap={3}>
-        <Flex sx={{ justifyContent: ['center', 'flex-start'], alignItems: 'center', flexWrap: 'wrap' }}>
-          <Flex sx={{ alignItems: 'center' }}>
-            <Button
-              variant="textual"
-              sx={{ display: ['block', 'none'], color: 'onSecondary' }}
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Text sx={{ mr: 1 }}>{showFilters ? 'Hide poll filters' : 'Show poll filters'}</Text>
-              <Icon name={showFilters ? 'chevron_down' : 'chevron_right'} size={2} />
-            </Button>
-          </Flex>
-          {(showFilters || bpi > 0) && (
-            <Flex sx={{ flexDirection: ['column', 'column', 'column', 'row'] }}>
-              <Flex
-                sx={{
-                  justifyContent: ['center', 'center', 'center', 'flex-start'],
-                  alignItems: 'center',
-                  flexWrap: 'wrap'
-                }}
-              >
-                <SearchBar
-                  sx={{ m: 2 }}
-                  onChange={setTitle}
-                  value={title}
-                  placeholder="Search poll titles"
-                  withSearchButton={true}
-                  performSearchOnClear={true}
-                />
-                <PollsSort />
-                <CategoryFilter tags={tags} sx={{ m: 2 }} />
-                <StatusFilter stats={stats} sx={{ m: 2 }} />
-                <PollTypeFilter stats={stats} sx={{ m: 2 }} />
-                <DateFilter sx={{ m: 2 }} />
-              </Flex>
-              <Button
-                variant={'outline'}
-                sx={{
-                  m: 2,
-                  color: 'textSecondary',
-                  border: 'none'
-                }}
-                onClick={onResetClick}
-              >
-                Reset filters
-              </Button>
+      <SidebarLayout>
+        <Box>
+          <Stack gap={4}>
+            <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Heading as="h1" sx={{ m: 0 }}>
+                Polls
+              </Heading>
+              <InternalLink href="/legacy-polling" title="Legacy Polls">
+                <Button variant="outline">Legacy Polls</Button>
+              </InternalLink>
             </Flex>
-          )}
-        </Flex>
-        <SidebarLayout>
-          <Box>
-            {[...activePolls, ...endedPolls].length === 0 && !loading && (
-              <Flex sx={{ flexDirection: 'column', alignItems: 'center', pt: [5, 5, 5, 6] }}>
-                <Flex
-                  sx={{
-                    borderRadius: '50%',
-                    backgroundColor: 'secondary',
-                    p: 2,
-                    width: '111px',
-                    height: '111px',
-                    alignItems: 'center'
-                  }}
-                >
-                  <Box m={'auto'}>
-                    <Icon name="magnifying_glass" sx={{ color: 'background', size: 4 }} />
-                  </Box>
-                </Flex>
-                <Text variant={'microHeading'} sx={{ color: 'onSecondary', mt: 3 }}>
-                  No polls found
-                </Text>
-                <Button
-                  variant={'textual'}
-                  sx={{ color: 'primary', textDecoration: 'underline', mt: 2, fontSize: 3 }}
-                  onClick={resetPollFilters}
-                >
-                  Reset filters
+
+            {/* Sky Polls Section */}
+            {error ? (
+              <Alert variant="error" sx={{ mb: 4 }}>
+                <Text>Error loading Sky polls: {error}</Text>
+                <Button variant="outline" sx={{ mt: 2 }} onClick={() => fetchSkyPolls(1)}>
+                  Retry
                 </Button>
-              </Flex>
-            )}
-
-            {activePolls.length === 0 && bpi <= 2 && account && <BallotStatus />}
-
-            {[...activePolls, ...endedPolls].length !== 0 && (
-              <Stack>
-                {activePolls.length > 0 && (
-                  <div>
-                    <Flex sx={{ alignItems: 'center', justifyContent: 'space-between', my: 3 }}>
-                      <Heading as="h4">Active Polls</Heading>
-                      {bpi <= 2 && account && <BallotStatus />}
-                    </Flex>
-                    <Stack>
-                      {groupedActivePolls.map(([groupTitle, pollGroup]) => (
-                        <div key={groupTitle}>
-                          <Text as="p" variant="caps" color="textSecondary" mb={2}>
-                            {groupTitle}
-                          </Text>
-                          <Box sx={{ mb: 0 }}>
-                            {pollGroup.map(poll => (
-                              <Box key={poll.slug} sx={{ mb: 4 }}>
-                                <PollOverviewCard
-                                  poll={poll}
-                                  allTags={tags}
-                                  showVoting={true}
-                                  reviewPage={false}
-                                  onVisitPoll={onVisitPoll}
-                                />
-                              </Box>
-                            ))}
-                          </Box>
-                        </div>
+              </Alert>
+            ) : (
+              <Box>
+                {loading && skyPolls.length === 0 ? (
+                  <Stack gap={4}>
+                    {[...Array(4)].map((_, i) => (
+                      <SkeletonThemed key={i} height="300px" />
+                    ))}
+                  </Stack>
+                ) : skyPolls.length > 0 ? (
+                  <Box>
+                    <Stack gap={4} sx={{ mb: 4 }}>
+                      {skyPolls.map(poll => (
+                        <Box key={poll.pollId}>
+                          <SkyPollOverviewCard poll={poll} />
+                        </Box>
                       ))}
                     </Stack>
-                  </div>
-                )}
 
-                {showHistorical ? (
-                  <div>
-                    <Heading mb={3} as="h4" sx={{ display: stats.finished > 0 ? undefined : 'none' }}>
-                      <Flex sx={{ justifyContent: 'space-between' }}>
-                        Ended Polls
+                    {hasMore && (
+                      <Flex sx={{ justifyContent: 'center', mt: 4 }}>
                         <Button
-                          onClick={() => {
-                            setShowHistorical(false);
-                          }}
-                          variant="mutedOutline"
+                          variant="outline"
+                          onClick={loadMore}
+                          disabled={loading}
+                          sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
                         >
-                          Hide ended polls
+                          {loading && <Spinner size={16} />}
+                          Load More Polls
                         </Button>
                       </Flex>
-                    </Heading>
-                    <Stack>
-                      {groupedEndedPolls.map(([groupTitle, pollGroup]) => (
-                        <div key={groupTitle}>
-                          <Text as="p" variant="caps" color="textSecondary" mb={2}>
-                            {groupTitle}
-                          </Text>
-                          <Box>
-                            {pollGroup.map(poll => (
-                              <Box key={poll.slug} sx={{ mb: 4 }}>
-                                <PollOverviewCard
-                                  poll={poll}
-                                  allTags={tags}
-                                  reviewPage={false}
-                                  showVoting={false}
-                                  onVisitPoll={onVisitPoll}
-                                />
-                              </Box>
-                            ))}
-                          </Box>
-                        </div>
-                      ))}
-                    </Stack>
-                  </div>
+                    )}
+                  </Box>
                 ) : (
-                  <Button
-                    onClick={() => {
-                      setShowHistorical(true);
-                    }}
-                    variant="outline"
-                    data-testid="button-view-ended-polls"
-                    sx={{ mb: 5, py: 3, display: stats.finished > 0 ? undefined : 'none' }}
-                  >
-                    View ended polls ({paginationInfo.totalCount - activePolls.length})
-                  </Button>
+                  <Text sx={{ fontStyle: 'italic', color: 'textSecondary' }}>
+                    No polls available from Sky governance.
+                  </Text>
                 )}
-              </Stack>
+              </Box>
             )}
-            {loading && (
-              <Flex sx={{ justifyContent: 'center' }}>
-                <SkeletonThemed circle={true} width={50} height={50} />
-              </Flex>
-            )}
-          </Box>
-          <Stack gap={3}>
-            {account && bpi > 0 && (
-              <ErrorBoundary componentName="Ballot">
-                <BallotBox
-                  network={network}
-                  activePollCount={activePollIds.length}
-                  activePollIds={activePollIds}
-                />
-              </ErrorBoundary>
-            )}
-
-            <ErrorBoundary componentName="System Info">
-              <SystemStatsSidebar
-                fields={[
-                  'polling contract v2',
-                  'polling contract v1',
-                  'arbitrum polling contract',
-                  'savings rate',
-                  'total dai',
-                  'debt ceiling',
-                  'system surplus'
-                ]}
-              />
-            </ErrorBoundary>
-            <ResourceBox type={'polling'} />
-            <ResourceBox type={'general'} />
           </Stack>
-        </SidebarLayout>
-      </Stack>
-      <div ref={loader} />
+        </Box>
+
+        <Stack gap={3}>
+          <ErrorBoundary componentName="System Info">
+            <SystemStatsSidebar
+              fields={['chief contract', 'mkr in chief', 'savings rate', 'total dai', 'debt ceiling']}
+            />
+          </ErrorBoundary>
+          <ResourceBox type={'polling'} />
+          <ResourceBox type={'general'} />
+        </Stack>
+      </SidebarLayout>
     </PrimaryLayout>
-  );
-};
-
-export default function PollingOverviewPage({
-  polls: prefetchedPolls,
-  tags: prefetchedCategories,
-  stats: prefetchedStats,
-  paginationInfo: prefetchedPaginationInfo,
-  activePollIds: prefetchedActivePollIds
-}: PollingPageProps): JSX.Element {
-  const network = useNetwork();
-
-  const fallbackData = isDefaultNetwork(network)
-    ? {
-        polls: prefetchedPolls,
-        tags: prefetchedCategories,
-        stats: prefetchedStats,
-        paginationInfo: prefetchedPaginationInfo,
-        activePollIds: prefetchedActivePollIds
-      }
-    : null;
-
-  const { cache } = useSWRConfig();
-  const cacheKey = `page/polling/${network}`;
-  const { data, error } = useSWR<PollingPageProps>(
-    !network || isDefaultNetwork(network) ? null : cacheKey,
-    () => fetchPollingPageData(network, true),
-    {
-      revalidateOnMount: !cache.get(cacheKey),
-      ...(fallbackData && { fallbackData })
-    }
-  );
-
-  if (!isDefaultNetwork(network) && !data && !error) {
-    return <PageLoadingPlaceholder />;
-  }
-
-  if (error) {
-    return (
-      <PrimaryLayout sx={{ maxWidth: 'dashboard' }}>
-        <ErrorPage statusCode={500} title="Error fetching data, please try again later." />
-      </PrimaryLayout>
-    );
-  }
-
-  const props = {
-    polls: isDefaultNetwork(network) ? prefetchedPolls : data?.polls || [],
-    tags: isDefaultNetwork(network) ? prefetchedCategories : data?.tags || [],
-    stats: isDefaultNetwork(network) ? prefetchedStats : data?.stats || { active: 0, finished: 0, total: 0 },
-    paginationInfo: isDefaultNetwork(network)
-      ? prefetchedPaginationInfo
-      : data?.paginationInfo || {
-          totalCount: 0,
-          page: 0,
-          numPages: 0,
-          hasNextPage: false
-        },
-    activePollIds: isDefaultNetwork(network) ? prefetchedActivePollIds : data?.activePollIds || []
-  };
-
-  return (
-    <ErrorBoundary componentName="Poll List">
-      <PollingOverview {...props} />
-    </ErrorBoundary>
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
-  const { polls, tags, stats, paginationInfo, activePollIds } = await fetchPollingPageData(
-    SupportedNetworks.MAINNET
-  );
+export const getServerSideProps: GetServerSideProps<PollingPageProps> = async () => {
+  try {
+    // Try to fetch initial data server-side
+    const apiUrl = 'https://vote.sky.money/api/polling/all-polls-with-tally';
+    const url = new URL(apiUrl);
+    url.searchParams.set('pageSize', '5');
+    url.searchParams.set('page', '1');
 
-  return {
-    revalidate: 60, // revalidate every 60 seconds
-    props: {
-      polls,
-      tags,
-      stats,
-      paginationInfo,
-      activePollIds
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      // Add timeout for the request
+      signal: AbortSignal.timeout(5000)
+    });
+
+    if (response.ok) {
+      const initialData: SkyPollsResponse = await response.json();
+      return {
+        props: {
+          initialData
+        }
+      };
+    } else {
+      console.error('Failed to fetch initial Sky polls data:', response.status);
+      return {
+        props: {
+          error: `Failed to fetch polls (status: ${response.status})`
+        }
+      };
     }
-  };
+  } catch (error) {
+    console.error('Error fetching initial Sky polls data:', error);
+    return {
+      props: {
+        error: 'Failed to connect to Sky governance API'
+      }
+    };
+  }
 };

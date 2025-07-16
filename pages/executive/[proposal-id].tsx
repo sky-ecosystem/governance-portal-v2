@@ -22,7 +22,6 @@ import { useMkrOnHat } from 'modules/executive/hooks/useMkrOnHat';
 import { cutMiddle, formatValue } from 'lib/string';
 import { getStatusText } from 'modules/executive/helpers/getStatusText';
 import { isDefaultNetwork } from 'modules/web3/helpers/networks';
-import VoteModal from 'modules/executive/components/VoteModal/index';
 import Stack from 'modules/app/components/layout/layouts/Stack';
 import Tabs from 'modules/app/components/Tabs';
 import PrimaryLayout from 'modules/app/components/layout/layouts/Primary';
@@ -130,43 +129,13 @@ const ProposalView = ({ proposal, spellDiffs }: Props): JSX.Element => {
           proposal['title'] ? proposal['title'] : proposal.address
         }.`}
       />
-
-      {voting && <VoteModal close={close} proposal={proposal} />}
-      {account && bpi === 0 && (
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            backgroundColor: 'surface',
-            width: '100vw',
-            borderTopLeftRadius: 'roundish',
-            borderTopRightRadius: 'roundish',
-            px: 3,
-            py: 4,
-            border: '1px solid #D4D9E1',
-            zIndex: 10
-          }}
-        >
-          <Button
-            variant="primaryLarge"
-            onClick={() => {
-              setVoting(true);
-            }}
-            sx={{ width: '100%' }}
-            disabled={hasVotedFor && votedProposals && votedProposals.length === 1}
-          >
-            Vote for this proposal
-          </Button>
-        </Box>
-      )}
       <SidebarLayout>
         <Box>
-          <InternalLink href={'/executive'} title="View executive proposals">
+          <InternalLink href="/legacy-executive" title="View legacy executive proposals">
             <Button variant="mutedOutline" mb={2}>
               <Flex sx={{ alignItems: 'center', whiteSpace: 'nowrap' }}>
                 <Icon name="chevron_left" sx={{ size: 2, mr: 2 }} />
-                Back to {bpi === 0 ? 'All' : 'Executive'} Proposals
+                Back to Legacy Execs
               </Flex>
             </Button>
           </InternalLink>
@@ -272,25 +241,6 @@ const ProposalView = ({ proposal, spellDiffs }: Props): JSX.Element => {
           </Card>
         </Box>
         <Stack gap={3} sx={{ mb: [5, 0] }}>
-          {account && bpi !== 0 && (
-            <Box sx={{ mt: 4, pt: 3 }}>
-              <Card variant="compact">
-                <Text sx={{ fontSize: 5 }}>
-                  {proposal.title ? proposal.title : cutMiddle(proposal.address)}
-                </Text>
-                <Button
-                  variant="primaryLarge"
-                  onClick={() => {
-                    setVoting(true);
-                  }}
-                  sx={{ width: '100%', mt: 3 }}
-                  disabled={hasVotedFor && votedProposals && votedProposals.length === 1}
-                >
-                  Vote for this proposal
-                </Button>
-              </Card>
-            </Box>
-          )}
           <Box>
             <Flex sx={{ mt: 3, mb: 2, alignItems: 'center', justifyContent: 'space-between' }}>
               <Heading as="h3" variant="microHeading" sx={{ mr: 1 }}>
@@ -431,6 +381,7 @@ export default function ProposalPage({
   const router = useRouter();
   const { query } = router;
   const network = useNetwork();
+  const proposalId = query['proposal-id'] as string;
 
   /**Disabling spell-effects until multi-transactions endpoint is ready */
   // const spellAddress = prefetchedProposal?.address;
@@ -481,9 +432,21 @@ export default function ProposalPage({
   const proposal = isDefaultNetwork(network) ? prefetchedProposal : _proposal;
   // const spellDiffs = prefetchedSpellDiffs.length > 0 ? prefetchedSpellDiffs : diffs;
 
+  // Check if proposal is null before rendering
+  if (!proposal) {
+    return (
+      <PrimaryLayout sx={{ maxWidth: 'dashboard' }}>
+        <ErrorPage
+          statusCode={404}
+          title="Executive proposal either does not exist, or could not be fetched at this time"
+        />
+      </PrimaryLayout>
+    );
+  }
+
   return (
     <ErrorBoundary componentName="Executive Page">
-      <ProposalView proposal={proposal as Proposal} spellDiffs={[]} />
+      <ProposalView proposal={proposal} spellDiffs={[]} />
     </ErrorBoundary>
   );
 }
