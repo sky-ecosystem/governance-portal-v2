@@ -64,7 +64,7 @@ export class SkyExecutiveDetailPage {
   }
 
   async goto(executiveKey: string) {
-    await this.page.goto(`/executive/${executiveKey}`);
+    await this.page.goto(`/sky-executive/${executiveKey}`);
     await this.page.waitForLoadState('networkidle');
   }
 

@@ -81,7 +81,7 @@ const SkyExecutiveDetailView = ({ executive, skyOnHat }: SkyExecutiveDetailViewP
             <Flex sx={{ justifyContent: 'space-between' }}>
               {executive.ctx?.prev?.key && (
                 <InternalLink
-                  href={`/executive/${executive.ctx.prev.key}`}
+                  href={`/sky-executive/${executive.ctx.prev.key}`}
                   title="View previous executive"
                   scroll={false}
                 >
@@ -95,7 +95,7 @@ const SkyExecutiveDetailView = ({ executive, skyOnHat }: SkyExecutiveDetailViewP
               )}
               {executive.ctx?.next?.key && (
                 <InternalLink
-                  href={`/executive/${executive.ctx.next.key}`}
+                  href={`/sky-executive/${executive.ctx.next.key}`}
                   title="View next executive"
                   scroll={false}
                   styles={{ ml: 2 }}

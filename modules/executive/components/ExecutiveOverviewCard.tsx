@@ -65,7 +65,7 @@ export default function ExecutiveOverviewCard({
   }
 
   const canVote = !!account;
-  const executiveUrl = isLegacy ? `/legacy-executive/${proposal.key}` : `/executive/${proposal.key}`;
+  const executiveUrl = isLegacy ? `/executive/${proposal.key}` : `/sky-executive/${proposal.key}`;
 
   return (
     <Card

@@ -56,7 +56,7 @@ export default function SkyExecutiveOverviewCard({ proposal, isHat, skyOnHat }: 
           <Box>
             <Flex sx={{ flexDirection: 'column' }}>
               <InternalLink
-                href={`/executive/${proposal.key}`}
+                href={`/sky-executive/${proposal.key}`}
                 title="View executive details"
               >
                 <>
@@ -104,7 +104,7 @@ export default function SkyExecutiveOverviewCard({ proposal, isHat, skyOnHat }: 
               }}
             >
               <InternalLink
-                href={`/executive/${proposal.key}`}
+                href={`/sky-executive/${proposal.key}`}
                 title="View executive details"
               >
                 <Button
