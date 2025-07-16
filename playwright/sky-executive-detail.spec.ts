@@ -291,12 +291,12 @@ test.describe('Sky Executive Detail Page', () => {
     });
 
     await test.step('navigate to non-existent executive', async () => {
-      await page.goto('/executive/non-existent-executive');
+      await page.goto('/sky-executive/non-existent-executive');
       await page.waitForLoadState('networkidle');
     });
 
     await test.step('verify error page is displayed', async () => {
-      await expect(page.getByText(/Executive proposal either does not exist/)).toBeVisible();
+      await expect(page.getByText(/Sky executive proposal either does not exist/)).toBeVisible();
     });
   });
 
@@ -328,12 +328,12 @@ test.describe('Sky Executive Detail Page', () => {
     });
 
     await test.step('navigate to error executive', async () => {
-      await page.goto('/executive/error-executive');
+      await page.goto('/sky-executive/error-executive');
       await page.waitForLoadState('networkidle');
     });
 
     await test.step('verify error page is displayed', async () => {
-      await expect(page.getByText(/Executive proposal either does not exist/)).toBeVisible();
+      await expect(page.getByText(/Sky executive proposal either does not exist/)).toBeVisible();
     });
   });
 
@@ -355,7 +355,7 @@ test.describe('Sky Executive Detail Page', () => {
     });
 
     await test.step('navigate to executive with no supporters', async () => {
-      await page.goto('/executive/empty-executive');
+      await page.goto('/sky-executive/empty-executive');
       await page.waitForLoadState('networkidle');
     });
 

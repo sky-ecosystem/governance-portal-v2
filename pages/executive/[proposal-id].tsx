@@ -30,7 +30,7 @@ import ResourceBox from 'modules/app/components/ResourceBox';
 import { StatBox } from 'modules/app/components/StatBox';
 import { SpellEffectsTab } from 'modules/executive/components/SpellEffectsTab';
 import { InternalLink } from 'modules/app/components/InternalLink';
-import { CMSProposal, Proposal, SpellData, SpellDiff, isSkyExecutive } from 'modules/executive/types';
+import { CMSProposal, Proposal, SpellData, SpellDiff } from 'modules/executive/types';
 import { HeadComponent } from 'modules/app/components/layout/Head';
 import { ZERO_ADDRESS } from 'modules/web3/constants/addresses';
 import { useAccount } from 'modules/app/hooks/useAccount';
@@ -43,8 +43,6 @@ import EtherscanLink from 'modules/web3/components/EtherscanLink';
 import { trimProposalKey } from 'modules/executive/helpers/trimProposalKey';
 import { parseEther } from 'viem';
 import { useNetwork } from 'modules/app/hooks/useNetwork';
-import { useSkyExecutiveDetail } from 'modules/executive/hooks/useSkyExecutiveDetail';
-import SkyExecutiveDetailView from 'modules/executive/components/SkyExecutiveDetailView';
 
 type Props = {
   proposal: Proposal;
@@ -385,11 +383,6 @@ export default function ProposalPage({
   const network = useNetwork();
   const proposalId = query['proposal-id'] as string;
 
-  // Try to fetch Sky executive if legacy executive fails or isn't found
-  const { executive: skyExecutive, error: skyError, isValidating: isSkyExecutiveLoading } = useSkyExecutiveDetail(
-    (!prefetchedProposal || error) && proposalId ? proposalId : undefined
-  );
-
   /**Disabling spell-effects until multi-transactions endpoint is ready */
   // const spellAddress = prefetchedProposal?.address;
   // const nextCastTime = prefetchedProposal?.spellData?.nextCastTime?.getTime();
@@ -419,22 +412,8 @@ export default function ProposalPage({
     return <LoadingIndicator />;
   }
 
-  // If we have a Sky executive, render it
-  if (skyExecutive) {
-    return (
-      <ErrorBoundary componentName="Sky Executive Page">
-        <SkyExecutiveDetailView executive={skyExecutive} />
-      </ErrorBoundary>
-    );
-  }
-
-  // Show loading state if Sky executive is still loading
-  if (isSkyExecutiveLoading && (!prefetchedProposal || error)) {
-    return <LoadingIndicator />;
-  }
-
-  // Now check for actual errors or missing proposals AFTER fallback is resolved and loading is complete
-  if ((error || (isDefaultNetwork(network) && !prefetchedProposal?.key)) && skyError) {
+  // Now check for actual errors or missing proposals AFTER fallback is resolved
+  if (error || (isDefaultNetwork(network) && !prefetchedProposal?.key)) {
     return (
       <PrimaryLayout sx={{ maxWidth: 'dashboard' }}>
         <ErrorPage
@@ -452,15 +431,6 @@ export default function ProposalPage({
 
   const proposal = isDefaultNetwork(network) ? prefetchedProposal : _proposal;
   // const spellDiffs = prefetchedSpellDiffs.length > 0 ? prefetchedSpellDiffs : diffs;
-
-  // If we have a legacy proposal, check if it's actually a Sky executive
-  if (proposal && isSkyExecutive(proposal)) {
-    return (
-      <ErrorBoundary componentName="Sky Executive Page">
-        <SkyExecutiveDetailView executive={proposal} />
-      </ErrorBoundary>
-    );
-  }
 
   // Check if proposal is null before rendering
   if (!proposal) {
