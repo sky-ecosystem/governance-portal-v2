@@ -10,10 +10,31 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import withApiHandler from 'modules/app/api/withApiHandler';
 import { ApiError } from 'modules/app/api/ApiError';
 import { SkyExecutiveDetailResponse } from 'modules/executive/types';
+import validateQueryParam from 'modules/app/api/validateQueryParam';
 
 async function fetchSkyExecutiveDetail(proposalIdOrKey: string): Promise<SkyExecutiveDetailResponse> {
   try {
-    const apiUrl = `https://vote.sky.money/api/executive/${proposalIdOrKey}`;
+    // Validate proposal-id format (kebab-case string or ethereum address)
+    const proposalId = validateQueryParam(
+      proposalIdOrKey,
+      'string',
+      { defaultValue: null },
+      (id: string) => {
+        if (!id || typeof id !== 'string') return false;
+        // Allow ethereum addresses (0x followed by 40 hex chars)
+        if (/^0x[a-fA-F0-9]{40}$/.test(id)) return true;
+        // Allow kebab-case strings (letters, numbers, hyphens, at least 3 chars)
+        if (/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id) && id.length >= 3) return true;
+        return false;
+      },
+      new ApiError(
+        'Invalid proposal-id format',
+        400,
+        'Proposal ID must be a valid ethereum address or kebab-case string'
+      )
+    ) as string;
+
+    const apiUrl = `https://vote.sky.money/api/executive/${proposalId}`;
 
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -29,7 +50,7 @@ async function fetchSkyExecutiveDetail(proposalIdOrKey: string): Promise<SkyExec
     }
 
     const data = await response.json();
-    
+
     // Transform string dates to Date objects and convert officeHours to boolean
     if (data.spellData) {
       if (data.spellData.nextCastTime) {
@@ -46,7 +67,7 @@ async function fetchSkyExecutiveDetail(proposalIdOrKey: string): Promise<SkyExec
         data.spellData.officeHours = data.spellData.officeHours === 'true';
       }
     }
-    
+
     return data;
   } catch (error) {
     console.error('Error fetching Sky executive detail:', error);
