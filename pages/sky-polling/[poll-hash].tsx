@@ -68,7 +68,7 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
         <HeadComponent title={poll.title} description={`${poll.title}. End Date: ${poll.endDate}.`} />
 
         <div>
-          <Flex mb={2} sx={{ justifyContent: 'space-between', flexDirection: 'row' }}>
+          <Flex mb={2} sx={{ justifyContent: 'flex-start', flexDirection: 'row' }}>
             <InternalLink href="/polling" title="View polling page">
               <Button variant="mutedOutline">
                 <Flex sx={{ display: ['none', 'block'], alignItems: 'center', whiteSpace: 'nowrap' }}>
@@ -80,37 +80,6 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
                 </Flex>
               </Button>
             </InternalLink>
-            <Flex sx={{ justifyContent: 'space-between' }}>
-              {poll.ctx?.prev?.slug && (
-                <InternalLink
-                  href={`/sky-polling/${poll.ctx.prev.slug}`}
-                  title="View previous poll"
-                  scroll={false}
-                >
-                  <Button variant="mutedOutline">
-                    <Flex sx={{ alignItems: 'center', whiteSpace: 'nowrap' }}>
-                      <Icon name="chevron_left" sx={{ size: 2, mr: 2 }} />
-                      {bpi > 0 ? 'Previous Poll' : 'Previous'}
-                    </Flex>
-                  </Button>
-                </InternalLink>
-              )}
-              {poll.ctx?.next?.slug && (
-                <InternalLink
-                  href={`/sky-polling/${poll.ctx.next.slug}`}
-                  title="View next poll"
-                  scroll={false}
-                  styles={{ ml: 2 }}
-                >
-                  <Button variant="mutedOutline">
-                    <Flex sx={{ alignItems: 'center', whiteSpace: 'nowrap' }}>
-                      {bpi > 0 ? 'Next Poll' : 'Next'}
-                      <Icon name="chevron_right" sx={{ size: 2, ml: 2 }} />
-                    </Flex>
-                  </Button>
-                </InternalLink>
-              )}
-            </Flex>
           </Flex>
           <Card sx={{ p: [0, 0], position: 'relative' }}>
             <Badge variant="sky" sx={{ position: 'absolute', top: 3, right: 3 }}>
