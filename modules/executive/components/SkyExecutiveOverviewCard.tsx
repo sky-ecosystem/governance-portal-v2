@@ -43,7 +43,6 @@ export default function SkyExecutiveOverviewCard({ proposal, isHat, skyOnHat }: 
         position: 'relative'
       }}
     >
-      <Badge variant="sky" sx={{ position: 'absolute', top: 3, right: 3 }}>Sky Governance</Badge>
       <Flex
         sx={{
           flexDirection: 'column',

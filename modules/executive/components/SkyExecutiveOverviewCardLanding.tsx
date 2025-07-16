@@ -59,7 +59,6 @@ export default function SkyExecutiveOverviewCardLanding({ proposal, isHat, skyOn
                 <>
                   <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <CardHeader text={postedDateString} styles={{ mb: 0 }} />
-                    <Badge variant="sky">Sky Governance</Badge>
                   </Flex>
                   <CardTitle title={proposal.title} styles={{ mt: 2 }} />
                   <CardSummary text={proposal.proposalBlurb} styles={{ my: 2 }} />
