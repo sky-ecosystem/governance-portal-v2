@@ -82,9 +82,6 @@ const SkyPollView = ({ poll }: { poll: SkyPollDetailResponse }) => {
             </InternalLink>
           </Flex>
           <Card sx={{ p: [0, 0], position: 'relative' }}>
-            <Badge variant="sky" sx={{ position: 'absolute', top: 3, right: 3 }}>
-              Sky Governance
-            </Badge>
             <Flex sx={{ flexDirection: 'column', px: [3, 4], pt: [3, 4] }}>
               <Box>
                 <Flex sx={{ justifyContent: 'space-between', flexDirection: ['column', 'row'] }}>

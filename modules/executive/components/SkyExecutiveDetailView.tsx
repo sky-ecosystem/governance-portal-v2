@@ -124,7 +124,6 @@ const SkyExecutiveDetailView = ({ executive, skyOnHat }: SkyExecutiveDetailViewP
                   >
                     Posted {formatDateWithTime(new Date(executive.date))}
                   </Text>
-                  <Badge variant="sky">Sky Governance</Badge>
                 </Flex>
 
                 <Flex sx={{ mb: 2, flexDirection: 'column' }}>
