@@ -46,7 +46,7 @@
     "debug": "^4.4.0",
     "defender-relay-client": "^1.23.0",
     "eth-rpc-errors": "^4.0.3",
-    "graphql-request": "^4.0.0",
+    "graphql-request": "6.1.0",
     "gray-matter": "^4.0.2",
     "ioredis": "^5.0.6",
     "ipfs-only-hash": "^4.0.0",

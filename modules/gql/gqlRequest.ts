@@ -17,7 +17,7 @@ type GqlRequestProps = {
   chainId?: SupportedChainId;
   useSubgraph?: boolean;
   query: RequestDocument;
-  variables?: Variables | null;
+  variables?: Variables;
 };
 
 // TODO we'll be able to remove the "any" if we update all the instances of gqlRequest to pass <Query>
