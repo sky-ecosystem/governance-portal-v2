@@ -104,7 +104,7 @@ export async function fetchSpockPolls(
   const requestData = {
     chainId: networkNameToChainId(network),
     query: allWhitelistedPolls,
-    variables: queryVariables
+    variables: queryVariables ?? undefined
   };
 
   const data = await gqlRequest<GqlQuery>(requestData);
