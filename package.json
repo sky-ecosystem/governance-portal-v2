@@ -3,7 +3,7 @@
   "license": "AGPL-3.0-only",
   "version": "0.12.1",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
