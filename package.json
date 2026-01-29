@@ -100,7 +100,7 @@
     "@wagmi/cli": "^2.2.0",
     "babel-plugin-istanbul": "^6.1.1",
     "dotenv": "^8.2.0",
-    "eslint": "^8.38.0",
+    "eslint": "^9.26.0",
     "eslint-config-next": "^14.2.3",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-jest-dom": "^4.0.3",
