@@ -53,48 +53,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { DEFAULT_NETWORK, SupportedNetworks } from 'modules/web3/constants/networks';
 import withApiHandler from 'modules/app/api/withApiHandler';
-import validateQueryParam from 'modules/app/api/validateQueryParam';
-import { fetchExecutiveVoteTallyWithSubgraph } from 'modules/executive/api/fetchExecutiveVoteTallyWithSubgraph';
-import { cacheGet, cacheSet } from 'modules/cache/cache';
-import { executiveSupportersCacheKey } from 'modules/cache/constants/cache-keys';
-import { FIVE_MINUTES_IN_MS } from 'modules/app/constants/time';
-import { ApiError } from 'modules/app/api/ApiError';
+import allSupporters from 'modules/executive/data/supporters.json';
 
-export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse) => {
-  // validate network
-  const network = validateQueryParam(
-    (req.query.network as SupportedNetworks) || DEFAULT_NETWORK.network,
-    'string',
-    {
-      defaultValue: null,
-      validValues: [SupportedNetworks.TENDERLY, SupportedNetworks.MAINNET]
-    }
-  ) as SupportedNetworks;
-
-  if (!network) {
-    throw new ApiError('Invalid network', 400, 'Invalid network');
-  }
-
-  const cached = await cacheGet(executiveSupportersCacheKey, network);
-
-  res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate');
-
-  if (cached) {
-    res.status(200).json(JSON.parse(cached));
-    return;
-  }
-
-  const allSupporters = await fetchExecutiveVoteTallyWithSubgraph(network);
-
-  // handle percent and check address
-  Object.keys(allSupporters).forEach(spell => {
-    allSupporters[spell].forEach(supporter => {
-      if (supporter.percent === 'NaN') supporter.percent = '0';
-    });
-  });
-
-  cacheSet(executiveSupportersCacheKey, JSON.stringify(allSupporters), network, FIVE_MINUTES_IN_MS);
+export default withApiHandler(async (_req: NextApiRequest, res: NextApiResponse) => {
+  res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate');
   res.status(200).json(allSupporters);
 });
