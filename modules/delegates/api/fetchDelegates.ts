@@ -296,57 +296,58 @@ export async function fetchDelegatesPaginated({
       ? alignedDelegatesAddresses
       : ['0x0000000000000000000000000000000000000000'];
 
-  // Build base Hasura where conditions
-  const baseWhereConditions: string[] = [
-    `chainId: { _eq: ${chainId} }`
-  ];
-
-  // Version and expiration filter
-  if (includeExpired) {
-    baseWhereConditions.push('version: { _in: ["1", "2"] }');
-  } else {
-    // Include all v2, and v1 only if not expired (created within the last year)
-    const oneYearAgo = Math.floor(Date.now() / 1000) - 24 * 60 * 60 * 365;
-    baseWhereConditions.push(
-      `_or: [{ version: { _eq: "2" } }, { _and: [{ version: { _eq: "1" } }, { blockTimestamp_gt: ${oneYearAgo} }] }]`
-    );
-  }
-
-  // Build chainId-prefixed ID conditions for filtering
+  // Build Hasura where conditions using a single _and to avoid duplicate keys
   const prefixedAlignedAddresses = alignedDelegatesAddresses.map(a => `{ id: { _ilike: "%${a}" } }`);
   const prefixedFilteredAddresses = filteredDelegateAddresses.map(a => `{ id: { _ilike: "%${a}" } }`);
-  const prefixedNotAlignedAddresses = alignedDelegatesAddressesForNotInQuery.map(
+  const prefixedNotAlignedConditions = alignedDelegatesAddressesForNotInQuery.map(
     a => `{ id: { _nilike: "%${a}" } }`
   );
 
-  if (searchTerm) {
-    if (prefixedFilteredAddresses.length > 0) {
-      baseWhereConditions.push(`_or: [${prefixedFilteredAddresses.join(', ')}]`);
-    }
-    if (delegateType === DelegateTypeEnum.ALIGNED && prefixedAlignedAddresses.length > 0) {
-      baseWhereConditions.push(`_or: [${prefixedAlignedAddresses.join(', ')}]`);
-    }
-  } else if (delegateType === DelegateTypeEnum.ALIGNED && prefixedAlignedAddresses.length > 0) {
-    baseWhereConditions.push(`_or: [${prefixedAlignedAddresses.join(', ')}]`);
-  } else if (delegateType === DelegateTypeEnum.SHADOW && prefixedNotAlignedAddresses.length > 0) {
-    baseWhereConditions.push(`_and: [${prefixedNotAlignedAddresses.join(', ')}]`);
+  // Version/expiration filter as an _and item
+  let versionCondition: string;
+  if (includeExpired) {
+    versionCondition = '{ version: { _in: ["1", "2"] } }';
+  } else {
+    const oneYearAgo = Math.floor(Date.now() / 1000) - 24 * 60 * 60 * 365;
+    versionCondition = `{ _or: [{ version: { _eq: "2" } }, { _and: [{ version: { _eq: "1" } }, { blockTimestamp: { _gt: ${oneYearAgo} } }] }] }`;
   }
 
-  // Shadow filter: base + not aligned
-  const shadowWhereConditions = [
-    ...baseWhereConditions.filter(c => !c.startsWith('_or: [{ id: { _ilike')),
-    ...(prefixedNotAlignedAddresses.length > 0
-      ? [`_and: [${prefixedNotAlignedAddresses.join(', ')}]`]
+  // Build base _and items (shared across all query variants)
+  const baseAndItems: string[] = [versionCondition];
+
+  if (searchTerm && prefixedFilteredAddresses.length > 0) {
+    baseAndItems.push(`{ _or: [${prefixedFilteredAddresses.join(', ')}] }`);
+  }
+
+  // Shadow filter: base + exclude aligned delegates
+  const shadowAndItems = [...baseAndItems, ...prefixedNotAlignedConditions];
+
+  // Aligned filter: base + only aligned delegates
+  const alignedAndItems = [
+    ...baseAndItems,
+    ...(prefixedAlignedAddresses.length > 0
+      ? [`{ _or: [${prefixedAlignedAddresses.join(', ')}] }`]
       : [])
   ];
 
-  // Aligned filter: base + only aligned
-  const alignedWhereConditions = [
-    ...baseWhereConditions.filter(c => !c.startsWith('_and: [{ id: { _nilike')),
-    ...(prefixedAlignedAddresses.length > 0
-      ? [`_or: [${prefixedAlignedAddresses.join(', ')}]`]
-      : [])
+  // Build final where condition arrays for query functions
+  const buildWhereConditions = (andItems: string[]): string[] => [
+    `chainId: { _eq: ${chainId} }`,
+    `_and: [${andItems.join(', ')}]`
   ];
+
+  const shadowWhereConditions = buildWhereConditions(shadowAndItems);
+  const alignedWhereConditions = buildWhereConditions(alignedAndItems);
+
+  // For type-specific queries, use the appropriate filter directly
+  let baseWhereConditions: string[];
+  if (delegateType === DelegateTypeEnum.ALIGNED) {
+    baseWhereConditions = alignedWhereConditions;
+  } else if (delegateType === DelegateTypeEnum.SHADOW) {
+    baseWhereConditions = shadowWhereConditions;
+  } else {
+    baseWhereConditions = buildWhereConditions(baseAndItems);
+  }
 
   const queryOrderBy = orderBy === DelegateOrderByEnum.RANDOM ? DelegateOrderByEnum.MKR : orderBy;
 
@@ -386,18 +387,21 @@ export async function fetchDelegatesPaginated({
     delegate.ownerAddress.toLowerCase()
   );
 
-  const gaslessChainId = networkNameToChainId(getGaslessNetwork(network));
-  const lastVotedArbitrumArray = await gqlRequest<any>({
-    chainId: gaslessChainId,
-    query: lastVotedArbitrum(gaslessChainId, combinedDelegateOwnerAddresses),
-    useSubgraph: true
-  });
+  let lastVotedArbitrumObj: Record<string, number> = {};
+  if (combinedDelegateOwnerAddresses.length > 0) {
+    const gaslessChainId = networkNameToChainId(getGaslessNetwork(network));
+    const lastVotedArbitrumArray = await gqlRequest<any>({
+      chainId: gaslessChainId,
+      query: lastVotedArbitrum(gaslessChainId, combinedDelegateOwnerAddresses),
+      useSubgraph: true
+    });
 
-  const lastVotedArbitrumObj = (lastVotedArbitrumArray.ArbitrumVoter || []).reduce((acc: any, voter: any) => {
-    acc[voter.address?.toLowerCase()] =
-      voter.pollVotes && voter.pollVotes.length > 0 ? Number(voter.pollVotes[0].blockTime) : 0;
-    return acc;
-  }, {});
+    lastVotedArbitrumObj = (lastVotedArbitrumArray.ArbitrumVoter || []).reduce((acc: any, voter: any) => {
+      acc[voter.address?.toLowerCase()] =
+        voter.pollVotes && voter.pollVotes.length > 0 ? Number(voter.pollVotes[0].blockTime) : 0;
+      return acc;
+    }, {});
+  }
 
   // Apply random sorting on the frontend if orderBy is RANDOM
   if (orderBy === DelegateOrderByEnum.RANDOM) {
