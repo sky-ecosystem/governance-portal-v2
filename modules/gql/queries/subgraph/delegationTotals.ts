@@ -6,14 +6,18 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { gql } from 'graphql-request';
+import { sealEngineAddressMainnet } from 'modules/gql/gql.constants';
 
-export const delegationTotalsQuery = gql`
-  query delegationTotals($skip: Int!) {
-    delegates(where: {version_in: ["1", "2"]}, first: 1000, skip: $skip){
-      delegations(first: 1000, where: {delegator_not_in: ["0x2b16c07d5fd5cc701a0a871eae2aad6da5fc8f12"]}){
-        amount
-      }
+export const delegationTotalsQuery = (chainId: number, skip: number): string => `
+{
+  Delegate(
+    limit: 1000,
+    offset: ${skip},
+    where: { chainId: { _eq: ${chainId} }, version: { _in: ["1", "2"] } }
+  ) {
+    delegations(limit: 1000, where: { delegator: { _nilike: "${sealEngineAddressMainnet}" } }) {
+      amount
     }
   }
+}
 `;

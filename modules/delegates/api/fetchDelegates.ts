@@ -296,75 +296,81 @@ export async function fetchDelegatesPaginated({
       ? alignedDelegatesAddresses
       : ['0x0000000000000000000000000000000000000000'];
 
-  const baseDelegatesQueryFilter: any = {
-    and: [
-      {
-        or: [
-          // Include all v2 delegates
-          { version: '2' },
-          // For v1 delegates, conditionally check expiration
-          {
-            and: [
-              { version: '1' },
-              // Only apply timestamp check if includeExpired is false
-              ...(includeExpired
-                ? []
-                : [{ blockTimestamp_gt: Math.floor(Date.now() / 1000) - 24 * 60 * 60 * 365 }])
-            ]
-          }
-        ]
-      }
-    ]
-  };
+  // Build base Hasura where conditions
+  const baseWhereConditions: string[] = [
+    `chainId: { _eq: ${chainId} }`
+  ];
 
-  if (searchTerm) {
-    baseDelegatesQueryFilter.and.push({ id_in: filteredDelegateAddresses });
-    if (delegateType === DelegateTypeEnum.ALIGNED) {
-      baseDelegatesQueryFilter.and.push({ id_in: alignedDelegatesAddresses });
-      baseDelegatesQueryFilter.and.push({ id_not_in: alignedDelegatesAddressesForNotInQuery });
-    }
-  } else if (delegateType === DelegateTypeEnum.ALIGNED) {
-    baseDelegatesQueryFilter.and.push({ id_in: alignedDelegatesAddresses });
-  } else if (delegateType === DelegateTypeEnum.SHADOW) {
-    baseDelegatesQueryFilter.and.push({ id_not_in: alignedDelegatesAddressesForNotInQuery });
+  // Version and expiration filter
+  if (includeExpired) {
+    baseWhereConditions.push('version: { _in: ["1", "2"] }');
+  } else {
+    // Include all v2, and v1 only if not expired (created within the last year)
+    const oneYearAgo = Math.floor(Date.now() / 1000) - 24 * 60 * 60 * 365;
+    baseWhereConditions.push(
+      `_or: [{ version: { _eq: "2" } }, { _and: [{ version: { _eq: "1" } }, { blockTimestamp_gt: ${oneYearAgo} }] }]`
+    );
   }
 
-  //get all aligned delegates (that match the filter)for the first page
-  const alignedFilterFirstPage = {
-    and: [...(baseDelegatesQueryFilter.and || []), { id_in: alignedDelegatesAddresses }]
-  };
-  //use this for subsequent pages as well as part of the first page
-  const shadowFilterFirstPage = {
-    and: [...(baseDelegatesQueryFilter.and || []), { id_not_in: alignedDelegatesAddressesForNotInQuery }]
-  };
+  // Build chainId-prefixed ID conditions for filtering
+  const prefixedAlignedAddresses = alignedDelegatesAddresses.map(a => `{ id: { _ilike: "%${a}" } }`);
+  const prefixedFilteredAddresses = filteredDelegateAddresses.map(a => `{ id: { _ilike: "%${a}" } }`);
+  const prefixedNotAlignedAddresses = alignedDelegatesAddressesForNotInQuery.map(
+    a => `{ id: { _nilike: "%${a}" } }`
+  );
+
+  if (searchTerm) {
+    if (prefixedFilteredAddresses.length > 0) {
+      baseWhereConditions.push(`_or: [${prefixedFilteredAddresses.join(', ')}]`);
+    }
+    if (delegateType === DelegateTypeEnum.ALIGNED && prefixedAlignedAddresses.length > 0) {
+      baseWhereConditions.push(`_or: [${prefixedAlignedAddresses.join(', ')}]`);
+    }
+  } else if (delegateType === DelegateTypeEnum.ALIGNED && prefixedAlignedAddresses.length > 0) {
+    baseWhereConditions.push(`_or: [${prefixedAlignedAddresses.join(', ')}]`);
+  } else if (delegateType === DelegateTypeEnum.SHADOW && prefixedNotAlignedAddresses.length > 0) {
+    baseWhereConditions.push(`_and: [${prefixedNotAlignedAddresses.join(', ')}]`);
+  }
+
+  // Shadow filter: base + not aligned
+  const shadowWhereConditions = [
+    ...baseWhereConditions.filter(c => !c.startsWith('_or: [{ id: { _ilike')),
+    ...(prefixedNotAlignedAddresses.length > 0
+      ? [`_and: [${prefixedNotAlignedAddresses.join(', ')}]`]
+      : [])
+  ];
+
+  // Aligned filter: base + only aligned
+  const alignedWhereConditions = [
+    ...baseWhereConditions.filter(c => !c.startsWith('_and: [{ id: { _nilike')),
+    ...(prefixedAlignedAddresses.length > 0
+      ? [`_or: [${prefixedAlignedAddresses.join(', ')}]`]
+      : [])
+  ];
 
   const queryOrderBy = orderBy === DelegateOrderByEnum.RANDOM ? DelegateOrderByEnum.MKR : orderBy;
-
-  const delegatesQueryFirstPageVariables = {
-    first: pageSize,
-    orderBy: queryOrderBy,
-    orderDirection,
-    alignedFilter: alignedFilterFirstPage,
-    shadowFilter: shadowFilterFirstPage,
-    alignedDelegates: alignedDelegatesAddresses
-  };
-
-  const delegatesQuerySubsequentPagesVariables = {
-    first: pageSize,
-    skip: (page - 1) * pageSize,
-    orderBy: queryOrderBy,
-    orderDirection,
-    filter: shadowFilterFirstPage
-  };
 
   const [githubExecutives, delegatesExecSupport, delegatesQueryRes, delegationMetrics] = await Promise.all([
     getGithubExecutives(network),
     fetchDelegatesExecSupport(network),
     gqlRequest<any>({
       chainId,
-      query: page === 1 ? delegatesQueryFirstPage : delegatesQuerySubsequentPages,
-      useSubgraph: true,
-      variables: page === 1 ? delegatesQueryFirstPageVariables : delegatesQuerySubsequentPagesVariables
+      query: page === 1
+        ? delegatesQueryFirstPage({
+            shadowWhereConditions: searchTerm ? baseWhereConditions : shadowWhereConditions,
+            alignedWhereConditions,
+            orderBy: queryOrderBy,
+            orderDirection,
+            limit: pageSize
+          })
+        : delegatesQuerySubsequentPages({
+            whereConditions: searchTerm ? baseWhereConditions : shadowWhereConditions,
+            orderBy: queryOrderBy,
+            orderDirection,
+            limit: pageSize,
+            offset: (page - 1) * pageSize
+          }),
+      useSubgraph: true
     }),
     fetchDelegationMetrics(network)
   ]);
@@ -376,19 +382,20 @@ export async function fetchDelegatesPaginated({
     ...((delegateType !== DelegateTypeEnum.ALIGNED && delegatesQueryRes.delegates) || [])
   ];
 
-  const combinedDelegateOwnerAddresses = combinedDelegates.map(delegate =>
+  const combinedDelegateOwnerAddresses = combinedDelegates.map((delegate: any) =>
     delegate.ownerAddress.toLowerCase()
   );
 
+  const gaslessChainId = networkNameToChainId(getGaslessNetwork(network));
   const lastVotedArbitrumArray = await gqlRequest<any>({
-    chainId: networkNameToChainId(getGaslessNetwork(network)),
-    query: lastVotedArbitrum,
-    useSubgraph: true,
-    variables: { argAddresses: combinedDelegateOwnerAddresses }
+    chainId: gaslessChainId,
+    query: lastVotedArbitrum(gaslessChainId, combinedDelegateOwnerAddresses),
+    useSubgraph: true
   });
 
-  const lastVotedArbitrumObj = lastVotedArbitrumArray.arbitrumVoters.reduce((acc, voter) => {
-    acc[voter.id] = voter.pollVotes && voter.pollVotes.length > 0 ? Number(voter.pollVotes[0].blockTime) : 0;
+  const lastVotedArbitrumObj = (lastVotedArbitrumArray.ArbitrumVoter || []).reduce((acc: any, voter: any) => {
+    acc[voter.address?.toLowerCase()] =
+      voter.pollVotes && voter.pollVotes.length > 0 ? Number(voter.pollVotes[0].blockTime) : 0;
     return acc;
   }, {});
 
@@ -411,14 +418,16 @@ export async function fetchDelegatesPaginated({
       totalMKRDelegated: delegationMetrics.totalMkrDelegated,
       totalDelegators: delegationMetrics.delegatorCount
     },
-    delegates: combinedDelegates.map(delegate => {
-      const allDelegatesEntry = allDelegatesWithNamesAndLinks.find(del => del.voteDelegate === delegate.id);
+    delegates: combinedDelegates.map((delegate: any) => {
+      const allDelegatesEntry = allDelegatesWithNamesAndLinks.find(
+        del => del.voteDelegate.toLowerCase() === delegate.address?.toLowerCase()
+      );
       const githubDelegate = githubDelegates?.find(ghDelegate => ghDelegate.name === allDelegatesEntry?.name);
 
       const delegateVersion = Number(allDelegatesEntry?.delegateVersion) || 1;
 
       const votedProposals = delegatesExecSupport.data?.find(
-        del => del.voteDelegate === delegate.id
+        del => del.voteDelegate.toLowerCase() === delegate.address?.toLowerCase()
       )?.votedProposals;
       const execSupported = githubExecutives.find(proposal =>
         votedProposals?.find(vp => vp.toLowerCase() === proposal?.address?.toLowerCase())
@@ -426,7 +435,7 @@ export async function fetchDelegatesPaginated({
 
       // Ensure blockTimestamp is a valid number
       const blockTimestampNum = delegate.blockTimestamp ? Number(delegate.blockTimestamp) : 0;
-      let creationDate;
+      let creationDate: Date;
       try {
         creationDate = new Date(blockTimestampNum * 1000);
         // Validate the date is valid
@@ -437,7 +446,7 @@ export async function fetchDelegatesPaginated({
       }
 
       // Handle creationDate from delegate object
-      let finalCreationDate;
+      let finalCreationDate: Date;
       try {
         finalCreationDate = delegate.creationDate ? new Date(delegate.creationDate) : creationDate;
         // Validate the date is valid
@@ -447,16 +456,13 @@ export async function fetchDelegatesPaginated({
         finalCreationDate = creationDate;
       }
 
-      const lastVoteMainnet = delegate.voter.lastVotedTimestamp || 0;
+      const lastVoteMainnet = delegate.voter?.lastVotedTimestamp || 0;
 
-      const lastVoteArbitrum = lastVotedArbitrumObj[delegate.ownerAddress.toLowerCase()] || 0;
+      const lastVoteArbitrum = lastVotedArbitrumObj[delegate.ownerAddress?.toLowerCase()] || 0;
 
       const lastVoteTimestamp = Math.max(lastVoteMainnet, lastVoteArbitrum);
 
-      const totalDelegated: bigint = delegate.delegations.reduce(
-        (acc, curr) => acc + BigInt(curr?.amount || 0n),
-        0n
-      );
+      const totalDelegated = BigInt(delegate.totalDelegated || '0');
 
       const { expired, isAboutToExpire, expirationDate } = getExpirationStatus(
         delegateVersion,
@@ -465,7 +471,7 @@ export async function fetchDelegatesPaginated({
 
       return {
         name: githubDelegate?.name || 'Shadow Delegate',
-        voteDelegateAddress: delegate.id,
+        voteDelegateAddress: delegate.address,
         address: delegate.ownerAddress,
         status: githubDelegate ? DelegateStatusEnum.aligned : DelegateStatusEnum.shadow,
         creationDate: finalCreationDate,
