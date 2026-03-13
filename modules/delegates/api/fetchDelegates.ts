@@ -38,6 +38,8 @@ import { fetchDelegateAddresses } from './fetchDelegateAddresses';
 import getDelegatesCounts from '../helpers/getDelegatesCounts';
 import { filterDelegates } from '../helpers/filterDelegates';
 import { fetchDelegationMetrics } from './fetchDelegationMetrics';
+import { sealEngineAddressMainnet, sealEngineAddressTestnet } from 'modules/gql/gql.constants';
+import { MKRLockedDelegateAPIResponse } from 'modules/delegates/types';
 import { formatEther } from 'viem';
 import { isExpiredCheck, isAboutToExpireCheck } from 'modules/migration/helpers/expirationChecks';
 import { getLatestOwnerFromOld, getOriginalOwnerFromNew } from 'modules/migration/delegateAddressLinks';
@@ -142,6 +144,52 @@ export async function fetchDelegate(
   const newOnChainDelegate = latestOwnerAddress
     ? onChainDelegates.find(i => i.address.toLowerCase() === latestOwnerAddress.toLowerCase())
     : undefined;
+
+  // Fetch delegation events for this delegate (needed for detail page delegator breakdown)
+  const delegateChainId = networkNameToChainId(currentNetwork);
+  const engine =
+    currentNetwork === SupportedNetworks.TENDERLY ? sealEngineAddressTestnet : sealEngineAddressMainnet;
+  const delegationEventsData = await gqlRequest<any>({
+    chainId: delegateChainId,
+    useSubgraph: true,
+    query: `{
+      DelegationHistory(
+        limit: 1000,
+        where: {
+          chainId: { _eq: ${delegateChainId} },
+          delegate: { address: { _ilike: "${onChainDelegate.voteDelegateAddress}" } },
+          delegator: { _nilike: "${engine}" }
+        },
+        order_by: { timestamp: desc }
+      ) {
+        amount
+        accumulatedAmount
+        delegator
+        blockNumber
+        timestamp
+        txnHash
+        delegate {
+          id
+          address
+        }
+        isLockstake
+      }
+    }`
+  });
+  onChainDelegate.mkrLockedDelegate = (delegationEventsData.DelegationHistory || []).map(
+    (x: any): MKRLockedDelegateAPIResponse => ({
+      delegateContractAddress: x.delegate.address,
+      fromAddress: x.delegator,
+      immediateCaller: x.delegator,
+      lockAmount: formatEther(BigInt(x.amount)),
+      blockNumber: x.blockNumber,
+      blockTimestamp: new Date(parseInt(x.timestamp) * 1000).toISOString(),
+      hash: x.txnHash,
+      lockTotal: formatEther(BigInt(x.accumulatedAmount)),
+      callerLockTotal: formatEther(BigInt(x.accumulatedAmount)),
+      isLockstake: x.isLockstake
+    })
+  );
 
   // fetch github info for delegate (if they have a link to prev contract, prev contract is the info directory key)
   const { data: githubDelegate } = await fetchGithubDelegate(
