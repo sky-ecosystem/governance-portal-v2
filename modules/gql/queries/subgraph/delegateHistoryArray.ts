@@ -3,23 +3,38 @@ SPDX-FileCopyrightText: © 2023 Dai Foundation <www.daifoundation.org>
 SPDX-License-Identifier: AGPL-3.0-or-later
 */
 
-import { gql } from 'graphql-request';
+export const delegateHistoryArray = (
+  chainId: number,
+  delegates: string[],
+  engines: string[]
+): string => {
+  const delegateIlikeConditions = delegates
+    .map(d => `{ id: { _ilike: "%${d}" } }`)
+    .join(', ');
 
-export const delegateHistoryArray = gql`
-  query delegateHistoryArray($delegates: [String!]!, $engines: [String!]) {
-    delegates(where: { id_in: $delegates }) {
-      delegationHistory(first: 1000, where: {delegator_not_in: $engines}) {
-        amount
-        accumulatedAmount
-        delegator
-        blockNumber
-        timestamp
-        txnHash
-        delegate {
-          id
-        }
-        isLockstake
+  const engineNilikeConditions = engines
+    .map(e => `{ delegator: { _nilike: "${e}" } }`)
+    .join(', ');
+
+  return `
+{
+  Delegate(
+    where: { chainId: { _eq: ${chainId} }, _or: [${delegateIlikeConditions}] }
+  ) {
+    delegationHistory(limit: 1000, where: { _and: [${engineNilikeConditions}] }) {
+      amount
+      accumulatedAmount
+      delegator
+      blockNumber
+      timestamp
+      txnHash
+      delegate {
+        id
+        address
       }
+      isLockstake
     }
   }
+}
 `;
+};
