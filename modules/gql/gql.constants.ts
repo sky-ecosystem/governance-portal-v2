@@ -14,7 +14,7 @@ export const TENDERLY_SPOCK_URL = 'https://staging-gov-polling.sky.money/api/v1'
 
 /* Subgraph URLs (Envio HyperIndex) */
 
-const ENVIO_SUBGRAPH_URL = 'https://indexer.hyperindex.xyz/e2d9944/v1/graphql';
+const ENVIO_SUBGRAPH_URL = `${process.env.NEXT_PUBLIC_PROXY_ORIGIN || ''}/indexer`;
 export const STAGING_SUBGRAPH_URL = ENVIO_SUBGRAPH_URL;
 export const PROD_SUBGRAPH_URL = ENVIO_SUBGRAPH_URL;
 
