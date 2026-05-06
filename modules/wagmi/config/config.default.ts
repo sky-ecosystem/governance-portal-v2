@@ -3,10 +3,9 @@ import { arbitrum, arbitrumSepolia, mainnet } from 'wagmi/chains';
 import { SupportedChainId } from 'modules/web3/constants/chainID';
 import { coinbaseWallet, metaMask, safe, walletConnect, injected } from 'wagmi/connectors';
 import { createPublicClient } from 'viem';
+import { createProxyTransport } from './proxyTransport';
 
 const RPC_TENDERLY = `https://virtual.mainnet.rpc.tenderly.co/${process.env.NEXT_PUBLIC_TENDERLY_RPC_KEY}`;
-const RPC_MAINNET = process.env.NEXT_PUBLIC_RPC_MAINNET || '';
-const RPC_ARBITRUM = process.env.NEXT_PUBLIC_RPC_ARBITRUM || '';
 const RPC_ARBITRUM_TESTNET = process.env.NEXT_PUBLIC_RPC_ARBITRUM_TESTNET || '';
 
 export const tenderly = {
@@ -35,9 +34,9 @@ const httpBatchTransport = (url: string) =>
   });
 
 const transports = {
-  [mainnet.id]: httpBatchTransport(RPC_MAINNET),
+  [mainnet.id]: createProxyTransport(mainnet.id),
   [tenderly.id]: httpBatchTransport(RPC_TENDERLY),
-  [arbitrum.id]: httpBatchTransport(RPC_ARBITRUM),
+  [arbitrum.id]: createProxyTransport(arbitrum.id),
   [arbitrumSepolia.id]: httpBatchTransport(RPC_ARBITRUM_TESTNET)
 };
 
