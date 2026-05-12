@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { DelegateContractInformation, MKRLockedDelegateAPIResponse } from 'modules/delegates/types';
+import { DelegateContractInformation } from 'modules/delegates/types';
 import { networkNameToChainId } from 'modules/web3/helpers/chain';
 import { gqlRequest } from 'modules/gql/gqlRequest';
 import { delegatesQuerySubsequentPages } from 'modules/gql/queries/subgraph/delegates';
@@ -19,56 +19,45 @@ export async function fetchChainDelegates(
   try {
     const chainId = networkNameToChainId(network);
     const delegates: any[] = [];
-    let skip = 0;
+    let offset = 0;
     const batchSize = 1000;
     let keepFetching = true;
+
+    const whereConditions = [
+      `chainId: { _eq: ${chainId} }`,
+      'version: { _in: ["1", "2"] }'
+    ];
 
     while (keepFetching) {
       const data = await gqlRequest<any>({
         chainId,
         useSubgraph: true,
-        query: delegatesQuerySubsequentPages,
-        variables: {
-          skip,
-          first: batchSize,
-          filter: { version_in: ['1', '2'] }
-        }
+        query: delegatesQuerySubsequentPages({
+          whereConditions,
+          orderBy: 'blockTimestamp',
+          orderDirection: 'asc',
+          limit: batchSize,
+          offset
+        })
       });
 
       const batch = data.delegates;
       delegates.push(...batch);
-      skip += batchSize;
+      offset += batchSize;
       keepFetching = batch.length === batchSize;
     }
 
   return delegates.map(delegate => {
-    const totalDelegated = delegate.delegations.reduce(
-      (acc: bigint, curr: { amount: string }) => acc + BigInt(curr.amount),
-      0n
-    );
-
-    const mkrLockedDelegate: MKRLockedDelegateAPIResponse[] =
-      delegate.delegationHistory?.map((x: any) => ({
-        delegateContractAddress: x.delegate.id,
-        fromAddress: x.delegator,
-        immediateCaller: x.delegator,
-        lockAmount: formatEther(x.amount),
-        blockNumber: x.blockNumber,
-        blockTimestamp: new Date(parseInt(x.timestamp, 10) * 1000).toISOString(),
-        hash: x.txnHash,
-        callerLockTotal: formatEther(x.accumulatedAmount),
-        lockTotal: formatEther(x.accumulatedAmount),
-        isLockstake: x.isLockstake
-      })) || [];
+    const totalDelegated = BigInt(delegate.totalDelegated || '0');
 
     return {
       address: delegate.ownerAddress,
-      voteDelegateAddress: delegate.id,
+      voteDelegateAddress: delegate.address,
       mkrDelegated: formatEther(totalDelegated),
       blockTimestamp: delegate.blockTimestamp,
       delegateVersion: delegate.version,
       proposalsSupported: 0,
-      mkrLockedDelegate,
+      mkrLockedDelegate: [],
       lastVoteDate: null
     };
   });

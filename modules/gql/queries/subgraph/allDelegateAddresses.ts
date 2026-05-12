@@ -6,15 +6,20 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { gql } from 'graphql-request';
-
-export const allDelegateAddresses = gql`
-  query allDelegateAddresses($first: Int = 1000, $skip: Int = 0) {
-    delegates(first: $first, skip: $skip, orderBy: blockTimestamp, orderDirection: asc, where: {version_in: ["1", "2"]}) {
-      id
-      ownerAddress
-      blockTimestamp
-      version
-    }
+export const allDelegateAddresses = (chainId: number): string => `
+{
+  Delegate(
+    limit: 1000,
+    where: { chainId: { _eq: ${chainId} }, version: { _in: ["1", "2"] } },
+    order_by: { blockTimestamp: asc }
+  ) {
+    id
+    address
+    ownerAddress
+    blockTimestamp
+    version
+    totalDelegated
+    delegators
   }
+}
 `;

@@ -6,18 +6,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { config } from 'lib/config';
 import { SupportedChain } from '../types/chain';
 import { SupportedChainId } from './chainID';
-import tenderlyTestnetData from '../../../tenderlyTestnetData.json';
 
 import {
   MAINNET_SPOCK_URL,
   STAGING_MAINNET_SPOCK_URL,
   TENDERLY_SPOCK_URL,
-  TENDERLY_SUBGRAPH_URL,
-  MAINNET_STAGING_SUBGRAPH_URL,
-  MAINNET_PROD_SUBGRAPH_URL
+  STAGING_SUBGRAPH_URL,
+  PROD_SUBGRAPH_URL
 } from 'modules/gql/gql.constants';
 
 export enum SupportedConnectors {
@@ -36,18 +33,10 @@ export enum SupportedNetworks {
   TENDERLY = 'tenderly'
 }
 
-export enum NodeProviders {
-  INFURA = 'infura',
-  ALCHEMY = 'alchemy',
-  LOCAL = 'local',
-  TENDERLY = 'tenderly'
-}
-
 type ChainInfo = {
   [key in SupportedChainId]: SupportedChain;
 };
 
-const { TENDERLY_RPC_URL } = tenderlyTestnetData;
 const TENDERLY_CONTAINER_ID = 'da404f7a-d40d-4c75-928f-308835f9e0e3';
 
 //todo: change name to SUPPORTED_CHAIN_INFO
@@ -59,16 +48,12 @@ export const CHAIN_INFO: ChainInfo = {
     label: 'Mainnet',
     type: 'normal',
     network: SupportedNetworks.MAINNET,
-    defaultRpc: NodeProviders.TENDERLY,
     spockUrl:
       process.env.NEXT_PUBLIC_VERCEL_ENV === 'development' ? STAGING_MAINNET_SPOCK_URL : MAINNET_SPOCK_URL,
     subgraphUrl:
       process.env.NEXT_PUBLIC_VERCEL_ENV === 'development'
-        ? MAINNET_STAGING_SUBGRAPH_URL
-        : MAINNET_PROD_SUBGRAPH_URL,
-    rpcs: {
-      [NodeProviders.TENDERLY]: process.env.NEXT_PUBLIC_RPC_MAINNET || ''
-    },
+        ? STAGING_SUBGRAPH_URL
+        : PROD_SUBGRAPH_URL,
     showInProduction: true
   },
   [SupportedChainId.ARBITRUMTESTNET]: {
@@ -78,10 +63,7 @@ export const CHAIN_INFO: ChainInfo = {
     label: 'ArbitrumTestnet',
     type: 'gasless',
     network: SupportedNetworks.ARBITRUMTESTNET,
-    defaultRpc: NodeProviders.TENDERLY,
-    rpcs: {
-      [NodeProviders.TENDERLY]: process.env.NEXT_PUBLIC_RPC_ARBITRUM_TESTNET || ''
-    },
+    subgraphUrl: STAGING_SUBGRAPH_URL,
     showInProduction: false
   },
   [SupportedChainId.ARBITRUM]: {
@@ -91,10 +73,7 @@ export const CHAIN_INFO: ChainInfo = {
     label: 'Arbitrum',
     type: 'gasless',
     network: SupportedNetworks.ARBITRUM,
-    defaultRpc: NodeProviders.TENDERLY,
-    rpcs: {
-      [NodeProviders.TENDERLY]: process.env.NEXT_PUBLIC_RPC_ARBITRUM || ''
-    },
+    subgraphUrl: PROD_SUBGRAPH_URL,
     showInProduction: false
   },
   [SupportedChainId.TENDERLY]: {
@@ -104,15 +83,8 @@ export const CHAIN_INFO: ChainInfo = {
     label: 'Tenderly',
     type: 'normal',
     network: SupportedNetworks.TENDERLY,
-    defaultRpc: NodeProviders.TENDERLY,
     spockUrl: TENDERLY_SPOCK_URL,
-    subgraphUrl: TENDERLY_SUBGRAPH_URL,
-    rpcs: {
-      [NodeProviders.TENDERLY]:
-        config.USE_MOCK_WALLET && TENDERLY_RPC_URL
-          ? TENDERLY_RPC_URL
-          : `https://virtual.mainnet.rpc.tenderly.co/${config.TENDERLY_RPC_KEY}`
-    },
+    subgraphUrl: STAGING_SUBGRAPH_URL,
     showInProduction: false
   }
 };

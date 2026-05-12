@@ -14,35 +14,19 @@ export async function fetchDelegateAddresses(network: SupportedNetworks): Promis
 
   try {
     const chainId = networkNameToChainId(network);
-    const allDelegatesData: AllDelegatesEntry[] = [];
-    let skip = 0;
-    const first = 1000;
-    let hasMore = true;
 
-    // Fetch all delegates using pagination
-    while (hasMore) {
-      const data = await gqlRequest<any>({
-        chainId,
-        query: allDelegateAddresses,
-        useSubgraph: true,
-        variables: { first, skip }
-      });
+    const data = await gqlRequest<any>({
+      chainId,
+      query: allDelegateAddresses(chainId),
+      useSubgraph: true
+    });
 
-      if (data.delegates && data.delegates.length > 0) {
-        const batch = data.delegates.map((delegate: any) => ({
-          delegate: delegate.ownerAddress,
-          voteDelegate: delegate.id,
-          blockTimestamp: new Date(Number(delegate.blockTimestamp) * 1000),
-          delegateVersion: Number(delegate.version) || 1
-        })) as AllDelegatesEntry[];
-        
-        allDelegatesData.push(...batch);
-        skip += first;
-        hasMore = data.delegates.length === first;
-      } else {
-        hasMore = false;
-      }
-    }
+    const allDelegatesData: AllDelegatesEntry[] = (data.Delegate || []).map((delegate: any) => ({
+      delegate: delegate.ownerAddress,
+      voteDelegate: delegate.address,
+      blockTimestamp: new Date(Number(delegate.blockTimestamp) * 1000),
+      delegateVersion: Number(delegate.version) || 1
+    }));
 
     cacheSet(allDelegateAddressesKey, JSON.stringify(allDelegatesData), network, ONE_HOUR_IN_MS);
 

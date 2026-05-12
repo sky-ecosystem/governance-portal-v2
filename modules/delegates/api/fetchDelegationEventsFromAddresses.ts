@@ -16,18 +16,16 @@ export async function fetchDelegationEventsFromAddresses(
   network: SupportedNetworks
 ): Promise<MKRLockedDelegateAPIResponse[]> {
   try {
-    const data = await gqlRequest({
-      chainId: networkNameToChainId(network),
+    const chainId = networkNameToChainId(network);
+    const data = await gqlRequest<any>({
+      chainId,
       useSubgraph: true,
-      query: delegationsFromAddressHistory,
-      variables: {
-        delegator: address.toLowerCase()
-      }
+      query: delegationsFromAddressHistory(chainId, address.toLowerCase())
     });
 
-    const addressData: MKRLockedDelegateAPIResponse[] = data.delegationHistories.map((x: any) => {
+    const addressData: MKRLockedDelegateAPIResponse[] = (data.DelegationHistory || []).map((x: any) => {
       return {
-        delegateContractAddress: x.delegate.id,
+        delegateContractAddress: x.delegate.address,
         immediateCaller: x.delegator,
         lockAmount: formatEther(x.amount),
         blockNumber: x.blockNumber,

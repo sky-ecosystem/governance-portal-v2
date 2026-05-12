@@ -21,19 +21,16 @@ export async function fetchDelegationEventsByAddresses(
 ): Promise<MKRLockedDelegateAPIResponse[]> {
   const engine = network === SupportedNetworks.TENDERLY ? sealEngineAddressTestnet : sealEngineAddressMainnet;
   try {
-    const data = await gqlRequest({
-      chainId: networkNameToChainId(network),
+    const chainId = networkNameToChainId(network);
+    const data = await gqlRequest<any>({
+      chainId,
       useSubgraph: true,
-      query: delegateHistoryArray,
-      variables: {
-        delegates: addresses,
-        engines: [engine]
-      }
+      query: delegateHistoryArray(chainId, addresses, [engine])
     });
-    const flattenedData = data.delegates.flatMap(delegate => delegate.delegationHistory);
-    const addressData: MKRLockedDelegateAPIResponse[] = flattenedData.map(x => {
+    const flattenedData = (data.Delegate || []).flatMap((delegate: any) => delegate.delegationHistory);
+    const addressData: MKRLockedDelegateAPIResponse[] = flattenedData.map((x: any) => {
       return {
-        delegateContractAddress: x.delegate.id,
+        delegateContractAddress: x.delegate.address,
         immediateCaller: x.delegator,
         lockAmount: formatEther(x.amount),
         blockNumber: x.blockNumber,

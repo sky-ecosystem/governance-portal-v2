@@ -23,50 +23,32 @@ export async function fetchDelegatedTo(
   network: SupportedNetworks
 ): Promise<DelegationHistoryWithExpirationDate[]> {
   try {
-    // We fetch the delegates information from the subgraph to extract the expiry date of each delegate
     const chainId = networkNameToChainId(network);
-    
-    // Fetch all delegates using pagination
-    const delegates: any[] = [];
-    let skip = 0;
-    const first = 1000;
-    let hasMore = true;
 
-    while (hasMore) {
-      const data = await gqlRequest<any>({
-        chainId,
-        query: allDelegateAddresses,
-        useSubgraph: true,
-        variables: { first, skip }
-      });
+    // Fetch all delegates
+    const delegatesData = await gqlRequest<any>({
+      chainId,
+      query: allDelegateAddresses(chainId),
+      useSubgraph: true
+    });
 
-      if (data.delegates && data.delegates.length > 0) {
-        // Map subgraph fields to expected format
-        const batch = data.delegates.map((delegate: any) => ({
-          voteDelegate: delegate.id,
-          delegate: delegate.ownerAddress,
-          blockTimestamp: new Date(Number(delegate.blockTimestamp) * 1000),
-          delegateVersion: Number(delegate.version) || 1
-        }));
-        
-        delegates.push(...batch);
-        skip += first;
-        hasMore = data.delegates.length === first;
-      } else {
-        hasMore = false;
-      }
-    }
+    const delegates = (delegatesData.Delegate || []).map((delegate: any) => ({
+      voteDelegate: delegate.address,
+      delegate: delegate.ownerAddress,
+      blockTimestamp: new Date(Number(delegate.blockTimestamp) * 1000),
+      delegateVersion: Number(delegate.version) || 1
+    }));
 
     // Returns the records with the aggregated delegated data
-    const data = await gqlRequest({
-      chainId: networkNameToChainId(network),
+    const data = await gqlRequest<any>({
+      chainId,
       useSubgraph: true,
-      query: delegatorHistory,
-      variables: { address: address.toLowerCase() }
+      query: delegatorHistory(chainId, address.toLowerCase())
     });
-    const res: MKRDelegatedToResponse[] = data.delegationHistories.map(x => {
+
+    const res: MKRDelegatedToResponse[] = (data.DelegationHistory || []).map((x: any) => {
       return {
-        delegateContractAddress: x.delegate.id,
+        delegateContractAddress: x.delegate.address,
         lockAmount: x.amount,
         blockTimestamp: new Date(parseInt(x.timestamp) * 1000).toISOString(),
         hash: x.txnHash,
@@ -93,7 +75,7 @@ export async function fetchDelegatedTo(
           });
         } else {
           const delegatingTo = delegates.find(
-            i => i?.voteDelegate?.toLowerCase() === delegateContractAddress.toLowerCase()
+            (i: any) => i?.voteDelegate?.toLowerCase() === delegateContractAddress.toLowerCase()
           );
 
           if (!delegatingTo) {
@@ -116,7 +98,7 @@ export async function fetchDelegatedTo(
           const latestOwnerAddress = getLatestOwnerFromOld(delegatingToWalletAddress as string, network);
 
           const newRenewedContract = latestOwnerAddress
-            ? delegates.find(d => d?.delegate?.toLowerCase() === latestOwnerAddress.toLowerCase())
+            ? delegates.find((d: any) => d?.delegate?.toLowerCase() === latestOwnerAddress.toLowerCase())
             : null;
 
           acc.push({

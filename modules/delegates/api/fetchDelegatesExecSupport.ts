@@ -14,6 +14,7 @@ import { chiefAbi, chiefAddress } from 'modules/contracts/generated';
 
 type SubgraphDelegate = {
   id: string;
+  address: string;
   ownerAddress: string;
   blockTimestamp: string;
   version: string;
@@ -35,27 +36,13 @@ export async function fetchDelegatesExecSupport(network: SupportedNetworks): Pro
     const chainId = networkNameToChainId(network);
     const publicClient = getPublicClient(chainId);
 
-    const delegates: SubgraphDelegate[] = [];
-    let hasMore = true;
-    let skip = 0;
-    while (hasMore) {
-      const data = await gqlRequest<{ delegates: SubgraphDelegate[] }>({
-        chainId,
-        useSubgraph: true,
-        query: allDelegateAddresses,
-        variables: {
-          first: 1000,
-          skip
-        }
-      });
+    const data = await gqlRequest<{ Delegate: SubgraphDelegate[] }>({
+      chainId,
+      useSubgraph: true,
+      query: allDelegateAddresses(chainId)
+    });
 
-      if (data.delegates.length > 0) {
-        delegates.push(...data.delegates);
-        skip += data.delegates.length;
-      } else {
-        hasMore = false;
-      }
-    }
+    const delegates = data.Delegate || [];
 
     const delegatesExecSupport = await Promise.all(
       delegates.map(async delegate => {
@@ -63,7 +50,7 @@ export async function fetchDelegatesExecSupport(network: SupportedNetworks): Pro
           address: chiefAddress[chainId],
           abi: chiefAbi,
           functionName: 'votes',
-          args: [delegate.id as `0x${string}`]
+          args: [delegate.address as `0x${string}`]
         });
         const votedProposals =
           votedSlate !== ZERO_SLATE_HASH
@@ -71,7 +58,7 @@ export async function fetchDelegatesExecSupport(network: SupportedNetworks): Pro
             : [];
 
         return {
-          voteDelegate: delegate.id,
+          voteDelegate: delegate.address,
           votedProposals
         };
       })
