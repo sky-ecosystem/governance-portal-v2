@@ -72,7 +72,7 @@ export default withApiHandler(
         cacheKey
       });
     } catch (e) {
-      throw new ApiError(`Invalidate cache, ${e.messaage}`, 500);
+      throw new ApiError(`Invalidate cache, ${e.message}`, 500);
     }
   },
   {

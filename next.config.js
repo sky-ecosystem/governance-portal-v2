@@ -70,6 +70,8 @@ const moduleExports = {
         tls: false
       };
     }
+    // @metamask/sdk (via @wagmi/connectors) lazily imports react-native async storage; not used in web.
+    config.resolve.alias['@react-native-async-storage/async-storage'] = false;
     config.resolve.alias['lib'] = path.join(__dirname, 'lib');
     config.resolve.alias['components'] = path.join(__dirname, 'components');
     config.resolve.alias['stores'] = path.join(__dirname, 'stores');

@@ -51,8 +51,13 @@ const ApiDoc = ({ spec }: InferGetStaticPropsType<typeof getStaticProps>): JSX.E
 
 export const getStaticProps: GetStaticProps = async () => {
   const spec: Record<string, any> = createSwaggerSpec({
-    title: 'Governance Portal Swagger',
-    version: '0.1.0'
+    definition: {
+      openapi: '3.0.0',
+      info: {
+        title: 'Governance Portal Swagger',
+        version: '0.1.0'
+      }
+    }
   });
 
   return {
