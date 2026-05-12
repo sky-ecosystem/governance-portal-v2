@@ -13,7 +13,7 @@ import { config } from 'lib/config';
 import Redis from 'ioredis';
 import packageJSON from '../../package.json';
 import logger from 'lib/logger';
-import { ONE_DAY_IN_MS, ONE_HOUR_IN_MS } from 'modules/app/constants/time';
+import { ONE_DAY_IN_MS, ONE_HOUR_IN_MS, ONE_WEEK_IN_MS } from 'modules/app/constants/time';
 import { executiveProposalsCacheKey } from './constants/cache-keys';
 
 let isConnected = true;
@@ -50,8 +50,6 @@ function getFilePath(name: string, network: string, expiryMs?: number): string {
 }
 
 export const cacheDel = (name: string, network: SupportedNetworks, expiryMs?: number): void => {
-  const path = getFilePath(name, network, expiryMs);
-
   if (redisCacheEnabled()) {
     // if clearing proposals, we need to find all of them first
     if (name === 'proposals') {
@@ -81,11 +79,17 @@ export const cacheDel = (name: string, network: SupportedNetworks, expiryMs?: nu
         logger.error('Error deleting proposal keys:', error);
       });
     } else {
-      // otherwise just delete the file based on path
-      logger.debug('cacheDel redis: ', path);
-      redis?.del(path);
+      // getFilePath appends today's date when expiryMs <= ONE_DAY_IN_MS (or is absent).
+      // Callers like the invalidate endpoint don't know each key's original TTL, so
+      // delete both variants — the undated key (long-TTL writes) and the dated key
+      // (short-TTL writes for today).
+      const pathStable = getFilePath(name, network, ONE_WEEK_IN_MS);
+      const pathDated = getFilePath(name, network);
+      logger.debug('cacheDel redis: ', pathStable, pathDated);
+      redis?.del(pathStable, pathDated);
     }
   } else {
+    const path = getFilePath(name, network, expiryMs);
     try {
       logger.debug('cacheDel: ', path);
       memoryCache[path] = null;
