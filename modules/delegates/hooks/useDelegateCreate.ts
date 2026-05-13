@@ -10,6 +10,7 @@ import { useChainId } from 'wagmi';
 import { useWriteContractFlow } from 'modules/web3/hooks/useWriteContractFlow';
 import { voteDelegateFactoryAbi, voteDelegateFactoryAddress } from 'modules/contracts/generated';
 import { WriteHook, WriteHookParams } from 'modules/web3/types/hooks';
+import { config } from 'lib/config';
 
 export const useDelegateCreate = ({
   gas,
@@ -25,7 +26,7 @@ export const useDelegateCreate = ({
     abi: voteDelegateFactoryAbi,
     functionName: 'create',
     chainId,
-    enabled: paramEnabled,
+    enabled: paramEnabled && !config.READ_ONLY,
     gas,
     onSuccess,
     onError,

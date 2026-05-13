@@ -79,27 +79,24 @@ describe('Fetch tally combined with other options', () => {
   } as any as Poll;
 
   it('Does not find winner if it doesnt pass the majority percent, and it defaults to 3', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: '1' },
-            { voter: { id: '0x456' }, choice: '2' },
-            { voter: { id: '0x789' }, choice: '3' }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '100000000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '90000000000000000000' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '80000000000000000000' }] }
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            optionIdRaw: '1',
+            mkrSupport: '100'
+          },
+          {
+            optionIdRaw: '2',
+            mkrSupport: '90'
+          },
+          {
+            optionIdRaw: '3',
+            mkrSupport: '80'
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPollApproval, SupportedNetworks.MAINNET);
 
@@ -107,8 +104,8 @@ describe('Fetch tally combined with other options', () => {
       parameters: mockPollApproval.parameters,
       winner: 3,
       winningOptionName: 'Reject',
-      totalSkyActiveParticipation: '270',
-      totalSkyParticipation: '270',
+      totalMkrActiveParticipation: '270000000000000000000',
+      totalMkrParticipation: '270000000000000000000',
       victoryConditionMatched: 1,
       numVoters: 3,
       results: [
@@ -116,41 +113,33 @@ describe('Fetch tally combined with other options', () => {
           optionId: 1,
           optionName: 'Approve Existing Budget',
           firstPct: 37.037,
-          skySupport: '100',
-          transfer: '0',
+          mkrSupport: '100000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 2,
           optionName: 'Approve Increase',
           firstPct: 33.3333,
-          skySupport: '90',
-          transfer: '0',
+          mkrSupport: '90000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 3,
           optionName: 'Reject',
           firstPct: 29.6296,
-          skySupport: '80',
-          transfer: '0',
+          mkrSupport: '80000000000000000000',
           transferPct: 0,
-          winner: true,
-          eliminated: undefined
+          winner: true
         },
         {
           optionId: 0,
           optionName: 'Abstain',
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           firstPct: 0,
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         }
       ]
     };
@@ -159,27 +148,24 @@ describe('Fetch tally combined with other options', () => {
   });
 
   it('Does find a winner if it pass the majority percent', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: '1' },
-            { voter: { id: '0x456' }, choice: '2' },
-            { voter: { id: '0x789' }, choice: '3' }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '200000000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '90000000000000000000' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '80000000000000000000' }] }
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            optionIdRaw: '1',
+            mkrSupport: '200'
+          },
+          {
+            optionIdRaw: '2',
+            mkrSupport: '90'
+          },
+          {
+            optionIdRaw: '3',
+            mkrSupport: '80'
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPollApproval, SupportedNetworks.MAINNET);
 
@@ -187,8 +173,8 @@ describe('Fetch tally combined with other options', () => {
       parameters: mockPollApproval.parameters,
       winner: 1,
       winningOptionName: 'Approve Existing Budget',
-      totalSkyActiveParticipation: '370',
-      totalSkyParticipation: '370',
+      totalMkrActiveParticipation: '370000000000000000000',
+      totalMkrParticipation: '370000000000000000000',
       victoryConditionMatched: 0,
       numVoters: 3,
       results: [
@@ -196,41 +182,33 @@ describe('Fetch tally combined with other options', () => {
           optionId: 1,
           optionName: 'Approve Existing Budget',
           firstPct: 54.0541,
-          skySupport: '200',
-          transfer: '0',
+          mkrSupport: '200000000000000000000',
           transferPct: 0,
-          winner: true,
-          eliminated: undefined
+          winner: true
         },
         {
           optionId: 2,
           optionName: 'Approve Increase',
           firstPct: 24.3243,
-          skySupport: '90',
-          transfer: '0',
+          mkrSupport: '90000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 3,
           optionName: 'Reject',
           firstPct: 21.6216,
-          skySupport: '80',
-          transfer: '0',
+          mkrSupport: '80000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 0,
           optionName: 'Abstain',
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           firstPct: 0,
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         }
       ]
     };
@@ -276,29 +254,28 @@ describe('Fetch tally combined with other options', () => {
   } as any as Poll;
 
   it('ranked choice + majority when majority is not met', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: fromBuffer([1]) },
-            { voter: { id: '0x456' }, choice: fromBuffer([2].reverse()) },
-            { voter: { id: '0x789' }, choice: fromBuffer([3]) },
-            { voter: { id: '0xabc' }, choice: fromBuffer([4].reverse()) }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '101000000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '100000000000000000000' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '50000000000000000000' }] },
-          { id: '0xabc', v2VotingPowerChanges: [{ newBalance: '49000000000000000000' }] }
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            mkrSupport: '101',
+            optionIdRaw: fromBuffer([1])
+          },
+          {
+            mkrSupport: '100',
+            optionIdRaw: fromBuffer([2].reverse())
+          },
+          {
+            mkrSupport: '50',
+            optionIdRaw: fromBuffer([3])
+          },
+          {
+            mkrSupport: '49',
+            optionIdRaw: fromBuffer([4].reverse())
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPollRanked, SupportedNetworks.MAINNET);
 
@@ -307,60 +284,50 @@ describe('Fetch tally combined with other options', () => {
       winner: 3,
       victoryConditionMatched: 1,
       winningOptionName: 'Reject',
-      totalSkyActiveParticipation: '300',
-      totalSkyParticipation: '300',
+      totalMkrActiveParticipation: '300000000000000000000',
+      totalMkrParticipation: '300000000000000000000',
       results: [
         {
           optionId: 1,
           optionName: 'Approve Existing Budget',
           firstPct: 33.6667,
-          skySupport: '101',
-          transfer: '0',
+          mkrSupport: '101000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
 
         {
           optionId: 2,
           optionName: 'Approve Increase',
           firstPct: 33.3333,
-          skySupport: '100',
-          transfer: '0',
+          mkrSupport: '100000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
 
         {
           optionId: 3,
           optionName: 'Reject',
           firstPct: 16.6667,
-          skySupport: '50',
-          transfer: '0',
+          mkrSupport: '50000000000000000000',
           transferPct: 0,
-          winner: true,
-          eliminated: undefined
+          winner: true
         },
         {
           optionId: 4,
           optionName: 'Fourth',
           firstPct: 16.3333,
-          skySupport: '49',
-          transfer: '0',
+          mkrSupport: '49000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 0,
           optionName: 'Abstain',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         }
       ],
       numVoters: 4
@@ -370,29 +337,28 @@ describe('Fetch tally combined with other options', () => {
   });
 
   it('ranked choice + majority when majority is  met', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: fromBuffer([1]) },
-            { voter: { id: '0x456' }, choice: fromBuffer([2].reverse()) },
-            { voter: { id: '0x789' }, choice: fromBuffer([3]) },
-            { voter: { id: '0xabc' }, choice: fromBuffer([4].reverse()) }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '301000000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '100000000000000000000' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '50000000000000000000' }] },
-          { id: '0xabc', v2VotingPowerChanges: [{ newBalance: '49000000000000000000' }] }
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            mkrSupport: '301',
+            optionIdRaw: fromBuffer([1])
+          },
+          {
+            mkrSupport: '100',
+            optionIdRaw: fromBuffer([2].reverse())
+          },
+          {
+            mkrSupport: '50',
+            optionIdRaw: fromBuffer([3])
+          },
+          {
+            mkrSupport: '49',
+            optionIdRaw: fromBuffer([4].reverse())
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPollRanked, SupportedNetworks.MAINNET);
 
@@ -400,8 +366,8 @@ describe('Fetch tally combined with other options', () => {
       parameters: mockPollRanked.parameters,
       winner: 1,
       winningOptionName: 'Approve Existing Budget',
-      totalSkyActiveParticipation: '500',
-      totalSkyParticipation: '500',
+      totalMkrActiveParticipation: '500000000000000000000',
+      totalMkrParticipation: '500000000000000000000',
       victoryConditionMatched: 0,
       rounds: 1,
       results: [
@@ -410,7 +376,7 @@ describe('Fetch tally combined with other options', () => {
           eliminated: false,
           optionName: 'Approve Existing Budget',
           firstPct: 60.2,
-          skySupport: '301',
+          mkrSupport: '301000000000000000000',
           transferPct: 0,
           transfer: '0',
           winner: true
@@ -420,7 +386,7 @@ describe('Fetch tally combined with other options', () => {
           optionId: 2,
           optionName: 'Approve Increase',
           firstPct: 20,
-          skySupport: '100',
+          mkrSupport: '100000000000000000000',
           transferPct: 0,
           transfer: '0',
           eliminated: false,
@@ -430,7 +396,7 @@ describe('Fetch tally combined with other options', () => {
         {
           optionId: 3,
           optionName: 'Reject',
-          skySupport: '50',
+          mkrSupport: '50000000000000000000',
           firstPct: 10,
           transferPct: 0,
           transfer: '0',
@@ -441,7 +407,7 @@ describe('Fetch tally combined with other options', () => {
           optionId: 4,
           optionName: 'Fourth',
           firstPct: 9.8,
-          skySupport: '49',
+          mkrSupport: '49000000000000000000',
           transferPct: 0,
           transfer: '0',
           eliminated: false,
@@ -451,10 +417,8 @@ describe('Fetch tally combined with other options', () => {
           optionId: 0,
           optionName: 'Abstain',
           firstPct: 0,
-          skySupport: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          transfer: '0',
-          eliminated: undefined,
           winner: false
         }
       ],
@@ -503,29 +467,28 @@ describe('Fetch tally combined with other options', () => {
   } as any as Poll;
 
   it('ranked choice + majority when majority is  met + comparison not met', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: fromBuffer([1]) },
-            { voter: { id: '0x456' }, choice: fromBuffer([2].reverse()) },
-            { voter: { id: '0x789' }, choice: fromBuffer([3]) },
-            { voter: { id: '0xabc' }, choice: fromBuffer([4].reverse()) }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '301000000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '100000000000000000000' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '50000000000000000000' }] },
-          { id: '0xabc', v2VotingPowerChanges: [{ newBalance: '49000000000000000000' }] }
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            mkrSupport: '301',
+            optionIdRaw: fromBuffer([1])
+          },
+          {
+            mkrSupport: '100',
+            optionIdRaw: fromBuffer([2].reverse())
+          },
+          {
+            mkrSupport: '50',
+            optionIdRaw: fromBuffer([3])
+          },
+          {
+            mkrSupport: '49',
+            optionIdRaw: fromBuffer([4].reverse())
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPollRankedComparison, SupportedNetworks.MAINNET);
 
@@ -533,61 +496,55 @@ describe('Fetch tally combined with other options', () => {
       parameters: mockPollRankedComparison.parameters,
       winner: null,
       winningOptionName: 'None found',
-      totalSkyActiveParticipation: '500',
-      totalSkyParticipation: '500',
+      totalMkrActiveParticipation: '500000000000000000000',
+      totalMkrParticipation: '500000000000000000000',
       victoryConditionMatched: null,
       results: [
         {
           optionId: 1,
           optionName: 'Approve Existing Budget',
           firstPct: 60.2,
-          skySupport: '301',
-          transfer: '0',
+          mkrSupport: '301000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+
+          winner: false
         },
 
         {
           optionId: 2,
           optionName: 'Approve Increase',
           firstPct: 20,
-          skySupport: '100',
-          transfer: '0',
+          mkrSupport: '100000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+
+          winner: false
         },
 
         {
           optionId: 3,
           optionName: 'Reject',
-          skySupport: '50',
-          transfer: '0',
+          mkrSupport: '50000000000000000000',
           firstPct: 10,
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+
+          winner: false
         },
         {
           optionId: 4,
           optionName: 'Fourth',
           firstPct: 9.8,
-          skySupport: '49',
-          transfer: '0',
+          mkrSupport: '49000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+
+          winner: false
         },
         {
           optionId: 0,
           optionName: 'Abstain',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         }
       ],
       numVoters: 4
@@ -597,29 +554,28 @@ describe('Fetch tally combined with other options', () => {
   });
 
   it('ranked choice + majority when majority is met + comparison met', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: fromBuffer([1]) },
-            { voter: { id: '0x456' }, choice: fromBuffer([2].reverse()) },
-            { voter: { id: '0x789' }, choice: fromBuffer([3]) },
-            { voter: { id: '0xabc' }, choice: fromBuffer([4].reverse()) }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '3001000000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '100000000000000000000' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '50000000000000000000' }] },
-          { id: '0xabc', v2VotingPowerChanges: [{ newBalance: '49000000000000000000' }] }
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            mkrSupport: '3001',
+            optionIdRaw: fromBuffer([1])
+          },
+          {
+            mkrSupport: '100',
+            optionIdRaw: fromBuffer([2].reverse())
+          },
+          {
+            mkrSupport: '50',
+            optionIdRaw: fromBuffer([3])
+          },
+          {
+            mkrSupport: '49',
+            optionIdRaw: fromBuffer([4].reverse())
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPollRankedComparison, SupportedNetworks.MAINNET);
 
@@ -627,8 +583,8 @@ describe('Fetch tally combined with other options', () => {
       parameters: mockPollRankedComparison.parameters,
       winner: 1,
       winningOptionName: 'Approve Existing Budget',
-      totalSkyActiveParticipation: '3200',
-      totalSkyParticipation: '3200',
+      totalMkrActiveParticipation: '3200000000000000000000',
+      totalMkrParticipation: '3200000000000000000000',
       victoryConditionMatched: 0,
       rounds: 1,
       results: [
@@ -637,7 +593,7 @@ describe('Fetch tally combined with other options', () => {
           eliminated: false,
           optionName: 'Approve Existing Budget',
           firstPct: 93.7813,
-          skySupport: '3001',
+          mkrSupport: '3001000000000000000000',
           transferPct: 0,
           transfer: '0',
           winner: true
@@ -647,7 +603,7 @@ describe('Fetch tally combined with other options', () => {
           optionId: 2,
           optionName: 'Approve Increase',
           firstPct: 3.125,
-          skySupport: '100',
+          mkrSupport: '100000000000000000000',
           transferPct: 0,
           transfer: '0',
           eliminated: false,
@@ -657,7 +613,7 @@ describe('Fetch tally combined with other options', () => {
         {
           optionId: 3,
           optionName: 'Reject',
-          skySupport: '50',
+          mkrSupport: '50000000000000000000',
           firstPct: 1.5625,
           transferPct: 0,
           transfer: '0',
@@ -668,7 +624,7 @@ describe('Fetch tally combined with other options', () => {
           optionId: 4,
           optionName: 'Fourth',
           firstPct: 1.5313,
-          skySupport: '49',
+          mkrSupport: '49000000000000000000',
           transferPct: 0,
           transfer: '0',
           eliminated: false,
@@ -678,11 +634,9 @@ describe('Fetch tally combined with other options', () => {
           optionId: 0,
           optionName: 'Abstain',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         }
       ],
       numVoters: 4

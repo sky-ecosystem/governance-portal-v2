@@ -34,8 +34,8 @@ export default function PollWinningOptionBox({
 
   const numberOfLeadingOptions = tally.results.filter(
     result =>
-      parseEther(tally.results[0].skySupport as string) > 0n &&
-      result.skySupport === tally.results[0].skySupport
+      parseEther(tally.results[0].mkrSupport as string) > 0n &&
+      result.mkrSupport === tally.results[0].mkrSupport
   ).length;
 
   const winningVictoryCondition = tally.parameters.victoryConditions.find(
@@ -53,7 +53,7 @@ export default function PollWinningOptionBox({
   const comparisonText =
     hasComparison.length > 0 &&
     hasComparison[0].comparator === '>=' &&
-    ` Requires ${formatValue(parseEther(hasComparison[0].value.toString()))} SKY participation. `;
+    ` Requires ${formatValue(parseEther(hasComparison[0].value.toString()))} MKR participation. `;
 
   if (winningVictoryCondition && winningVictoryCondition.type === PollVictoryConditions.default) {
     textWin = `No winner condition met.${comparisonText ? comparisonText : ' '}Defaulting to`;
@@ -68,12 +68,12 @@ export default function PollWinningOptionBox({
   }${!isDefault && numberOfLeadingOptions > 1 ? ` & ${numberOfLeadingOptions - 1} more` : ''}`;
 
   const leadingOptionSupport =
-    tally.results.find(({ optionId }) => optionId === leadingOption)?.skySupport.toString() || '0';
+    tally.results.find(({ optionId }) => optionId === leadingOption)?.mkrSupport.toString() || '0';
 
   return (
     <Flex sx={{ py: 2, justifyContent: 'center' }}>
       <ErrorBoundary componentName="Winning option">
-        {parseEther(tally.totalSkyActiveParticipation as string) > 0n ||
+        {parseEther(tally.totalMkrActiveParticipation as string) > 0n ||
         (winningVictoryCondition && winningVictoryCondition.type === PollVictoryConditions.default) ? (
           <>
             {isFinishedWithNoWinner && <StatusText>No winning option</StatusText>}
@@ -88,7 +88,13 @@ export default function PollWinningOptionBox({
                   {!isDefault &&
                     (isInputFormatSingleChoice(poll.parameters) ||
                       isInputFormatChooseFree(poll.parameters)) &&
-                    ' with ' + formatValue(parseEther(leadingOptionSupport)) + ' SKY supporting.'}
+                    ' with ' +
+                      formatValue(
+                        leadingOptionSupport.indexOf('.') !== -1
+                          ? parseEther(leadingOptionSupport)
+                          : BigInt(leadingOptionSupport)
+                      ) +
+                      ' MKR supporting.'}
                   {!isDefault &&
                     isInputFormatRankFree(poll.parameters) &&
                     ' with ' +
@@ -97,7 +103,7 @@ export default function PollWinningOptionBox({
                           ? parseEther(leadingOptionSupport)
                           : BigInt(leadingOptionSupport)
                       ) +
-                      ' SKY supporting as first choice.'}
+                      ' MKR supporting as first choice.'}
                   {isDefault && '.'}
                 </>
               </StatusText>

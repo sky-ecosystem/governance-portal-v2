@@ -63,7 +63,7 @@ describe('Polling votes by address', () => {
     await screen.findByText(/Address/);
     await screen.findByText(/Option/);
     await screen.findByText(/Vote %/);
-    expect(screen.getByTestId('sky-header')).toBeVisible();
+    expect(screen.getByTestId('mkr-header')).toBeVisible();
     // look for yes votes
     await screen.findAllByText(/Yes/);
   });
@@ -75,10 +75,11 @@ describe('Polling votes by address', () => {
         {
           voter: '0xad2fda5f6ce305d2ced380fdfa791b6a26e7f281',
           ballot: [0, 1, 2],
-          skySupport: '28312.074392254362747305',
+          mkrSupport: '28312.074392254362747305',
           chainId: 1,
           hash: '0x021',
           blockTimestamp: 1,
+          optionIdRaw: '012',
           pollId: 1
         }
       ]
@@ -113,7 +114,7 @@ describe('Polling votes by address', () => {
     await screen.findByText(/Option/);
     await screen.findByText(/Vote %/);
 
-    expect(screen.getByTestId('sky-header')).toBeVisible();
+    expect(screen.getByTestId('mkr-header')).toBeVisible();
 
     // check first choice is displayed with number
     await screen.findByText(/1st - test1/);

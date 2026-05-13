@@ -23,15 +23,19 @@ type Resource = {
 
 const resources: Record<ResourceType, Resource> = {
   general: {
-    boxTitle: 'General Sky Resources',
+    boxTitle: 'General Maker Resources',
     links: [
       {
-        linkTitle: 'Learn about Sky and USDS',
-        url: 'https://sky.money/'
+        linkTitle: 'Learn about Maker and Dai',
+        url: 'https://makerdao.com/en/'
+      },
+      {
+        linkTitle: 'Learn about Maker Endgame',
+        url: 'https://forum.makerdao.com/t/the-5-phases-of-endgame/20830/'
       },
       {
         linkTitle: 'Governance Forum',
-        url: 'https://forum.sky.money/'
+        url: 'https://forum.makerdao.com/'
       },
       {
         linkTitle: 'Governance Documentation',
@@ -39,7 +43,7 @@ const resources: Record<ResourceType, Resource> = {
       },
       {
         linkTitle: 'Governance discussion on Discord',
-        url: 'https://discord.gg/ZBjf7mv6Zc'
+        url: 'https://discord.gg/tQ5wnN6Ms4'
       }
     ]
   },
@@ -56,11 +60,11 @@ const resources: Record<ResourceType, Resource> = {
       },
       {
         linkTitle: 'How is voting weight calculated?',
-        url: 'https://jetstreamgg.notion.site/How-to-Calculate-Polling-Results-in-Sky-Governance-Portal-1cffae49084a80dea70cfcc319edc9f8'
+        url: 'https://www.notion.so/jetstreamgg/How-to-Calculate-Polling-Results-32a3f732d7fd481abd685e1f419d2bba'
       },
       {
         linkTitle: 'How to manually vote in a poll with Etherscan?',
-        url: 'https://jetstreamgg.notion.site/How-to-manually-vote-in-a-Sky-poll-with-Etherscan-1d1fae49084a8057b265da3d77eaac1c'
+        url: 'https://www.notion.so/jetstreamgg/How-to-manually-vote-in-a-Maker-poll-with-Etherscan-d61a8fbac15a4bfc840ecb2d5c19cd80'
       },
       {
         linkTitle: 'How to vote in on-chain governance?',

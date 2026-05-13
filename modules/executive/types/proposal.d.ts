@@ -6,32 +6,27 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { SpellData } from './spellData';
-
-export type GithubProposal = {
-  path: string;
-  metadata: {
-    title: string;
-    summary: string;
-    date: string;
-    address: string;
-  };
-};
+import { SpellData, SkySpellData } from './spellData';
 
 export type CMSProposal = {
   active: boolean;
   address: string;
   key: string;
+  content?: string;
+  about?: string;
   proposalBlurb: string;
   title: string;
   date: string;
   proposalLink: string;
   spellData?: {
-    skySupport: string;
+    mkrSupport: string;
   };
 };
 
 export type Proposal = CMSProposal & {
-  content?: string;
   spellData: SpellData;
+};
+
+export type SkyProposal = Omit<CMSProposal, 'spellData'> & {
+  spellData: SkySpellData;
 };

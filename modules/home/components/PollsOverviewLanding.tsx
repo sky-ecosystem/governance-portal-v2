@@ -38,24 +38,18 @@ export const PollsOverviewLanding = ({ polls, activePollCount, allTags }: Props)
       </Flex>
       <Flex>
         <ErrorBoundary componentName="Active Polls">
-          {pollsToDisplay.length === 0 ? (
-            <Flex sx={{ justifyContent: 'center', alignItems: 'center', width: '100%', height: '100px' }}>
-              No polls to display
-            </Flex>
-          ) : (
-            <Grid gap={4} columns={[1, 1, 1, 2]}>
-              {pollsToDisplay.map(poll => (
-                <PollOverviewCard
-                  key={poll.pollId}
-                  poll={poll}
-                  allTags={allTags}
-                  reviewPage={false}
-                  showVoting={false}
-                  disableTagFilter={true}
-                />
-              ))}
-            </Grid>
-          )}
+          <Grid gap={4} columns={[1, 1, 1, 2]}>
+            {pollsToDisplay.map(poll => (
+              <PollOverviewCard
+                key={poll.pollId}
+                poll={poll}
+                allTags={allTags}
+                reviewPage={false}
+                showVoting={false}
+                disableTagFilter={true}
+              />
+            ))}
+          </Grid>
         </ErrorBoundary>
       </Flex>
     </Flex>

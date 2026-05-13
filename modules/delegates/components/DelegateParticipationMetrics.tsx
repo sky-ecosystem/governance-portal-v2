@@ -44,7 +44,7 @@ const ParticipationBreakdownModal = () => {
                   - Communication: The percentage of votes for which the delegate has publicly communicated
                   their reasoning in addition to voting. It combines stats for polls and executives.
                 </Text>
-                <Text as="p">These stats are updated weekly by the Governance Facilitators.</Text>
+                <Text as="p">These stats are updated weekly by the GovAlpha Core Unit.</Text>
               </Flex>
             </BoxWithClose>
           </DialogContent>

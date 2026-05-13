@@ -17,7 +17,7 @@ async function main() {
 
     // poll-tags mapping
     const urlPollTags =
-      'https://raw.githubusercontent.com/makerdao/polls/refs/heads/main/meta/poll-tags.json';
+      'https://raw.githubusercontent.com/makerdao/community/master/governance/polls/meta/poll-tags.json';
     const pollTags = await fetch(urlPollTags);
     const dataPollTags = await pollTags.json();
     fs.writeFileSync(
@@ -28,7 +28,8 @@ async function main() {
     console.log('Downloaded poll-tags mapping.');
 
     //poll tags
-    const urlTags = 'https://raw.githubusercontent.com/makerdao/polls/refs/heads/main/meta/tags.json';
+    const urlTags =
+      'https://raw.githubusercontent.com/makerdao/community/master/governance/polls/meta/tags.json';
     const tags = await fetch(urlTags);
     const dataTags = await tags.json();
     fs.writeFileSync(

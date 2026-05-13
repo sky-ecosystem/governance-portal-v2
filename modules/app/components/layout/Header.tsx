@@ -10,19 +10,14 @@ import { useRouter } from 'next/router';
 import { Flex, NavLink, Container, Close, Box, IconButton, Divider, Text, useColorMode } from 'theme-ui';
 import Icon from '../Icon';
 import AccountSelect from './header/AccountSelect';
-import BallotStatus from 'modules/polling/components/BallotStatus';
 import React, { useState, useEffect } from 'react';
 import { useBreakpointIndex } from '@theme-ui/match-media';
 import NetworkSelect from './header/NetworkSelect';
 import { ErrorBoundary } from '../ErrorBoundary';
-import { useAccount } from 'modules/app/hooks/useAccount';
 import { InternalLink } from 'modules/app/components/InternalLink';
 import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button';
-import { useGasPrice } from 'modules/web3/hooks/useGasPrice';
 import { ExternalLink } from '../ExternalLink';
-import { GASNOW_URL, SupportedNetworks } from 'modules/web3/constants/networks';
 import { ClientRenderOnly } from '../ClientRenderOnly';
-import { useNetwork } from 'modules/app/hooks/useNetwork';
 
 const MenuItemContent = ({ label, icon }: { label: React.ReactNode; icon: string }) => {
   return (
@@ -116,9 +111,6 @@ const Header = (): JSX.Element => {
   const router = useRouter();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const bpi = useBreakpointIndex();
-  const { account } = useAccount();
-  const network = useNetwork();
-  const { data: gas } = useGasPrice({ network });
   const [mode, setMode] = useColorMode();
   const [renderedMode, setRenderedMode] = useState('light');
 
@@ -148,8 +140,7 @@ const Header = (): JSX.Element => {
         position: 'fixed',
         top: 0,
         left: 0,
-        backdropFilter: 'blur(64px)',
-        bg: 'backgroundTransparent'
+        backgroundColor: 'background'
       }}
     >
       <Flex sx={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -207,29 +198,6 @@ const Header = (): JSX.Element => {
         </Flex>
       </Flex>
       <Flex sx={{ alignItems: 'center' }}>
-        {bpi > 1 && account && network === SupportedNetworks.MAINNET && gas !== undefined && (
-          <ExternalLink
-            title="Ethereum Gas Price"
-            href={GASNOW_URL}
-            styles={{
-              variant: 'links.nostyle'
-            }}
-          >
-            <Flex
-              sx={{
-                alignItems: 'center',
-                gap: 1,
-                justifyContent: 'flex-start',
-                cursor: 'pointer',
-                px: [0, 0, 2, 3]
-              }}
-            >
-              <Text variant="smallText">{gas}</Text>
-              <Icon name="gas" size={3} />
-            </Flex>
-          </ExternalLink>
-        )}
-        {bpi > 3 && account && router.pathname.includes('polling') && <BallotStatus mr={3} />}
         {!isProduction && bpi > 1 && (
           <Flex mr={3}>
             <NetworkSelect />
@@ -254,10 +222,8 @@ const Header = (): JSX.Element => {
           <MobileMenu
             hide={() => setShowMobileMenu(false)}
             router={router}
-            gas={gas}
             onToggleTheme={onToggleTheme}
             mode={mode}
-            network={network}
           />
         )}
         {bpi > 0 && (
@@ -270,7 +236,7 @@ const Header = (): JSX.Element => {
   );
 };
 
-const MobileMenu = ({ hide, router, gas, onToggleTheme, mode, network }) => {
+const MobileMenu = ({ hide, router, onToggleTheme, mode }) => {
   const isProduction =
     process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'development';
 
@@ -281,7 +247,7 @@ const MobileMenu = ({ hide, router, gas, onToggleTheme, mode, network }) => {
   }, []);
 
   return (
-    <Container variant="modal" sx={{ width: '100vw', height: '100vh' }}>
+    <Container variant="modal">
       <Flex
         sx={{
           alignItems: 'center',
@@ -353,27 +319,6 @@ const MobileMenu = ({ hide, router, gas, onToggleTheme, mode, network }) => {
             <InternalLink href="/account" title="View account">
               <MenuItemContent icon="person" label="Account" />
             </InternalLink>
-            {network === SupportedNetworks.MAINNET && (
-              <ExternalLink
-                title="Ethereum Gas Price"
-                href={GASNOW_URL}
-                styles={{
-                  variant: 'links.nostyle'
-                }}
-              >
-                <MenuItemContent
-                  icon="gas"
-                  label={
-                    <Text>
-                      <Text as="span" sx={{ color: 'primary' }}>
-                        {gas}
-                      </Text>{' '}
-                      Gwei
-                    </Text>
-                  }
-                />
-              </ExternalLink>
-            )}
             <Flex onClick={hide}>
               <ExternalLink
                 styles={{ variant: 'links.nostyle' }}

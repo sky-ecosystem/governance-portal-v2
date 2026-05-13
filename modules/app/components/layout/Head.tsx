@@ -20,9 +20,9 @@ export function HeadComponent({
   url?: string;
 }): React.ReactElement {
   const defaultDescription =
-    'The Sky Governance Portal allows for anyone to view governance proposals, and also allows for SKY holders to vote.';
+    'The MakerDAO Governance Portal allows for anyone to view governance proposals, and also allows for MKR holders to vote.';
   const defaultTitle = 'Governance Portal';
-  const renderedTitle = `Sky Governance - ${title || defaultTitle}`;
+  const renderedTitle = `Maker Governance - ${title || defaultTitle}`;
   const renderedDescription = description || defaultDescription;
   return (
     <Head>

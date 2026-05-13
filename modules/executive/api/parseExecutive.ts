@@ -6,21 +6,25 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { CMSProposal, GithubProposal } from 'modules/executive/types';
+import { matterWrapper } from 'lib/matter';
+import { CMSProposal } from 'modules/executive/types';
 import { getAddress } from 'viem';
 import { slugify } from 'lib/utils';
 import { SupportedNetworks } from 'modules/web3/constants/networks';
 import logger from 'lib/logger';
 
 export function parseExecutive(
-  proposal: GithubProposal,
+  proposalDoc: string,
   proposalIndex: Record<string, string[]>,
   proposalLink: string,
   network: SupportedNetworks
 ): CMSProposal | null {
-  const { title, summary, address, date } = proposal.metadata;
+  const {
+    content,
+    data: { title, summary, address, date }
+  } = matterWrapper(proposalDoc);
   // Remove empty docs
-  if (!(title && summary && address && date)) {
+  if (!(content && title && summary && address && date)) {
     logger.warn(
       `parseExecutive: ${proposalLink} executive missing required field, skipping executive: `,
       title
@@ -37,7 +41,7 @@ export function parseExecutive(
   }
 
   //remove if date is invalid
-  if (isNaN(new Date(date).getTime())) {
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
     logger.warn(`parseExecutive: ${proposalLink} invalid date: ${date} skipping executive: ${title}`);
     return null;
   }
@@ -52,12 +56,14 @@ export function parseExecutive(
   };
 
   return {
+    about: content,
+    content: content,
     title: editTitle(title),
     proposalBlurb: summary,
     key: slugify(title),
     address: address,
-    date,
-    active: proposalIndex[network]?.includes(proposalLink) || false,
+    date: String(date),
+    active: proposalIndex[network].includes(proposalLink),
     proposalLink
   };
 }

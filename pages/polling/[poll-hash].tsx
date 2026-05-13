@@ -45,7 +45,7 @@ import { ExternalLink } from 'modules/app/components/ExternalLink';
 import usePollsStore from 'modules/polling/stores/polls';
 import { DialogOverlay, DialogContent } from 'modules/app/components/Dialog';
 import BoxWithClose from 'modules/app/components/BoxWithClose';
-import { PollOrderByEnum, SKY_PORTAL_START_DATE_MAINNET } from 'modules/polling/polling.constants';
+import { PollOrderByEnum } from 'modules/polling/polling.constants';
 import { useNetwork } from 'modules/app/hooks/useNetwork';
 import { formatEther } from 'viem';
 
@@ -107,14 +107,14 @@ const PollView = ({ poll }: { poll: Poll }) => {
 
         <div>
           <Flex mb={2} sx={{ justifyContent: 'space-between', flexDirection: 'row' }}>
-            <InternalLink href={'/polling'} title="View polling page">
+            <InternalLink href={'/legacy-polling'} title="View legacy polling page">
               <Button variant="mutedOutline">
                 <Flex sx={{ display: ['none', 'block'], alignItems: 'center', whiteSpace: 'nowrap' }}>
                   <Icon name="chevron_left" sx={{ size: 2, mr: 2 }} />
-                  Back to All Polls
+                  Back to Legacy Polls
                 </Flex>
                 <Flex sx={{ display: ['block', 'none'], alignItems: 'center', whiteSpace: 'nowrap' }}>
-                  Back to all
+                  Back to legacy
                 </Flex>
               </Button>
             </InternalLink>
@@ -196,13 +196,13 @@ const PollView = ({ poll }: { poll: Poll }) => {
                                 >
                                   <Heading sx={{ mb: 3 }}>Impact estimation tags</Heading>
                                   <Text sx={{ textAlign: 'center' }}>
-                                    GovAlpha applies impact estimations to active governance items (MIPs and
-                                    Signal Requests).
+                                    The Governance Facilitators apply impact estimations to active governance
+                                    items.
                                     <br />
                                     To know more about impact tags please visit the{' '}
                                     <ExternalLink
                                       title="Maker Operational Manual"
-                                      href="https://manual.makerdao.com/governance/off-chain/impact-estimations"
+                                      href="https://manual.makerdao.com/governance-processes/off-chain/impact-estimations"
                                     >
                                       <Text>Maker Operational Manual</Text>
                                     </ExternalLink>
@@ -288,10 +288,12 @@ const PollView = ({ poll }: { poll: Poll }) => {
                         <Text sx={{ color: 'textSecondary' }}>Total Voting Power</Text>
                         {tally ? (
                           <Text>
-                            {Number(tally.totalSkyParticipation.toString()).toLocaleString(undefined, {
+                            {Number(
+                              formatEther(BigInt(tally.totalMkrParticipation.toString()))
+                            ).toLocaleString(undefined, {
                               maximumFractionDigits: 3
                             })}{' '}
-                            SKY
+                            MKR
                           </Text>
                         ) : (
                           <Box sx={{ width: 4 }}>
@@ -359,7 +361,7 @@ const PollView = ({ poll }: { poll: Poll }) => {
                 </div>
               ]}
               banner={
-                tally && (tally.totalSkyParticipation as number) > 0 && tally.winningOptionName ? (
+                tally && (tally.totalMkrParticipation as number) > 0 && tally.winningOptionName ? (
                   <Box>
                     <Divider my={0} />
                     <PollWinningOptionBox tally={tally} poll={poll} />
@@ -379,10 +381,11 @@ const PollView = ({ poll }: { poll: Poll }) => {
           <ErrorBoundary componentName="System Info">
             <SystemStatsSidebar
               fields={[
-                'mainnet polling contract',
+                'polling contract v2',
+                'polling contract v1',
                 'arbitrum polling contract',
                 'savings rate',
-                'total usds',
+                'total dai',
                 'debt ceiling',
                 'system surplus'
               ]}
@@ -471,7 +474,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     tags: null,
     status: null,
     type: null,
-    startDate: SKY_PORTAL_START_DATE_MAINNET,
+    startDate: null,
     endDate: null
   });
 

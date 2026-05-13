@@ -1,16 +1,16 @@
 <h1  align="center"  style="margin-top: 1em; margin-bottom: 3em;">
 
-<p><a  href="https://vote.makerdao.com/"><img  alt="sky logo"  src="./sky-logo.png"  alt="vote.makerdao.com"  width="125"></a></p>
+<p><a  href="https://vote.makerdao.com/"><img  alt="maker logo"  src="./maker-logo.png"  alt="vote.makerdao.com"  width="125"></a></p>
 
-<p>Sky Governance Portal</p>
+<p>Maker Governance Portal</p>
 
 </h1>
 
-This is the repo containing the code for the [Sky Governance Portal](https://vote.makerdao.com). The Sky Governance Portal is an open-source interface for governance of the Sky protocol. </br>Copyright [Dai Foundation](https://daifoundation.org/) 2022.
+This is the repo containing the code for the [Maker Governance Portal](https://vote.makerdao.com). The Maker Governance Portal is an open-source interface for governance of the Maker protocol. </br>Copyright [Dai Foundation](https://daifoundation.org/) 2022.
 
 ### To run locally:
 
-While the portal is hosted by Sky at https://vote.makerdao.com, it can also be run by anyone on their local machine.
+While the portal is hosted by MakerDAO at https://vote.makerdao.com, it can also be run by anyone on their local machine.
 
 In order to run the project locally, you must have the following installed on the machine:
 
@@ -20,7 +20,7 @@ To get started, clone the repository to the desired directory and then navigate 
 
 ```bash
 # clones repo
-git clone https://github.com/makerdao/governance-portal-v2.git
+git clone https://github.com/sky-ecosystem/governance-portal-v2.git
 
 # changes directory to cloned project folder
 cd governance-portal-v2
@@ -40,6 +40,11 @@ pnpm dev
 
 At this point, you should be able to access the application by going to the address `http://localhost:3000` in your browser.
 
+### Upgrading
+
+> **Warning**
+> The method `_signTypedData` from ethers is an experimental feature and will be renamed to `signTypedData`. Make sure to keep the version of ethers fixed or rename the method once is available.
+
 ### Releasing
 
 To do releases of the governance portal, please use `npm version minor` or `npm version patch` to bump the version in the package.json and create a tag.
@@ -50,13 +55,13 @@ The tag and versioning should be done on develop, and then merged to master thro
 
 #### Content
 
-The portal seeks to rely on on-chain data as much as possible and to minimize reliance on data stored on centralized servers. However, due to the large volume of data that is relevant to Sky governance, fetching this data from on-chain is both time and resource-intensive. In order to improve the user's experience, some reliance on third-party services has been added, and we recommend a few configuration steps for optimal use. These services include:
+The portal seeks to rely on on-chain data as much as possible and to minimize reliance on data stored on centralized servers. However, due to the large volume of data that is relevant to Maker governance, fetching this data from on-chain is both time and resource-intensive. In order to improve the user's experience, some reliance on third-party services has been added, and we recommend a few configuration steps for optimal use. These services include:
 
-- [GitHub](https://github.com/makerdao/community/tree/master/governance) for storing markdown related to [polls](https://github.com/makerdao/community/tree/master/governance/polls), [executives](https://github.com/makerdao/community/tree/master/governance/votes), and [aligned delegates](https://github.com/makerdao/community/tree/master/governance/delegates)
+- [GitHub](https://github.com/sky-ecosystem/community/tree/master/governance) for storing markdown related to [polls](https://github.com/sky-ecosystem/community/tree/master/governance/polls), [executives](https://github.com/sky-ecosystem/community/tree/master/governance/votes), and [aligned delegates](https://github.com/sky-ecosystem/community/tree/master/governance/delegates)
 
 #### Network providers
 
-The portal uses the [Wagmi](https://wagmi.sh/react/getting-started) library in order to communicate with the Ethereum network through its React hooks, and [Viem](https://viem.sh/docs/getting-started) in order to do so through its public client as well as provide Web3 utilities. Both Wagmi and Viem work by connecting to JSON-RPC APIs via HTTP in order to provide on-chain data to web applications. By default, they provide default RPC URLs that can be used to get started. However, these RPCs keys can quickly become rate-limited when too many requests are made. In order to prevent this, it is recommended that you sign up and add your own API keys to the configuration for [Alchemy](https://docs.alchemy.com/reference/ethereum-api-quickstart) and [Infura](https://docs.infura.io/infura/networks/ethereum/how-to/secure-a-project/project-id).
+The portal uses the [Wagmi](https://wagmi.sh/react/getting-started) library in order to communicate with the Ethereum network through its React hooks, and [Viem](https://viem.sh/docs/getting-started) in order to do so through its public client as well as provide Web3 utilities. Both Wagmi and Viem work by connecting to JSON-RPC APIs via HTTP in order to provide on-chain data to web applications. By default, they provide default RPC URLs that can be used to get started. However, these RPCs keys can quickly become rate-limited when too many requests are made. In order to prevent this, it is recommended that you sign up and add your own API keys to the configuration.
 
 Due to the large volume of data that is constantly being fetched and displayed in the portal, we use caching in order to cache various network responses for a limited amount of time. This helps to reduce the load of networking calls to various APIs. This feature can be configured to be on or off.
 
@@ -68,11 +73,13 @@ The following configuration values can be added to the `.env` file:
 
 #### Recommended for improved performance:
 
-- Set `INFURA_KEY` to a valid [Infura](https://docs.infura.io/infura/networks/ethereum/how-to/secure-a-project/project-id) API key for Wagmi and Viem to use
-
-- Set `ALCHEMY_KEY` to a valid [Alchemy](https://docs.alchemy.com/reference/ethereum-api-quickstart) API key for Wagmi and Viem to use
+- Set `NEXT_PUBLIC_RPC_MAINNET` to a valid Ethereum mainnet RPC URL (e.g. from Alchemy, Infura, Tenderly, etc)
+- Set `NEXT_PUBLIC_RPC_ARBITRUM` to a valid Arbitrum mainnet RPC URL
+- Set `NEXT_PUBLIC_RPC_ARBITRUM_TESTNET` to a valid Arbitrum testnet RPC URL
 
 - Set `ETHERSCAN_V2_API_KEY` to a valid [Etherscan V2](https://docs.etherscan.io/etherscan-v2#why-v2) API key for Wagmi to be able to generate the contract ABIs
+
+- Set `GITHUB_TOKEN` to fetch polls, executives, and aligned delegates information from GitHub (optionally set `GITHUB_TOKEN_2` and `GITHUB_TOKEN_3`)
 
 - Set `USE_CACHE` to true if you want to use cache, if `REDIS_URL` is set it will use REDIS otherwise filesystem cache
 
@@ -88,8 +95,6 @@ The following configuration values can be added to the `.env` file:
 
 **Optional** Set `DEFENDER_API_KEY_MAINNET` and/or `DEFENDER_API_KEY_TESTNET` to a valid OpenZeppelin Defender Relay key (used for gasless poll voting)
 **Optional** Set `DEFENDER_API_SECRET_MAINNET` and/or`DEFENDER_API_SECRET_TESTNET` to a valid OpenZeppelin Defender Relay secret
-**Optional** Set `ALCHEMY_ARBITRUM_KEY` to a valid Alchemy API key for the arbitrum network
-**Optional** Set `ALCHEMY_ARBITRUM_TESTNET_KEY` to a valid Alchemy API key for the arbitrum test network
 **Optional** Set `GASLESS_BACKDOOR_SECRET` to allow for bypassing the gasless voting eligibility checks by anyone with the password
 
 - Set `DASHBOARD_PASSWORD` for adding protection to the `/dashboard` route

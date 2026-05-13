@@ -4,12 +4,9 @@ import { PollInputFormat, PollResultDisplay, PollVictoryConditions } from 'modul
 export const mockPollList: PollListItem[] = [
   {
     pollId: 967,
-    startDate: '2023-03-14T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-14T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmXUiHqH',
-    multiHash: 'QmXUiHqH',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -32,12 +29,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 966,
-    startDate: '2023-03-14T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-14T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmRfBShL',
-    multiHash: 'QmRfBShL',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -61,12 +55,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 965,
-    startDate: '2023-03-14T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-14T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmYcQDa3',
-    multiHash: 'QmYcQDa3',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -89,12 +80,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 964,
-    startDate: '2023-03-14T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-14T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'Qmc6GPBi',
-    multiHash: 'Qmc6GPBi',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -118,12 +106,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 963,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmT9Novb',
-    multiHash: 'QmT9Novb',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -146,12 +131,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 962,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmTJBUXJ',
-    multiHash: 'QmTJBUXJ',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -174,12 +156,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 961,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmdLRZGM',
-    multiHash: 'QmdLRZGM',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -201,12 +180,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 960,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'Qmbndmkr',
-    multiHash: 'Qmbndmkr',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -239,12 +215,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 978,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmT54pXF',
-    multiHash: 'QmT54pXF',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.rankFree,
     parameters: {
       inputFormat: {
@@ -273,12 +246,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 976,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmUqdiXM',
-    multiHash: 'QmUqdiXM',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.rankFree,
     parameters: {
       inputFormat: {
@@ -307,12 +277,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 975,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmcNS7iz',
-    multiHash: 'QmcNS7iz',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.rankFree,
     parameters: {
       inputFormat: {
@@ -340,12 +307,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 974,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmSsENPv',
-    multiHash: 'QmSsENPv',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.rankFree,
     parameters: {
       inputFormat: {
@@ -373,12 +337,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 973,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmWTwKiQ',
-    multiHash: 'QmWTwKiQ',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -402,12 +363,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 972,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmXoH4rE',
-    multiHash: 'QmXoH4rE',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.rankFree,
     parameters: {
       inputFormat: {
@@ -437,12 +395,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 971,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmU8DR2f',
-    multiHash: 'QmU8DR2f',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -464,12 +419,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 970,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmWpo8BJ',
-    multiHash: 'QmWpo8BJ',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.rankFree,
     parameters: {
       inputFormat: {
@@ -497,12 +449,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 969,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'QmNSsw6o',
-    multiHash: 'QmNSsw6o',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -525,12 +474,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 968,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-27T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-27T16:00:00.000Z'),
     slug: 'Qmdzxxw4',
-    multiHash: 'Qmdzxxw4',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -553,12 +499,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 982,
-    startDate: '2023-03-20T16:00:00.000Z',
-    endDate: '2023-03-23T16:00:00.000Z',
+    startDate: new Date('2023-03-20T16:00:00.000Z'),
+    endDate: new Date('2023-03-23T16:00:00.000Z'),
     slug: 'QmQ1fYm3',
-    multiHash: 'QmQ1fYm3',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.rankFree,
     parameters: {
       inputFormat: {
@@ -585,12 +528,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 983,
-    startDate: '2023-03-20T16:00:00.000Z',
-    endDate: '2023-03-23T16:00:00.000Z',
+    startDate: new Date('2023-03-20T16:00:00.000Z'),
+    endDate: new Date('2023-03-23T16:00:00.000Z'),
     slug: 'QmbrGz9x',
-    multiHash: 'QmbrGz9x',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -614,12 +554,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 980,
-    startDate: '2023-03-13T16:00:59.000Z',
-    endDate: '2023-03-16T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:59.000Z'),
+    endDate: new Date('2023-03-16T16:00:00.000Z'),
     slug: 'QmNTSr9j',
-    multiHash: 'QmNTSr9j',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -641,12 +578,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 977,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-16T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-16T16:00:00.000Z'),
     slug: 'QmYDns9V',
-    multiHash: 'QmYDns9V',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -669,12 +603,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 981,
-    startDate: '2023-03-13T16:01:35.000Z',
-    endDate: '2023-03-16T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:01:35.000Z'),
+    endDate: new Date('2023-03-16T16:00:00.000Z'),
     slug: 'QmRJSSGW',
-    multiHash: 'QmRJSSGW',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -696,12 +627,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 979,
-    startDate: '2023-03-13T16:00:00.000Z',
-    endDate: '2023-03-16T16:00:00.000Z',
+    startDate: new Date('2023-03-13T16:00:00.000Z'),
+    endDate: new Date('2023-03-16T16:00:00.000Z'),
     slug: 'QmfZ2nxw',
-    multiHash: 'QmfZ2nxw',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -724,12 +652,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 957,
-    startDate: '2023-03-06T16:00:00.000Z',
-    endDate: '2023-03-09T16:00:00.000Z',
+    startDate: new Date('2023-03-06T16:00:00.000Z'),
+    endDate: new Date('2023-03-09T16:00:00.000Z'),
     slug: 'QmYBegVf',
-    multiHash: 'QmYBegVf',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -752,12 +677,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 958,
-    startDate: '2023-03-06T16:00:00.000Z',
-    endDate: '2023-03-09T16:00:00.000Z',
+    startDate: new Date('2023-03-06T16:00:00.000Z'),
+    endDate: new Date('2023-03-09T16:00:00.000Z'),
     slug: 'QmcLGa49',
-    multiHash: 'QmcLGa49',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -780,12 +702,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 956,
-    startDate: '2023-02-27T16:00:00.000Z',
-    endDate: '2023-03-02T16:00:00.000Z',
+    startDate: new Date('2023-02-27T16:00:00.000Z'),
+    endDate: new Date('2023-03-02T16:00:00.000Z'),
     slug: 'QmXGgakY',
-    multiHash: 'QmXGgakY',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -808,12 +727,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 952,
-    startDate: '2023-02-13T16:00:00.000Z',
-    endDate: '2023-02-27T16:00:00.000Z',
+    startDate: new Date('2023-02-13T16:00:00.000Z'),
+    endDate: new Date('2023-02-27T16:00:00.000Z'),
     slug: 'QmRh87bm',
-    multiHash: 'QmRh87bm',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -836,12 +752,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 951,
-    startDate: '2023-02-13T16:00:00.000Z',
-    endDate: '2023-02-27T16:00:00.000Z',
+    startDate: new Date('2023-02-13T16:00:00.000Z'),
+    endDate: new Date('2023-02-27T16:00:00.000Z'),
     slug: 'QmSYNed5',
-    multiHash: 'QmSYNed5',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {
@@ -865,12 +778,9 @@ export const mockPollList: PollListItem[] = [
   },
   {
     pollId: 950,
-    startDate: '2023-02-13T16:00:00.000Z',
-    endDate: '2023-02-27T16:00:00.000Z',
+    startDate: new Date('2023-02-13T16:00:00.000Z'),
+    endDate: new Date('2023-02-27T16:00:00.000Z'),
     slug: 'QmQjv36P',
-    multiHash: 'QmQjv36P',
-    discussionLink: '',
-    url: '',
     type: PollInputFormat.singleChoice,
     parameters: {
       inputFormat: {

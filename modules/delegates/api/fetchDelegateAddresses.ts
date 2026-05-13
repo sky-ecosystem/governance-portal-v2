@@ -1,5 +1,5 @@
 import { gqlRequest } from 'modules/gql/gqlRequest';
-import { allDelegates } from 'modules/gql/queries/subgraph/allDelegates';
+import { allDelegateAddresses } from 'modules/gql/queries/subgraph/allDelegateAddresses';
 import { allDelegateAddressesKey } from 'modules/cache/constants/cache-keys';
 import { cacheGet, cacheSet } from 'modules/cache/cache';
 import { SupportedNetworks } from 'modules/web3/constants/networks';
@@ -15,20 +15,22 @@ export async function fetchDelegateAddresses(network: SupportedNetworks): Promis
   try {
     const chainId = networkNameToChainId(network);
 
-    const data = await gqlRequest({
+    const data = await gqlRequest<any>({
       chainId,
-      query: allDelegates
+      query: allDelegateAddresses(chainId),
+      useSubgraph: true
     });
 
-    const delegates = data.delegates.map(delegate => ({
-      blockTimestamp: new Date(Number(delegate?.blockTimestamp || 0) * 1000),
-      delegate: delegate?.ownerAddress,
-      voteDelegate: delegate?.id
-    })) as AllDelegatesEntry[];
+    const allDelegatesData: AllDelegatesEntry[] = (data.Delegate || []).map((delegate: any) => ({
+      delegate: delegate.ownerAddress,
+      voteDelegate: delegate.address,
+      blockTimestamp: new Date(Number(delegate.blockTimestamp) * 1000),
+      delegateVersion: Number(delegate.version) || 1
+    }));
 
-    cacheSet(allDelegateAddressesKey, JSON.stringify(delegates), network, ONE_HOUR_IN_MS);
+    cacheSet(allDelegateAddressesKey, JSON.stringify(allDelegatesData), network, ONE_HOUR_IN_MS);
 
-    return delegates;
+    return allDelegatesData;
   } catch (e) {
     logger.error('fetchDelegateAddresses: Error fetching delegate addresses', e.message, 'Network', network);
     return [];

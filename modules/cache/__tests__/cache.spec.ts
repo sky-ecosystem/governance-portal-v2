@@ -16,7 +16,7 @@ import { vi } from 'vitest';
 
 vi.mock('lib/config');
 
-const cacheFile = `/${os.tmpdir()}/sky-gov-portal-version-${packageJSON.version}-mainnet-test-${new Date()
+const cacheFile = `/${os.tmpdir()}/gov-portal-version-${packageJSON.version}-mainnet-test-${new Date()
   .toISOString()
   .substring(0, 10)}`;
 

@@ -9,10 +9,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 import { Flex, Checkbox, Label, Text, Box } from 'theme-ui';
 import shallow from 'zustand/shallow';
 import FilterButton from 'modules/app/components/FilterButton';
-import { DelegatesApiStats } from 'modules/delegates/types';
+import { DelegatesAPIStats } from 'modules/delegates/types';
 import useDelegatesFiltersStore from 'modules/delegates/stores/delegatesFiltersStore';
 
-export function DelegatesStatusFilter({ stats }: { stats: DelegatesApiStats }): JSX.Element {
+export function DelegatesStatusFilter({ stats }: { stats: DelegatesAPIStats }): JSX.Element {
   const [showAligned, showShadow, setShowAlignedFilter, setShowShadowFilter] = useDelegatesFiltersStore(
     state => [
       state.filters.showAligned,

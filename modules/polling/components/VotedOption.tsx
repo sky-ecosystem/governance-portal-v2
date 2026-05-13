@@ -8,7 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { Box } from 'theme-ui';
 import { isInputFormatRankFree } from '../helpers/utils';
-import { Poll, PollListItem, PollTallyVote } from '../types';
+import { Poll, PollTallyVote } from '../types';
 import { ListVoteSummary } from './vote-summary/ListVoteSummary';
 
 // This components displays the vote of a user in a poll
@@ -18,7 +18,7 @@ export default function VotedOption({
   align = 'left'
 }: {
   vote: PollTallyVote;
-  poll: Poll | PollListItem;
+  poll: Poll;
   align?: 'left' | 'right';
 }): React.ReactElement {
   return (

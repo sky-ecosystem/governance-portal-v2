@@ -19,7 +19,7 @@ import { networkNameToChainId } from 'modules/web3/helpers/chain';
 import { getPublicClient } from 'modules/web3/helpers/getPublicClient';
 import { chiefAbi, chiefAddress, dssSpellAbi } from 'modules/contracts/generated';
 
-export const getExecutiveSkySupport = async (
+export const getExecutiveMKRSupport = async (
   address: string,
   network: SupportedNetworks
 ): Promise<string> => {
@@ -27,7 +27,7 @@ export const getExecutiveSkySupport = async (
     const approvals = await getChiefApprovals(address, network);
     return approvals.toString();
   } catch (e) {
-    logger.error(`getExecutiveSKYSupport: Error fetching approvals for ${address} on ${network}`, e);
+    logger.error(`getExecutiveMKRSupport: Error fetching approvals for ${address} on ${network}`, e);
     return new Promise<string>(res => res('0'));
   }
 };
@@ -48,7 +48,7 @@ export const analyzeSpell = async (address: string, network: SupportedNetworks):
       nextCastTime: undefined,
       datePassed: undefined,
       dateExecuted: undefined,
-      skySupport: approvals.toString(),
+      mkrSupport: approvals.toString(),
       executiveHash: undefined,
       officeHours: undefined
     };
@@ -83,7 +83,7 @@ export const analyzeSpell = async (address: string, network: SupportedNetworks):
     { result: responseNextCastTime },
     { result: responseEta },
     { result: responseExpiration },
-    { result: responseSkySupport },
+    { result: responseMkrSupport },
     { result: responseExecutiveHash },
     { result: officeHours }
   ] = await publicClient.multicall({
@@ -109,7 +109,7 @@ export const analyzeSpell = async (address: string, network: SupportedNetworks):
     : undefined;
   const eta = Number(responseEta) ? new Date(Number(responseEta) * 1000) : undefined;
   const expiration = Number(responseExpiration) ? new Date(Number(responseExpiration) * 1000) : undefined;
-  const skySupport = responseSkySupport ? responseSkySupport.toString() : '0';
+  const mkrSupport = responseMkrSupport ? responseMkrSupport.toString() : '0';
   const executiveHash = responseExecutiveHash?.substr(
     responseExecutiveHash.indexOf('0x'),
     responseExecutiveHash.length
@@ -128,7 +128,7 @@ export const analyzeSpell = async (address: string, network: SupportedNetworks):
     nextCastTime,
     datePassed,
     dateExecuted,
-    skySupport,
+    mkrSupport,
     executiveHash,
     officeHours
   };

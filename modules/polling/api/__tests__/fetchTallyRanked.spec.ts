@@ -67,27 +67,24 @@ describe('Fetch tally ranked', () => {
   } as any as Poll;
 
   it('gives expected results for a tally with majority', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: fromBuffer([1, 3].reverse()) }, // [1st choice, 2nd choice, ...]
-            { voter: { id: '0x456' }, choice: fromBuffer([3, 1].reverse()) },
-            { voter: { id: '0x789' }, choice: fromBuffer([2, 3].reverse()) }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '60025000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '200598801867883985831' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '64068823529411764706' }] }
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            mkrSupport: '60.025000000000000000',
+            optionIdRaw: fromBuffer([1, 3].reverse()) // [1st choice, 2nd choice, ...]
+          },
+          {
+            mkrSupport: '200.598801867883985831',
+            optionIdRaw: fromBuffer([3, 1].reverse())
+          },
+          {
+            mkrSupport: '64.068823529411764706',
+            optionIdRaw: fromBuffer([2, 3].reverse())
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPoll, SupportedNetworks.MAINNET);
     const expectedResult = {
@@ -96,14 +93,14 @@ describe('Fetch tally ranked', () => {
       winner: 3,
       winningOptionName: 'Third',
       victoryConditionMatched: 0,
-      totalSkyActiveParticipation: '324.692625397295750537',
-      totalSkyParticipation: '324.692625397295750537',
+      totalMkrActiveParticipation: '324692625397295750537',
+      totalMkrParticipation: '324692625397295750537',
       results: [
         {
           optionId: 3,
           optionName: 'Third',
           firstPct: 61.7811,
-          skySupport: '200.598801867883985831',
+          mkrSupport: '200598801867883985831',
           transfer: '0',
           transferPct: 0,
           winner: true,
@@ -113,7 +110,7 @@ describe('Fetch tally ranked', () => {
           optionId: 2,
           optionName: 'Second',
           firstPct: 19.7321,
-          skySupport: '64.068823529411764706',
+          mkrSupport: '64068823529411764706',
           transfer: '0',
           transferPct: 0,
           winner: false,
@@ -123,7 +120,7 @@ describe('Fetch tally ranked', () => {
           optionId: 1,
           optionName: 'First',
           firstPct: 18.4867,
-          skySupport: '60.025',
+          mkrSupport: '60025000000000000000',
           transfer: '0',
           transferPct: 0,
           winner: false,
@@ -133,21 +130,17 @@ describe('Fetch tally ranked', () => {
           optionId: 0,
           optionName: 'Abstain',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 4,
           optionName: 'Fourth',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         }
       ],
       numVoters: 3
@@ -156,27 +149,24 @@ describe('Fetch tally ranked', () => {
     expect(result).toEqual(expect.objectContaining(expectedResult));
   });
   it('gives expected results for a tally with no  majority', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: fromBuffer([1, 3].reverse()) }, // [1st choice, 2nd choice, ...]
-            { voter: { id: '0x456' }, choice: fromBuffer([3, 1].reverse()) },
-            { voter: { id: '0x789' }, choice: fromBuffer([2, 3].reverse()) }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '60025000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '102598801867883985831' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '64068823529411764706' }] }
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            mkrSupport: '60.025000000000000000',
+            optionIdRaw: fromBuffer([1, 3].reverse()) // [1st choice, 2nd choice, ...]
+          },
+          {
+            mkrSupport: '102.598801867883985831',
+            optionIdRaw: fromBuffer([3, 1].reverse())
+          },
+          {
+            mkrSupport: '64.068823529411764706',
+            optionIdRaw: fromBuffer([2, 3].reverse())
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPoll, SupportedNetworks.MAINNET);
 
@@ -186,15 +176,15 @@ describe('Fetch tally ranked', () => {
       winner: 3,
       winningOptionName: 'Third',
       victoryConditionMatched: 0,
-      totalSkyActiveParticipation: '226.692625397295750537',
-      totalSkyParticipation: '226.692625397295750537',
+      totalMkrActiveParticipation: '226692625397295750537',
+      totalMkrParticipation: '226692625397295750537',
       results: [
         {
           optionId: 3,
           optionName: 'Third',
           firstPct: 45.259,
-          skySupport: '102.598801867883985831',
-          transfer: '60.025',
+          mkrSupport: '102598801867883985831',
+          transfer: '60025000000000000000',
           transferPct: 26.4786,
           winner: true,
           eliminated: false
@@ -203,7 +193,7 @@ describe('Fetch tally ranked', () => {
           optionId: 2,
           optionName: 'Second',
           firstPct: 28.2624,
-          skySupport: '64.068823529411764706',
+          mkrSupport: '64068823529411764706',
           transfer: '0',
           transferPct: 0,
           winner: false,
@@ -213,18 +203,16 @@ describe('Fetch tally ranked', () => {
           optionId: 0,
           optionName: 'Abstain',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 1,
           optionName: 'First',
           firstPct: 26.4786,
-          skySupport: '60.025',
-          transfer: '-60.025',
+          mkrSupport: '60025000000000000000',
+          transfer: '-60025000000000000000',
           transferPct: -26.4785,
           winner: false,
           eliminated: true
@@ -234,11 +222,9 @@ describe('Fetch tally ranked', () => {
           optionId: 4,
           optionName: 'Fourth',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         }
       ],
       numVoters: 3
@@ -248,29 +234,28 @@ describe('Fetch tally ranked', () => {
   });
 
   it('gives expected results for a tally with multiple rounds', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: fromBuffer([1, 3].reverse()) }, // [1st choice, 2nd choice, ...]
-            { voter: { id: '0x456' }, choice: fromBuffer([3, 1].reverse()) },
-            { voter: { id: '0x789' }, choice: fromBuffer([2, 3].reverse()) },
-            { voter: { id: '0xabc' }, choice: fromBuffer([4, 1].reverse()) }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '60025000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '102598801867883985831' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '64068823529411764706' }] },
-          { id: '0xabc', v2VotingPowerChanges: [{ newBalance: '4000000000000000000' }] }
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            mkrSupport: '60.025000000000000000',
+            optionIdRaw: fromBuffer([1, 3].reverse()) // [1st choice, 2nd choice, ...]
+          },
+          {
+            mkrSupport: '102.598801867883985831',
+            optionIdRaw: fromBuffer([3, 1].reverse())
+          },
+          {
+            mkrSupport: '64.068823529411764706',
+            optionIdRaw: fromBuffer([2, 3].reverse())
+          },
+          {
+            mkrSupport: '4',
+            optionIdRaw: fromBuffer([4, 1].reverse())
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPoll, SupportedNetworks.MAINNET);
 
@@ -280,15 +265,15 @@ describe('Fetch tally ranked', () => {
       winner: 3,
       winningOptionName: 'Third',
       victoryConditionMatched: 0,
-      totalSkyActiveParticipation: '230.692625397295750537',
-      totalSkyParticipation: '230.692625397295750537',
+      totalMkrActiveParticipation: '230692625397295750537',
+      totalMkrParticipation: '230692625397295750537',
       results: [
         {
           optionId: 3,
           optionName: 'Third',
           firstPct: 44.4742,
-          skySupport: '102.598801867883985831',
-          transfer: '60.025',
+          mkrSupport: '102598801867883985831',
+          transfer: '60025000000000000000',
           transferPct: 26.0195,
           winner: true,
           eliminated: false
@@ -297,7 +282,7 @@ describe('Fetch tally ranked', () => {
           optionId: 2,
           optionName: 'Second',
           firstPct: 27.7724,
-          skySupport: '64.068823529411764706',
+          mkrSupport: '64068823529411764706',
           transfer: '0',
           transferPct: 0,
           winner: false,
@@ -307,8 +292,8 @@ describe('Fetch tally ranked', () => {
           optionId: 1,
           optionName: 'First',
           firstPct: 26.0195,
-          skySupport: '60.025',
-          transfer: '-56.025',
+          mkrSupport: '60025000000000000000',
+          transfer: '-56025000000000000000',
           transferPct: -24.2855,
           winner: false,
           eliminated: true
@@ -317,18 +302,16 @@ describe('Fetch tally ranked', () => {
           optionId: 0,
           optionName: 'Abstain',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 4,
           optionName: 'Fourth',
           firstPct: 1.7339,
-          skySupport: '4',
-          transfer: '-4',
+          mkrSupport: '4000000000000000000',
+          transfer: '-4000000000000000000',
           transferPct: -1.7338,
           winner: false,
           eliminated: true
@@ -341,30 +324,29 @@ describe('Fetch tally ranked', () => {
   });
 
   it('ranked choice tally verify eliminated options cant get votes', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: fromBuffer([1, 3].reverse()) },
-            { voter: { id: '0x456' }, choice: fromBuffer([3, 1].reverse()) },
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            mkrSupport: '60.025000000000000000',
+            optionIdRaw: fromBuffer([1, 3].reverse())
+          },
+          {
+            mkrSupport: '102.598801867883985831',
+            optionIdRaw: fromBuffer([3, 1].reverse())
+          },
+          {
+            mkrSupport: '54.068823529411764706',
             // option 4 should never get these votes since it's eliminated in the first round
-            { voter: { id: '0x789' }, choice: fromBuffer([2, 4].reverse()) },
-            { voter: { id: '0xabc' }, choice: fromBuffer([4, 1].reverse()) }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '60025000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '102598801867883985831' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '54068823529411764706' }] },
-          { id: '0xabc', v2VotingPowerChanges: [{ newBalance: '4000000000000000000' }] }
+            optionIdRaw: fromBuffer([2, 4].reverse())
+          },
+          {
+            mkrSupport: '4',
+            optionIdRaw: fromBuffer([4, 1].reverse())
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPoll, SupportedNetworks.MAINNET);
 
@@ -374,15 +356,15 @@ describe('Fetch tally ranked', () => {
       winner: 3,
       victoryConditionMatched: 0,
       winningOptionName: 'Third',
-      totalSkyActiveParticipation: '220.692625397295750537',
-      totalSkyParticipation: '220.692625397295750537',
+      totalMkrActiveParticipation: '220692625397295750537',
+      totalMkrParticipation: '220692625397295750537',
       results: [
         {
           optionId: 3,
           optionName: 'Third',
           firstPct: 46.4895,
-          skySupport: '102.598801867883985831',
-          transfer: '60.025',
+          mkrSupport: '102598801867883985831',
+          transfer: '60025000000000000000',
           transferPct: 27.1985,
           winner: true,
           eliminated: false
@@ -391,7 +373,7 @@ describe('Fetch tally ranked', () => {
           optionId: 2,
           optionName: 'Second',
           firstPct: 24.4996,
-          skySupport: '54.068823529411764706',
+          mkrSupport: '54068823529411764706',
           transfer: '0',
           transferPct: 0,
           winner: false,
@@ -401,8 +383,8 @@ describe('Fetch tally ranked', () => {
           optionId: 1,
           optionName: 'First',
           firstPct: 27.1985,
-          skySupport: '60.025',
-          transfer: '-56.025',
+          mkrSupport: '60025000000000000000',
+          transfer: '-56025000000000000000',
           transferPct: -25.3859,
           winner: false,
           eliminated: true
@@ -412,18 +394,16 @@ describe('Fetch tally ranked', () => {
           optionId: 0,
           optionName: 'Abstain',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 4,
           optionName: 'Fourth',
           firstPct: 1.8125,
-          skySupport: '4',
-          transfer: '-4',
+          mkrSupport: '4000000000000000000',
+          transfer: '-4000000000000000000',
           transferPct: -1.8124,
           winner: false,
           eliminated: true
@@ -445,29 +425,28 @@ describe('Fetch tally ranked', () => {
   // option 1: 201, option 2: 0, option 3: 0, option 4: 0, total: 300
   // winner: option 1
   it('ranked choice tally stop when 1 remains', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: fromBuffer([1]) },
-            { voter: { id: '0x456' }, choice: fromBuffer([2, 1].reverse()) },
-            { voter: { id: '0x789' }, choice: fromBuffer([3]) },
-            { voter: { id: '0xabc' }, choice: fromBuffer([4, 3].reverse()) }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '101000000000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '100000000000000000000' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '50000000000000000000' }] },
-          { id: '0xabc', v2VotingPowerChanges: [{ newBalance: '49000000000000000000' }] }
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            mkrSupport: '101',
+            optionIdRaw: fromBuffer([1])
+          },
+          {
+            mkrSupport: '100',
+            optionIdRaw: fromBuffer([2, 1].reverse())
+          },
+          {
+            mkrSupport: '50',
+            optionIdRaw: fromBuffer([3])
+          },
+          {
+            mkrSupport: '49',
+            optionIdRaw: fromBuffer([4, 3].reverse())
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPoll, SupportedNetworks.MAINNET);
 
@@ -477,15 +456,15 @@ describe('Fetch tally ranked', () => {
       winner: 1,
       victoryConditionMatched: 0,
       winningOptionName: 'First',
-      totalSkyParticipation: '300',
-      totalSkyActiveParticipation: '300',
+      totalMkrParticipation: '300000000000000000000',
+      totalMkrActiveParticipation: '300000000000000000000',
       results: [
         {
           optionId: 1,
           optionName: 'First',
           firstPct: 33.6667,
-          skySupport: '101',
-          transfer: '100',
+          mkrSupport: '101000000000000000000',
+          transfer: '100000000000000000000',
           transferPct: 33.3333,
           winner: true,
           eliminated: false
@@ -494,9 +473,9 @@ describe('Fetch tally ranked', () => {
         {
           optionId: 3,
           optionName: 'Third',
-          skySupport: '50',
+          mkrSupport: '50000000000000000000',
           firstPct: 16.6667,
-          transfer: '49',
+          transfer: '49000000000000000000',
           transferPct: 16.3333,
           winner: false,
           eliminated: true
@@ -505,19 +484,17 @@ describe('Fetch tally ranked', () => {
           optionId: 0,
           optionName: 'Abstain',
           firstPct: 0,
-          transfer: '0',
-          skySupport: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
 
         {
           optionId: 4,
           optionName: 'Fourth',
           firstPct: 16.3333,
-          skySupport: '49',
-          transfer: '-49',
+          mkrSupport: '49000000000000000000',
+          transfer: '-49000000000000000000',
           transferPct: -16.3332,
           winner: false,
           eliminated: true
@@ -526,8 +503,8 @@ describe('Fetch tally ranked', () => {
           optionId: 2,
           optionName: 'Second',
           firstPct: 33.3333,
-          skySupport: '100',
-          transfer: '-100',
+          mkrSupport: '100000000000000000000',
+          transfer: '-100000000000000000000',
           transferPct: -33.3332,
           winner: false,
           eliminated: true

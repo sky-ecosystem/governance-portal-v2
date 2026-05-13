@@ -23,6 +23,8 @@ import { validateAddress } from 'modules/web3/api/validateAddress';
  *     properties:
  *       isDelegate:
  *         type: boolean
+ *       isProxyContract:
+ *         type: boolean
  *       address:
  *         type: string
  *       delegateInfo:
@@ -32,13 +34,14 @@ import { validateAddress } from 'modules/web3/api/validateAddress';
  *             type: string
  *           id:
  *             type: string
- *           skyDelegated:
+ *           mkrDelegated:
  *             type: number
  *     example:
  *       - address: "0x7a1231231312d76A2aff3b1231231230A4"
  *         isDelegate: true
+ *         isProxyContract: false
  *         delegateInfo:
- *           skyDelegated: 5
+ *           mkrDelegated: 5
  *           voteDelegateAddress: "0x123123213213"
  * /api/address/{address}:
  *   get:

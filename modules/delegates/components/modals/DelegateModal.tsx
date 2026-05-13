@@ -8,10 +8,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { useState, useEffect } from 'react';
 import { Box } from 'theme-ui';
-import { useSkyBalance } from 'modules/sky/hooks/useSkyBalance';
+import { useMkrBalance } from 'modules/mkr/hooks/useMkrBalance';
 import { Delegate, DelegateInfo, DelegatePaginated } from '../../types';
 import { BoxWithClose } from 'modules/app/components/BoxWithClose';
-import { InputDelegateSky } from './InputDelegateSky';
+import { InputDelegateMkr } from './InputDelegateMkr';
 import { ApprovalContent } from './Approval';
 import { TxDisplay } from './TxDisplay';
 import { ConfirmContent } from './Confirm';
@@ -30,7 +30,7 @@ type Props = {
   onDismiss: () => void;
   delegate: Delegate | DelegatePaginated | DelegateInfo;
   mutateTotalStaked: (amount?: bigint) => void;
-  mutateSkyDelegated: () => void;
+  mutateMKRDelegated: () => void;
   title?: string;
   refetchOnDelegation?: boolean;
 };
@@ -40,29 +40,29 @@ export const DelegateModal = ({
   onDismiss,
   delegate,
   mutateTotalStaked,
-  mutateSkyDelegated,
+  mutateMKRDelegated,
   title = 'Deposit into delegate contract',
   refetchOnDelegation = true
 }: Props): JSX.Element => {
   const { account } = useAccount();
 
   const voteDelegateAddress = delegate.voteDelegateAddress;
-  const [skyToDeposit, setSkyToDeposit] = useState(0n);
+  const [mkrToDeposit, setMkrToDeposit] = useState(0n);
   const [confirmStep, setConfirmStep] = useState(false);
   const [txStatus, setTxStatus] = useState<TxStatus>(TxStatus.IDLE);
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
 
-  const { data: skyBalance, mutate: mutateSkyBalance } = useSkyBalance(account);
+  const { data: mkrBalance, mutate: mutateMkrBalance } = useMkrBalance(account);
 
-  const { data: skyAllowance, mutate: mutateTokenAllowance } = useTokenAllowance(
-    Tokens.SKY,
+  const { data: mkrAllowance, mutate: mutateTokenAllowance } = useTokenAllowance(
+    Tokens.MKR,
     100000000n,
     account,
     voteDelegateAddress
   );
 
   const approve = useApproveUnlimitedToken({
-    name: Tokens.SKY,
+    name: Tokens.MKR,
     addressToApprove: voteDelegateAddress,
     onStart: (hash: `0x${string}`) => {
       setTxHash(hash);
@@ -82,7 +82,7 @@ export const DelegateModal = ({
 
   const lock = useDelegateLock({
     voteDelegateAddress,
-    skyToDeposit,
+    mkrToDeposit,
     onStart: (hash: `0x${string}`) => {
       setTxHash(hash);
       setTxStatus(TxStatus.LOADING);
@@ -90,14 +90,14 @@ export const DelegateModal = ({
     onSuccess: (hash: `0x${string}`) => {
       setTxHash(hash);
       setTxStatus(TxStatus.SUCCESS);
-      refetchOnDelegation ? mutateTotalStaked() : mutateTotalStaked(skyToDeposit);
-      mutateSkyDelegated();
-      mutateSkyBalance();
+      refetchOnDelegation ? mutateTotalStaked() : mutateTotalStaked(mkrToDeposit);
+      mutateMKRDelegated();
+      mutateMkrBalance();
     },
     onError: () => {
       setTxStatus(TxStatus.ERROR);
     },
-    enabled: !!skyAllowance && !!skyToDeposit
+    enabled: !!mkrAllowance && !!mkrToDeposit
   });
 
   const onClose = () => {
@@ -125,9 +125,11 @@ export const DelegateModal = ({
                   setTxHash={setTxHash}
                   onDismiss={onClose}
                   title={`Delegating to ${delegate.name}`}
-                  description={`You delegated ${formatValue(skyToDeposit, 'wad', 6)} SKY to ${
-                    delegate.name
-                  }.`}
+                  description={`Congratulations, you delegated ${formatValue(
+                    mkrToDeposit,
+                    'wad',
+                    6
+                  )} MKR to ${delegate.name}.`}
                 >
                   <Box sx={{ textAlign: 'left', margin: '0 auto', p: 3 }}>
                     <DelegateAvatarName delegate={delegate} />
@@ -135,31 +137,30 @@ export const DelegateModal = ({
                 </TxDisplay>
               ) : (
                 <>
-                  {skyAllowance ? (
+                  {mkrAllowance ? (
                     confirmStep ? (
                       <ConfirmContent
-                        skyToDeposit={skyToDeposit}
+                        mkrToDeposit={mkrToDeposit}
                         delegate={delegate}
                         onClick={() => {
                           setTxStatus(TxStatus.INITIALIZED);
                           lock.execute();
                         }}
                         disabled={
-                          skyToDeposit === 0n ||
-                          skyToDeposit > (skyBalance || 0n) ||
+                          mkrToDeposit === 0n ||
+                          mkrToDeposit > (mkrBalance || 0n) ||
                           lock.isLoading ||
                           !lock.prepared
                         }
                         onBack={() => setConfirmStep(false)}
-                        prepareError={lock.prepareError}
                       />
                     ) : (
-                      <InputDelegateSky
+                      <InputDelegateMkr
                         title={title}
-                        description="Input the amount of SKY to deposit into the delegate contract."
-                        onChange={setSkyToDeposit}
-                        balance={skyBalance}
-                        buttonLabel="Delegate SKY"
+                        description="Input the amount of MKR to deposit into the delegate contract."
+                        onChange={setMkrToDeposit}
+                        balance={mkrBalance}
+                        buttonLabel="Delegate MKR"
                         onClick={() => setConfirmStep(true)}
                         showAlert={true}
                       />
@@ -174,7 +175,7 @@ export const DelegateModal = ({
                       title={'Approve Delegate Contract'}
                       buttonLabel={'Approve Delegate Contract'}
                       description={
-                        'Approve the transfer of SKY tokens to the delegate contract to deposit your SKY.'
+                        'Approve the transfer of MKR tokens to the delegate contract to deposit your MKR.'
                       }
                     />
                   )}

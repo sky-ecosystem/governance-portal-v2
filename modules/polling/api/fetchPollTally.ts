@@ -19,8 +19,7 @@ import { extractSatisfiesComparison } from './victory_conditions/comparison';
 import { hasVictoryConditionInstantRunOff } from '../helpers/utils';
 import { fetchVotesByAddressForPoll } from './fetchVotesByAddress';
 import { calculatePercentage } from 'lib/utils';
-import { formatEther, parseEther } from 'viem';
-import { fetchDelegateAddresses } from 'modules/delegates/api/fetchDelegateAddresses';
+import { parseEther } from 'viem';
 
 type WinnerOption = { winner: number | null; results: InstantRunoffResults | null };
 
@@ -62,34 +61,26 @@ export function findWinner(condition: VictoryCondition, votes: PollTallyVote[], 
 }
 
 export async function fetchPollTally(poll: Poll, network: SupportedNetworks): Promise<PollTally> {
-  const allDelegates = await fetchDelegateAddresses(network);
+  // Fetch spock votes for the poll
+  const endUnix = new Date(poll.endDate).getTime() / 1000;
 
-  // Create a mapping from owner addresses to delegate addresses
-  const ownerToDelegateMap: Record<string, string> = {};
-  allDelegates.forEach(delegate => {
-    if (delegate.voteDelegate && delegate.delegate) {
-      ownerToDelegateMap[delegate.delegate.toLowerCase()] = delegate.voteDelegate.toLowerCase();
-    }
-  });
-
-  // Fetch votes for the poll
-  const votesByAddress = await fetchVotesByAddressForPoll(poll.pollId, ownerToDelegateMap, network);
+  const votesByAddress = await fetchVotesByAddressForPoll(poll.pollId, endUnix, network);
 
   // Abstain
   const abstain = poll.parameters.inputFormat.abstain ? poll.parameters.inputFormat.abstain : [0];
 
-  let totalSkyParticipation = 0n;
-  let totalSkyActiveParticipation = 0n;
+  let totalMkrParticipation = 0n;
+  let totalMkrActiveParticipation = 0n;
 
   // Remove all the votes that voted "Abstain" in any option. (It should only be 1 abstain option)
   const filteredVotes = votesByAddress.filter(vote => {
-    // Store the total SKY
-    totalSkyParticipation = totalSkyParticipation + parseEther(vote.skySupport.toString());
+    // Store the total MKR
+    totalMkrParticipation = totalMkrParticipation + parseEther(vote.mkrSupport.toString());
     if (vote.ballot.filter(i => abstain.indexOf(i) !== -1).length > 0) {
       return false;
     }
 
-    totalSkyActiveParticipation = totalSkyActiveParticipation + parseEther(vote.skySupport.toString());
+    totalMkrActiveParticipation = totalMkrActiveParticipation + parseEther(vote.mkrSupport.toString());
 
     return true;
   });
@@ -172,25 +163,25 @@ export async function fetchPollTally(poll: Poll, network: SupportedNetworks): Pr
   // Format results
   const votesInfo: { [key: number]: bigint } = {};
 
-  // needs to consider IRV without comparator threshold met when aggregating SKY
+  // needs to consider IRV without comparator threshold met when aggregating MKR
   const isIrv = hasVictoryConditionInstantRunOff(poll.parameters.victoryConditions);
 
-  // Aggregate the SKY support
+  // Aggregate the MKR support
   votesByAddress.forEach(vote => {
     // if IRV and no winner, only consider weight from first ballot option
     if (isIrv && !winnerOption.results) {
       if (votesInfo[vote.ballot[0]]) {
-        votesInfo[vote.ballot[0]] = votesInfo[vote.ballot[0]] + parseEther(vote.skySupport.toString());
+        votesInfo[vote.ballot[0]] = votesInfo[vote.ballot[0]] + parseEther(vote.mkrSupport.toString());
       } else {
-        votesInfo[vote.ballot[0]] = parseEther(vote.skySupport.toString());
+        votesInfo[vote.ballot[0]] = parseEther(vote.mkrSupport.toString());
       }
     } else {
       // otherwise aggregate all votes
       vote.ballot.forEach(votedOption => {
         if (votesInfo[votedOption]) {
-          votesInfo[votedOption] = votesInfo[votedOption] + parseEther(vote.skySupport.toString());
+          votesInfo[votedOption] = votesInfo[votedOption] + parseEther(vote.mkrSupport.toString());
         } else {
-          votesInfo[votedOption] = parseEther(vote.skySupport.toString());
+          votesInfo[votedOption] = parseEther(vote.mkrSupport.toString());
         }
       });
     }
@@ -202,38 +193,38 @@ export async function fetchPollTally(poll: Poll, network: SupportedNetworks): Pr
       const optionId = parseInt(key);
       const instantRunoffOption = winnerOption.results?.options[optionId];
 
-      // To get the real SKY support we need to get the one extracted from the ranked results, for instant-runoff, since
-      // it will count the firstChoice SKY support based on the algorithm. Except for abstain
-      // for other algorithms we just use the accumulated SKY
+      // To get the real MKR support we need to get the one extracted from the ranked results, for instant-runoff, since
+      // it will count the firstChoice MKR support based on the algorithm. Except for abstain
+      // for other algorithms we just use the accumulated MKR
 
-      const isAbstainOption = (poll?.parameters?.inputFormat?.abstain || [0]).indexOf(parseInt(key)) !== -1;
+      const isAbstainOption = poll.parameters.inputFormat.abstain.indexOf(parseInt(key)) !== -1;
 
-      const skySupport =
+      const mkrSupport =
         winnerOption.results && !isAbstainOption
-          ? instantRunoffOption?.skySupport || 0n
+          ? instantRunoffOption?.mkrSupport || 0n
           : votesInfo[optionId] || 0n;
 
       const firstPct =
-        totalSkyParticipation > 0n ? calculatePercentage(skySupport, totalSkyParticipation, 4) : 0;
+        totalMkrParticipation > 0n ? calculatePercentage(mkrSupport, totalMkrParticipation, 4) : 0;
       const transferPct =
-        totalSkyParticipation > 0n && instantRunoffOption?.transfer
-          ? calculatePercentage(instantRunoffOption.transfer, totalSkyParticipation, 4)
+        totalMkrParticipation > 0n && instantRunoffOption?.transfer
+          ? calculatePercentage(instantRunoffOption.transfer, totalMkrParticipation, 4)
           : 0;
 
       return {
         optionId,
         winner: winnerOption.winner === optionId,
-        skySupport: formatEther(skySupport).toString(),
+        mkrSupport: mkrSupport.toString(),
         optionName: poll.options[optionId],
         eliminated: instantRunoffOption?.eliminated,
-        transfer: formatEther(instantRunoffOption?.transfer || 0n).toString(),
+        transfer: instantRunoffOption?.transfer?.toString(),
         firstPct,
         transferPct
       };
     })
     .sort((a, b) => {
-      const valueA = parseEther(a.skySupport) + parseEther((a.transfer || 0).toString());
-      const valueB = parseEther(b.skySupport) + parseEther((b.transfer || 0).toString());
+      const valueA = parseEther(a.mkrSupport) + parseEther((a.transfer || 0).toString());
+      const valueB = parseEther(b.mkrSupport) + parseEther((b.transfer || 0).toString());
       if (valueA === valueB) return a.optionName > b.optionName ? 1 : -1;
       return valueA > valueB ? -1 : 1;
     });
@@ -243,8 +234,8 @@ export async function fetchPollTally(poll: Poll, network: SupportedNetworks): Pr
     winner: winnerOption.winner ? winnerOption.winner : null,
     victoryConditionMatched,
     numVoters: votesByAddress.length,
-    totalSkyParticipation: formatEther(totalSkyParticipation).toString(),
-    totalSkyActiveParticipation: formatEther(totalSkyActiveParticipation).toString(),
+    totalMkrParticipation: totalMkrParticipation.toString(),
+    totalMkrActiveParticipation: totalMkrActiveParticipation.toString(),
     winningOptionName: winnerOption.winner ? poll.options[winnerOption.winner] : 'None found',
     results,
     rounds: winnerOption.results?.rounds,

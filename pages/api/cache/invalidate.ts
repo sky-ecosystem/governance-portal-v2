@@ -13,6 +13,7 @@ import logger from 'lib/logger';
 import { cacheDel } from 'modules/cache/cache';
 import {
   delegatesGithubCacheKey,
+  allDelegatesCacheKey,
   executiveSupportersCacheKey,
   githubExecutivesCacheKey,
   executiveProposalsCacheKey
@@ -43,7 +44,8 @@ export default withApiHandler(
       executiveSupportersCacheKey,
       githubExecutivesCacheKey,
       'polls-',
-      delegatesGithubCacheKey
+      delegatesGithubCacheKey,
+      allDelegatesCacheKey
     ];
 
     try {
@@ -70,7 +72,7 @@ export default withApiHandler(
         cacheKey
       });
     } catch (e) {
-      throw new ApiError(`Invalidate cache, ${e.messaage}`, 500);
+      throw new ApiError(`Invalidate cache, ${e.message}`, 500);
     }
   },
   {

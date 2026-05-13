@@ -8,13 +8,21 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import { fetchDelegatedTo } from 'modules/delegates/api/fetchDelegatedTo';
-import { DelegateInfo, DelegationHistory } from 'modules/delegates/types';
+import {
+  DelegateInfo,
+  DelegationHistory,
+  DelegationHistoryWithExpirationDate
+} from 'modules/delegates/types';
 import withApiHandler from 'modules/app/api/withApiHandler';
 import { DEFAULT_NETWORK, SupportedNetworks } from 'modules/web3/constants/networks';
+import { networkNameToChainId } from 'modules/web3/helpers/chain';
+import { getVoteProxyAddresses } from 'modules/app/helpers/getVoteProxyAddresses';
 import { ApiError } from 'modules/app/api/ApiError';
 import validateQueryParam from 'modules/app/api/validateQueryParam';
 import { validateAddress } from 'modules/web3/api/validateAddress';
 import { fetchDelegatesInfo } from 'modules/delegates/api/fetchDelegates';
+import { voteProxyFactoryAddress } from 'modules/contracts/generated';
+import { voteProxyAbi } from 'modules/contracts/ethers/abis';
 import { formatEther, parseEther } from 'viem';
 
 /**
@@ -45,7 +53,7 @@ import { formatEther, parseEther } from 'viem';
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/definitions/SKYAddressDelegationsAPIResponse'
+ *              $ref: '#/definitions/MKRAddressDelegationsAPIResponse'
  * definitions:
  *  DelegateInfo:
  *    type: object
@@ -54,76 +62,77 @@ import { formatEther, parseEther } from 'viem';
  *        type: string
  *      picture:
  *        type: string
- *        nullable: true
  *      address:
  *        type: string
- *        description: The address the delegate uses for voting
  *      voteDelegateAddress:
  *        type: string
- *        description: The delegate's contract address
  *      status:
  *        type: string
  *        enum:
- *          - aligned
+ *          - recognized
+ *          - expired
  *          - shadow
+ *      cuMember:
+ *        type: boolean
  *      pollParticipation:
  *        type: string
- *        nullable: true
  *      executiveParticipation:
  *        type: string
- *        nullable: true
  *      combinedParticipation:
  *        type: string
- *        nullable: true
  *      communication:
  *        type: string
- *        nullable: true
  *      blockTimestamp:
  *        type: string
  *        format: date-time
- *        description: The timestamp when the delegate was last updated or created
- *      tags:
- *        type: array
- *        items:
- *          type: string
- *        nullable: true
+ *      expirationDate:
+ *        type: string
+ *        format: date-time
+ *      expired:
+ *        type: boolean
+ *      isAboutToExpire:
+ *        type: boolean
+ *      previous:
+ *        type: object
+ *        properties:
+ *          address:
+ *            type: string
+ *      next:
+ *        type: object
+ *        properties:
+ *          address:
+ *            type: string
  *    required:
  *      - name
  *      - address
  *      - voteDelegateAddress
  *      - status
  *      - blockTimestamp
+ *      - expirationDate
+ *      - expired
+ *      - isAboutToExpire
  *  DelegationHistoryEvent:
  *    type: object
  *    properties:
  *      lockAmount:
  *        type: string
- *        description: The amount of SKY locked or unlocked in this event
  *      blockTimestamp:
  *        type: string
  *        format: date-time
- *        description: Timestamp of the block in which the event occurred
  *      hash:
  *        type: string
- *        description: Transaction hash of the delegation event
- *      isStakingEngine:
- *        type: boolean
- *        description: Whether this event was a lockstake event
- *        nullable: true
  *  DelegationHistory:
  *    type: object
  *    properties:
  *      address:
  *        type: string
- *        description: The address of the delegate
  *      lockAmount:
  *        type: string
- *        description: The total amount of SKY currently delegated to this delegate by the queried address (as a string formatted Ether value)
  *      events:
  *        type: array
  *        items:
  *          $ref: '#/definitions/DelegationHistoryEvent'
- *  SKYAddressDelegationsAPIResponse:
+ *  MKRAddressDelegationsAPIResponse:
  *    type: object
  *    properties:
  *      totalDelegated:
@@ -138,14 +147,14 @@ import { formatEther, parseEther } from 'viem';
  *          $ref: '#/definitions/DelegateInfo'
  */
 
-export type SKYAddressDelegationsAPIResponse = {
+export type MKRAddressDelegationsAPIResponse = {
   totalDelegated: number;
   delegatedTo: DelegationHistory[];
   delegates: DelegateInfo[];
 };
 
 export default withApiHandler(
-  async (req: NextApiRequest, res: NextApiResponse<SKYAddressDelegationsAPIResponse>) => {
+  async (req: NextApiRequest, res: NextApiResponse<MKRAddressDelegationsAPIResponse>) => {
     // validate network
     const network = validateQueryParam(
       (req.query.network as SupportedNetworks) || DEFAULT_NETWORK.network,
@@ -163,8 +172,28 @@ export default withApiHandler(
       req.query.address as string,
       new ApiError('Invalid address', 400, 'Invalid address')
     );
+    const chainId = networkNameToChainId(network);
 
-    const delegatedTo = await fetchDelegatedTo(address, network);
+    const proxyInfo = await getVoteProxyAddresses(
+      voteProxyFactoryAddress[chainId],
+      voteProxyAbi,
+      address,
+      network
+    );
+
+    // if hasProxy, we need to combine the delegation history of hot, cold, proxy
+    let delegatedTo: DelegationHistoryWithExpirationDate[];
+
+    if (proxyInfo.hasProxy && proxyInfo.coldAddress && proxyInfo.hotAddress && proxyInfo.voteProxyAddress) {
+      const [coldHistory, hotHistory, proxyHistory] = await Promise.all([
+        fetchDelegatedTo(proxyInfo.coldAddress, network),
+        fetchDelegatedTo(proxyInfo.hotAddress, network),
+        fetchDelegatedTo(proxyInfo.voteProxyAddress, network)
+      ]);
+      delegatedTo = coldHistory.concat(hotHistory).concat(proxyHistory);
+    } else {
+      delegatedTo = await fetchDelegatedTo(address, network);
+    }
 
     // filter out duplicate txs
     const txHashes = {};
@@ -183,6 +212,16 @@ export default withApiHandler(
     const delegatesDelegatedTo = delegatesInfo.filter(({ voteDelegateAddress }) =>
       filtered.some(({ address }) => address.toLowerCase() === voteDelegateAddress.toLowerCase())
     );
+    const delegatesAndNextContracts = [
+      ...delegatesDelegatedTo,
+      ...(delegatesDelegatedTo
+        .map(({ next }) =>
+          delegatesInfo.find(
+            d => d.voteDelegateAddress.toLowerCase() === next?.voteDelegateAddress.toLowerCase()
+          )
+        )
+        .filter(delegate => !!delegate) as DelegateInfo[])
+    ];
 
     const totalDelegated = filtered.reduce((prev, next) => {
       return prev + parseEther(next.lockAmount);
@@ -192,7 +231,7 @@ export default withApiHandler(
     res.status(200).json({
       totalDelegated: +formatEther(totalDelegated),
       delegatedTo: filtered,
-      delegates: delegatesDelegatedTo
+      delegates: delegatesAndNextContracts
     });
   }
 );

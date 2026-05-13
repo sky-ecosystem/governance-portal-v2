@@ -14,13 +14,13 @@ export enum ResourceCategory {
 }
 
 enum ResourceBackground {
-  GOVERNANCE = 'linear-gradient(260.14deg, #6A6CFB 0%, #2A197D 97.43%)',
-  PRODUCTS_AND_TOOLS = 'linear-gradient(260.14deg, #F7A7F9 0%, #6D28FF 97.43%)',
-  DEVELOPERS = 'linear-gradient(260.14deg, #FFCD6B 0%, #EB5EDF 97.43%)'
+  GOVERNANCE = 'linear-gradient(260.14deg, #DEE8C4 0%, #AAE4D7 97.43%)',
+  PRODUCTS_AND_TOOLS = 'linear-gradient(260.14deg, #E2CCFF 0%, #9A4BFF 97.43%)',
+  DEVELOPERS = 'linear-gradient(260.14deg, #F4B7FE 0%, #E64BFF 97.43%)'
 }
 
 export enum ResourceColor {
-  GOVERNANCE = '#504DFF',
+  GOVERNANCE = '#1ACCA7',
   PRODUCTS_AND_TOOLS = '#9A4BFF',
   DEVELOPERS = '#E64BFF'
 }
@@ -95,7 +95,7 @@ export const resources: LandingResource[] = [
   },
   {
     title: 'MakerDAO GitHub',
-    url: 'https://github.com/makerdao/',
+    url: 'https://github.com/sky-ecosystem/',
     category: ResourceCategory.DEVELOPERS,
     bg: ResourceBackground.DEVELOPERS,
     color: ResourceColor.DEVELOPERS,
@@ -104,8 +104,8 @@ export const resources: LandingResource[] = [
       'GitHub organization with many repositories relevant to MakerDAO and goverance, including the community repo and the codebase for this site.'
   },
   {
-    title: 'Governance API Docs',
-    url: 'https://vote.sky.money/api-docs',
+    title: 'API Docs',
+    url: 'https://vote.makerdao.com/api-docs',
     category: ResourceCategory.DEVELOPERS,
     bg: ResourceBackground.DEVELOPERS,
     color: ResourceColor.DEVELOPERS,

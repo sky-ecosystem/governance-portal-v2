@@ -7,83 +7,73 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 */
 
 import { matterWrapper } from 'lib/matter';
+import { GraphQlQueryResponseData } from '@octokit/graphql';
 import { SupportedNetworks } from 'modules/web3/constants/networks';
 import { cacheGet, cacheSet } from 'modules/cache/cache';
+import { fetchGithubGraphQL, fetchGitHubPage, GithubPage } from 'lib/github';
 import { markdownToHtml } from 'lib/markdown';
-import { DelegateListItem, DelegateRepoInformation, GithubDelegate } from 'modules/delegates/types';
-import { getDelegatesIndexFileUrl, getMetadataRepoBaseUrl } from './getDelegatesRepositoryInfo';
+import { DelegateRepoInformation } from 'modules/delegates/types';
+import { getDelegatesRepositoryInformation, RepositoryInfo } from './getDelegatesRepositoryInfo';
+import { isAddress } from 'viem';
+import { allGithubDelegates } from 'modules/gql/queries/github/allGithubDelegates';
 import logger from 'lib/logger';
 import { delegatesGithubCacheKey, getDelegateGithubCacheKey } from 'modules/cache/constants/cache-keys';
 import { ONE_HOUR_IN_MS } from 'modules/app/constants/time';
 
-// Fetches and parses the delegates index file from Github
-async function fetchDelegatesIndex(
-  network: SupportedNetworks
-): Promise<{ error: boolean; data?: GithubDelegate[] }> {
-  try {
-    const delegatesIndexUrl = getDelegatesIndexFileUrl(network);
-    const delegatesIndexRes = await fetch(delegatesIndexUrl);
-
-    // Check if the fetch was successful
-    if (!delegatesIndexRes.ok) {
-      logger.error(
-        `fetchDelegatesIndex: Failed to fetch delegates index. Status: ${delegatesIndexRes.status} ${delegatesIndexRes.statusText}`,
-        'Network',
-        network
-      );
-      return { error: true };
-    }
-
-    let delegatesIndexData: GithubDelegate[];
-    try {
-      // Attempt to parse the JSON response
-      delegatesIndexData = await delegatesIndexRes.json();
-    } catch (jsonError: any) {
-      logger.error(
-        'fetchDelegatesIndex: Failed to parse delegates index JSON.',
-        jsonError.message,
-        'Network',
-        network
-      );
-      return { error: true };
-    }
-    return { error: false, data: delegatesIndexData };
-  } catch (e) {
-    logger.error(
-      'fetchDelegatesIndex: Error fetching delegates index from Github ',
-      e.message,
-      'Network',
-      network
-    );
-    return { error: true };
-  }
-}
-
 // Parses the information on a delegate folder in github and extracts a DelegateRepoInformation parsed object
 async function extractGithubInformation(
-  delegateIndexData: GithubDelegate,
-  network: SupportedNetworks
+  owner: string,
+  repo: string,
+  folder: GithubPage
 ): Promise<DelegateRepoInformation | undefined> {
   try {
-    const { path, metadata, metrics } = delegateIndexData;
-    const baseUrl = getMetadataRepoBaseUrl(network);
-    const profileUrl = `${baseUrl}/${path}`;
-    const profileMdDoc = await (await fetch(profileUrl)).text();
+    const folderContents = await fetchGitHubPage(owner, repo, folder.path);
 
-    const { content } = matterWrapper(profileMdDoc);
+    const profileMd = folderContents.find(item => item.name === 'profile.md');
+
+    const metricsMd = folderContents.find(item => item.name === 'metrics.md');
+
+    const cuMemberMd = folderContents.find(item => item.name === 'cumember.md');
+
+    // No profile found
+    if (!profileMd) {
+      return undefined;
+    }
+
+    const profileMdDoc = await (await fetch(profileMd?.download_url)).text();
+
+    const {
+      content,
+      data: { name, external_profile_url, tags }
+    } = matterWrapper(profileMdDoc);
+
+    let metricsMdDoc;
+    let metricsData;
+    if (metricsMd) {
+      metricsMdDoc = await (await fetch(metricsMd?.download_url)).text();
+      const { data } = matterWrapper(metricsMdDoc);
+      metricsData = data;
+    }
+
+    let cuMember = false;
+    if (cuMemberMd) {
+      cuMember = true;
+    }
+
+    const picture = folderContents.find(item => item.name.indexOf('avatar') !== -1);
     const html = await markdownToHtml(content);
-
     return {
-      voteDelegateAddress: metadata.address,
-      name: metadata.name,
-      picture: metadata.avatar,
-      externalUrl: metadata.external_profile_url,
+      voteDelegateAddress: folder.name,
+      name: name,
+      picture: picture ? picture.download_url : undefined,
+      externalUrl: external_profile_url,
       description: html,
-      tags: metadata.tags,
-      combinedParticipation: metrics.combined_participation,
-      pollParticipation: metrics.poll_participation,
-      executiveParticipation: metrics.exec_participation,
-      communication: metrics.communication
+      tags,
+      combinedParticipation: metricsData.combined_participation,
+      pollParticipation: metricsData.poll_participation,
+      executiveParticipation: metricsData.exec_participation,
+      communication: metricsData.communication,
+      cuMember
     };
   } catch (e) {
     logger.error('extractGithubInformation: Error parsing folder from github delegate', e.message);
@@ -91,29 +81,75 @@ async function extractGithubInformation(
   }
 }
 
-async function extractGithubDelegateListInformation(
-  delegatesIndexData: GithubDelegate[]
-): Promise<DelegateListItem[]> {
-  return delegatesIndexData.map(delegate => {
-    const { metadata, metrics } = delegate;
+async function extractGithubInformationGraphQL(
+  data: GraphQlQueryResponseData,
+  delegatesRepositoryInfo: RepositoryInfo
+): Promise<DelegateRepoInformation[]> {
+  const entries = data.repository.object.entries;
+  const promises = entries
+    // Our query returns extraneous files in the delegates folder, but we only want addresses
+    .filter(({ name }) => isAddress(name))
+    .map(async delegateEntry => {
+      const voteDelegateAddress = delegateEntry.name;
 
-    return {
-      voteDelegateAddress: metadata.address,
-      picture: metadata.avatar,
-      name: metadata.name,
-      externalUrl: metadata.external_profile_url,
-      combinedParticipation: metrics.combined_participation,
-      pollParticipation: metrics.poll_participation,
-      executiveParticipation: metrics.exec_participation,
-      communication: metrics.communication,
-      tags: metadata.tags
-    };
-  });
+      const folderContents = delegateEntry.object.entries;
+      const profileMd = folderContents.find(item => item.name === 'profile.md');
+
+      const metricsMd = folderContents.find(item => item.name === 'metrics.md');
+
+      const cuMemberMd = folderContents.find(item => item.name === 'cumember.md');
+
+      // No profile found
+      if (!profileMd) {
+        return undefined;
+      }
+
+      const profileMdDoc = profileMd?.object?.text;
+
+      const {
+        content,
+        data: { name, external_profile_url, tags }
+      } = matterWrapper(profileMdDoc);
+
+      const metricsMdDoc = metricsMd?.object?.text;
+      const { data } = matterWrapper(metricsMdDoc);
+      const metricsData = data;
+
+      let cuMember = false;
+      if (cuMemberMd) {
+        cuMember = true;
+      }
+
+      const picture = folderContents.find(item => item.name.indexOf('avatar') !== -1);
+      const html = await markdownToHtml(content);
+      const vd = {
+        voteDelegateAddress,
+        name: name,
+
+        // The graphql api unfortunately does not return the download_url or raw url for blobs/images. In this case we have to manually construct the delegate avatar picture url
+        // In case the delegate repository gets migrated, reconsider this approach
+        picture: picture
+          ? `https://github.com/${delegatesRepositoryInfo.owner}/${delegatesRepositoryInfo.repo}/raw/master/${picture.path}`
+          : undefined,
+        externalUrl: external_profile_url,
+        description: html,
+        tags,
+        combinedParticipation: metricsData.combined_participation,
+        pollParticipation: metricsData.poll_participation,
+        executiveParticipation: metricsData.exec_participation,
+        communication: metricsData.communication,
+        cuMember
+      };
+      return vd;
+    });
+  const delegatesInfo = await Promise.all(promises);
+  return delegatesInfo;
 }
-
 export async function fetchGithubDelegates(
   network: SupportedNetworks
-): Promise<{ error: boolean; data?: DelegateListItem[] }> {
+): Promise<{ error: boolean; data?: DelegateRepoInformation[] }> {
+  const delegatesRepositoryInfo = getDelegatesRepositoryInformation(network);
+
   const existingDelegates = await cacheGet(delegatesGithubCacheKey, network, ONE_HOUR_IN_MS);
 
   if (existingDelegates) {
@@ -124,13 +160,11 @@ export async function fetchGithubDelegates(
   }
 
   try {
-    const delegatesIndexResult = await fetchDelegatesIndex(network);
+    const allDelegates = await fetchGithubGraphQL(delegatesRepositoryInfo, allGithubDelegates);
+    const results = await extractGithubInformationGraphQL(allDelegates, delegatesRepositoryInfo);
 
-    if (delegatesIndexResult.error || !delegatesIndexResult.data) {
-      return { error: true };
-    }
-
-    const data = await extractGithubDelegateListInformation(delegatesIndexResult.data);
+    // Filter out negatives
+    const data = results.filter(i => !!i) as DelegateRepoInformation[];
 
     // Store in cache
     cacheSet(delegatesGithubCacheKey, JSON.stringify(data), network, ONE_HOUR_IN_MS);
@@ -149,6 +183,8 @@ export async function fetchGithubDelegate(
   address: string,
   network: SupportedNetworks
 ): Promise<{ error: boolean; data?: DelegateRepoInformation }> {
+  const delegatesRepositoryInfo = getDelegatesRepositoryInformation(network);
+
   const cacheKey = getDelegateGithubCacheKey(address);
   const existingDelegate = await cacheGet(cacheKey, network, ONE_HOUR_IN_MS);
   if (existingDelegate) {
@@ -159,19 +195,17 @@ export async function fetchGithubDelegate(
   }
 
   try {
-    // Fetch the aggregated index of the delegates folder
-    const delegatesIndexResult = await fetchDelegatesIndex(network);
-
-    if (delegatesIndexResult.error || !delegatesIndexResult.data) {
-      return { error: true };
-    }
-
-    const delegateIndexData = delegatesIndexResult.data.find(
-      f => f.metadata.address.toLowerCase() === address.toLowerCase()
+    // Fetch all folders inside the delegates folder
+    const folders = await fetchGitHubPage(
+      delegatesRepositoryInfo.owner,
+      delegatesRepositoryInfo.repo,
+      delegatesRepositoryInfo.page
     );
 
-    const userInfo = delegateIndexData
-      ? await extractGithubInformation(delegateIndexData, network)
+    const folder = folders.find(f => f.name.toLowerCase() === address.toLowerCase());
+
+    const userInfo = folder
+      ? await extractGithubInformation(delegatesRepositoryInfo.owner, delegatesRepositoryInfo.repo, folder)
       : undefined;
 
     // Store in cache

@@ -77,6 +77,20 @@ export function DelegateAvatarTooltip({
         </Flex>
       </Flex>
       <Flex sx={{ flexDirection: 'column', p: 3 }}>
+        {delegate.cuMember && (
+          <Flex sx={{ alignItems: 'center', mb: 3 }}>
+            <Icon
+              name={'info'}
+              color="voterYellow"
+              sx={{
+                size: 13
+              }}
+            />
+            <Text sx={{ ml: 1, fontSize: 2, fontWeight: 'semiBold' }}>
+              This delegate is also a Core Unit member
+            </Text>
+          </Flex>
+        )}
         <Text as="p" variant="secondary">
           Participation Breakdown
         </Text>

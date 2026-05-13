@@ -14,6 +14,8 @@ export const githubExecutivesCacheKey = 'executives-github';
 
 export const delegatesGithubCacheKey = 'delegates-github';
 
+export const allDelegatesCacheKey = 'all-delegates';
+
 export const allDelegatesExecSupportKey = 'all-delegates-exec-support';
 
 export const allDelegateAddressesKey = 'all-delegate-addresses';
@@ -28,7 +30,7 @@ export const getAddressDetailCacheKey = (address: string): string => `address-${
 export const getExecutiveProposalsCacheKey = (
   start = 0,
   limit = 5,
-  sortBy: 'date' | 'sky' | 'active' = 'active',
+  sortBy: 'date' | 'mkr' | 'active' = 'active',
   startDate = 0,
   endDate = 0
 ): string => `proposals-${start}-${limit}-${sortBy}-${startDate}-${endDate}`;
@@ -39,11 +41,20 @@ export const getAddressStatsCacheKey = (address: string | string[]): string =>
 export const getAddressDelegationHistoryCacheKey = (address: string): string =>
   `address-delegation-history-${address.toLowerCase()}`;
 
+export const getAllPollsCacheKey = (filters?: any): string =>
+  `polls-${filters ? JSON.stringify(filters) : 'all'}`;
+
+export const pollSlugToIdsCacheKey = 'poll-slug-to-ids';
+
 export const pollListCacheKey = 'poll-list';
 
 export const partialActivePollsCacheKey = 'partial-active-polls';
 
 export const pollDetailsCacheKey = 'poll-details';
+
+export const isPollsHashValidCacheKey = 'is-polls-hash-valid';
+
+export const pollsHashCacheKey = 'polls-hash';
 
 export const pollTagsMappingJSONCacheKey = 'poll-tags-mapping';
 

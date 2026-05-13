@@ -24,219 +24,115 @@ import { ONE_WEEK_IN_MS, ONE_MINUTE_IN_MS } from 'modules/app/constants/time';
 /**
  * @swagger
  * definitions:
- *   PollParametersInputFormat: # Based on [poll-id-or-slug].ts
+ *   VoteByAddress:
  *     type: object
  *     properties:
- *       type:
- *         type: string
- *         description: The input format type (e.g., singleChoice, rankFree).
- *         enum: [singleChoice, rankFree, chooseFree, majority]
- *       abstain:
- *         type: array
- *         items:
- *           type: integer
- *         description: Array of option indices that represent an abstention.
- *       options:
- *         type: array
- *         items:
- *           type: integer
- *         description: Array of all available option indices (used in some formats).
- *   PollParametersVictoryCondition: # Based on [poll-id-or-slug].ts
- *     type: object
- *     properties:
- *       type:
- *         type: string
- *         description: Type of victory condition (e.g., plurality, majority, instantRunoff).
- *       percent:
- *         type: number
- *         format: float
- *         nullable: true
- *         description: Percentage required for majority (if type is majority).
- *   PollParameters: # Based on [poll-id-or-slug].ts
- *     type: object
- *     properties:
- *       inputFormat:
- *         $ref: '#/definitions/PollParametersInputFormat'
- *       victoryConditions:
- *         type: array
- *         items:
- *           $ref: '#/definitions/PollParametersVictoryCondition'
- *         description: Conditions that determine the outcome of the poll.
- *       resultDisplay:
- *         type: string
- *         description: How the poll results should be displayed.
- *   PollTallyVote: # Corresponds to PollTallyVote type
- *     type: object
- *     properties:
- *       pollId:
- *         type: integer
- *         description: Identifier of the poll this vote belongs to.
  *       voter:
  *         type: string
- *         format: address
- *         description: Address of the voter.
+ *       optionId:
+ *         type: integer
+ *       optionIdRaw:
+ *         type: string
+ *       mkrSupport:
+ *         type: string
  *       ballot:
  *         type: array
  *         items:
  *           type: integer
- *         description: Array of chosen option indices by the voter.
- *       skySupport:
- *         type: string # Represents number | string, string is safer for large numbers
- *         description: SKY voting weight associated with this vote.
- *       chainId:
- *         type: integer
- *         description: Chain ID where the vote was cast.
- *       blockTimestamp:
- *         type: number # Unix timestamp
- *         description: Timestamp of the block when the vote was cast (Unix timestamp).
- *       hash:
- *         type: string
- *         description: Transaction hash of the vote.
  *     example:
- *       pollId: 123
- *       voter: "0xcfeed3fbefe9eb09b37539eaa0ddd58d1e1044ca"
- *       ballot: [1]
- *       skySupport: "23232.23132"
- *       chainId: 1
- *       blockTimestamp: 1678886400
- *       hash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
- *   PollTallyOption: # Corresponds to PollTallyOption type
+ *       - voter: "0xcfeed3fbefe9eb09b37539eaa0ddd58d1e1044ca"
+ *         optionId: 1
+ *         optionIdRaw: "1"
+ *         mkrSupport: "23232.23132"
+ *         ballot: [1]
+ *   ResultTally:
  *     type: object
  *     properties:
- *       optionId:
- *         type: string # Or number, depending on Poll.options key type
- *         description: Identifier of the poll option.
  *       optionName:
  *         type: string
- *         description: Textual name of the poll option.
- *       skySupport:
- *         type: string # Represents number | string
- *         description: Total SKY support for this option in the current state/round.
+ *       optionId:
+ *         type: string
  *       firstPct:
  *         type: string
- *         nullable: true
- *         description: Percentage of first-preference votes (e.g., in IRV first round).
- *       transferPct:
- *         type: number # Should be string if it represents percentage as "xx.xx%"
- *         format: float
- *         nullable: true
- *         description: Percentage of votes transferred to this option in a round.
  *       transfer:
- *         type: number # Should be string if it's a large number formatted
- *         format: float
- *         nullable: true
- *         description: Amount of SKY/votes transferred to this option in a round.
+ *         type: number
+ *       transferPct:
+ *         type: number
+ *       mkrSupport:
+ *         type: string
  *       winner:
  *         type: boolean
- *         nullable: true
- *         description: Whether this option is currently considered a winner.
  *       eliminated:
  *         type: boolean
- *         nullable: true
- *         description: Whether this option has been eliminated in a voting round.
  *     example:
- *       optionId: "1"
- *       optionName: "Yes"
- *       skySupport: "23232.23132"
- *       firstPct: "12.22"
- *       transferPct: 0.02
- *       transfer: 500.5
- *       winner: true
- *       eliminated: false
- *   PollTallyResponse: # Corresponds to PollTally type
+ *       - optionId: "1"
+ *         optionName: "Yes"
+ *         transferPct: 2
+ *         transfer: "0"
+ *         mkrSupport: "23232.23132"
+ *         firstPct: "12.222"
+ *         winner: true
+ *         eliminated: false
+ *   Tally:
  *     type: object
  *     properties:
- *       parameters:
- *         $ref: '#/definitions/PollParameters'
+ *       totalMkrParticipation:
+ *         type: number
  *       winner:
- *         type: integer
- *         nullable: true
- *         description: The index of the winning option, if determined.
- *       numVoters:
- *         type: integer
- *         description: Total number of unique voters.
- *       results:
- *         type: array
- *         items:
- *           $ref: '#/definitions/PollTallyOption'
- *         description: Array of tally results for each option.
- *       totalSkyParticipation:
- *         type: string # Represents number | string
- *         description: Total SKY that participated in the poll.
- *       totalSkyActiveParticipation:
- *         type: string # Represents number | string
- *         description: Total active SKY participation (may differ based on poll mechanics).
- *       winningOptionName:
  *         type: string
- *         nullable: true # Can be empty if no winner yet or not applicable
- *         description: Name of the winning option.
- *       victoryConditionMatched:
- *         type: integer # Or boolean, depending on actual values. Assuming number based on TS
- *         nullable: true
- *         description: Indicates if/which victory condition was met.
+ *       numVoters:
+ *         type: number
+ *       winningOptionName:
+ *         type: string;
  *       votesByAddress:
  *         type: array
  *         items:
- *           $ref: '#/definitions/PollTallyVote'
- *         nullable: true
- *         description: Optional detailed list of votes by address.
- *       rounds:
- *         type: integer
- *         nullable: true
- *         description: Number of rounds conducted (e.g., in IRV polls).
+ *           $ref: '#/definitions/VoteByAddress'
+ *       results:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/ResultTally'
  *     example:
- *       parameters: {}
- *       winner: 1
- *       numVoters: 8
- *       results: [
- *         {
- *           optionId: "1"
- *           optionName: "Yes"
- *           skySupport: "23232.23132"
- *           winner: true
- *         }
- *       ]
- *       totalSkyParticipation: "123123.213213"
- *       totalSkyActiveParticipation: "120000.000000"
- *       winningOptionName: "Yes"
- *       victoryConditionMatched: 1
- *       votesByAddress: []
- *       rounds: 1
+ *       - winner: '2'
+ *         totalMkrParticipation: 12312.213213
+ *         numVoters: 8
+ *         rounds: 1
+ *         winningOptionName: '30% of Real AAVEv2 DAI Supply'
+ *         votesByAddress:
+ *           - voter: "0xcfeed3fbefe9eb09b37539eaa0ddd58d1e1044ca"
+ *             mkrSupport: "23232.23132"
+ *             ballot: [1]
+ *         results:
+ *           - optionId: "1"
+ *             optionName: "Yes"
+ *             transfer: "0"
+ *             mkrSupport: "23232.23132"
+ *             firstPct: "12.222"
+ *             winner: true
+ *             eliminated: false
  *
- * /api/polling/tally/{poll-id}:
+ * /api/polling/tally/{pollId}:
  *   get:
  *     tags:
- *     - "polling"
- *     summary: Returns the tally for a specific poll.
- *     description: Fetches the current vote tally, participation metrics, and results for a given poll ID.
+ *     - "tally"
+ *     summary: Returns a poll tally
+ *     description: Returns a poll tally
  *     produces:
  *     - "application/json"
  *     parameters:
- *       - name: poll-id
- *         in: path
- *         description: The numerical ID of the poll.
+ *       - in: path
+ *         name: pollId
+ *         schema:
+ *           type: number
  *         required: true
- *         schema:
- *           type: integer
- *       - name: network
- *         in: query
- *         description: The Ethereum network to query.
- *         required: false
- *         schema:
- *           type: string
- *           enum: [mainnet, tenderly]
- *           default: mainnet
+ *         description: Poll Id
  *     responses:
  *       '200':
- *         description: "Detailed tally of the poll."
+ *         description: "Tally of a poll"
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/definitions/PollTallyResponse'
- *       '400':
- *         description: "Bad request (e.g., invalid poll ID or network)."
- *       '404':
- *         description: "Poll not found."
+ *               $ref: '#/definitions/Tally'
  */
 export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   // validate network
@@ -284,8 +180,8 @@ export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse) 
         parameters: poll.parameters,
         numVoters: 0,
         results: [],
-        totalSkyParticipation: 0,
-        totalSkyActiveParticipation: 0,
+        totalMkrParticipation: 0,
+        totalMkrActiveParticipation: 0,
         victoryConditionMatched: null,
         winner: null,
         winningOptionName: '',

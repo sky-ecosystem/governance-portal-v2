@@ -41,8 +41,8 @@ const PollTypesModal = ({ iconName }) => {
                 <Heading sx={{ mb: 3 }}>Poll types</Heading>
                 <Text as="p" sx={{ mb: 3 }}>
                   - Ranked-choice polls: require multiple-choice ballots in ranked order, and determine the
-                  winning vote option by finding the one with an absolute majority in SKY voting weight (as in
-                  &gt;50% of the total participating SKY, excluding abstains). In the first round of IRV, only
+                  winning vote option by finding the one with an absolute majority in MKR voting weight (as in
+                  &gt;50% of the total participating MKR, excluding abstains). In the first round of IRV, only
                   first-choice votes are counted. In case no vote option meets the victory requirements, the
                   least popular vote option (except abstain) is eliminated and the votes applied to that
                   option are instead applied to the voters’ next ranked option. This repeats until the victory
@@ -51,19 +51,19 @@ const PollTypesModal = ({ iconName }) => {
                 </Text>
                 <Text as="p" sx={{ mb: 3 }}>
                   - Plurality polls: require single-choice ballots and determines the winning vote option by
-                  finding the one with the highest SKY voting weight in relative terms.
+                  finding the one with the highest MKR voting weight in relative terms.
                 </Text>
                 <Text as="p" sx={{ mb: 3 }}>
                   - Approval polls: require multiple-choice ballots in unranked order, and determines the
-                  winning vote option by finding the one with a relative majority in SKY voting weight. When
+                  winning vote option by finding the one with a relative majority in MKR voting weight. When
                   used in situations where no winner is required, an absolute majority (ie. &gt;50% of the
-                  total participating SKY excluding abstains) victory condition may also be applied as opposed
+                  total participating MKR excluding abstains) victory condition may also be applied as opposed
                   to a relative majority.
                 </Text>
                 <Text as="p">
                   - Majority polls: require single-choice ballots and determines the winning vote option by
-                  finding the one with an absolute majority in SKY voting weight, being &gt;50% of the total
-                  participating SKY (excluding abstains).
+                  finding the one with an absolute majority in MKR voting weight, being &gt;50% of the total
+                  participating MKR (excluding abstains).
                 </Text>
               </Flex>
             </BoxWithClose>

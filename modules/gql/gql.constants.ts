@@ -6,20 +6,24 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-/* Subgraph URLs */
+/* Spock URLs */
+export const LOCAL_SPOCK_URL = 'http://localhost:3001/v1';
+export const STAGING_MAINNET_SPOCK_URL = 'https://staging-gov-polling.sky.money/api/v1';
+export const MAINNET_SPOCK_URL = 'https://gov-polling.sky.money/api/v1';
+export const TENDERLY_SPOCK_URL = 'https://staging-gov-polling.sky.money/api/v1';
 
-export const TENDERLY_SUBGRAPH_URL =
-  'https://query-subgraph-staging.sky.money/subgraphs/name/jetstreamgg/subgraph-testnet';
-export const MAINNET_STAGING_SUBGRAPH_URL =
-  'https://query-subgraph-staging.sky.money/subgraphs/name/jetstreamgg/subgraph-mainnet';
-export const MAINNET_PROD_SUBGRAPH_URL =
-  'https://query-subgraph.sky.money/subgraphs/name/jetstreamgg/subgraph-mainnet';
-export const ARBITRUM_TENDERLY_SUBGRAPH_URL =
-  'https://query-subgraph-staging.sky.money/subgraphs/name/jetstreamgg/subgraph-arbitrum-testnet';
-export const ARBITRUM_STAGING_SUBGRAPH_URL =
-  'https://query-subgraph-staging.sky.money/subgraphs/name/jetstreamgg/subgraph-arbitrum';
-export const ARBITRUM_PROD_SUBGRAPH_URL =
-  'https://query-subgraph.sky.money/subgraphs/name/jetstreamgg/subgraph-arbitrum';
+/* Subgraph URLs (Envio HyperIndex) */
 
-export const stakingEngineAddressMainnet = '0xce01c90de7fd1bcfa39e237fe6d8d9f569e8a6a3';
-export const stakingEngineAddressTestnet = '0xb1fc11f03b084fff8dae95fa08e8d69ad2547ec1';
+const ENVIO_SUBGRAPH_URL = `${process.env.NEXT_PUBLIC_PROXY_ORIGIN || 'https://staging-proxy.sky.money'}/indexer`;
+export const STAGING_SUBGRAPH_URL = ENVIO_SUBGRAPH_URL;
+export const PROD_SUBGRAPH_URL = ENVIO_SUBGRAPH_URL;
+
+export enum QueryFilterNames {
+  Active = 'active',
+  PollId = 'pollId',
+  Range = 'range',
+  MultiHash = 'multiHash'
+}
+
+export const sealEngineAddressTestnet = '0x9581c795dbcaf408e477f6f1908a41be43093122';
+export const sealEngineAddressMainnet = '0x2b16c07d5fd5cc701a0a871eae2aad6da5fc8f12';

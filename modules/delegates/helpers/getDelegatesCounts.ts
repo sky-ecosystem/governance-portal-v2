@@ -5,10 +5,11 @@ export default function getDelegatesCounts(allDelegatesWithNames: AllDelegatesEn
   shadowDelegatesCount: number;
   totalDelegatesCount: number;
 } {
-  const rawAlignedDelegates = allDelegatesWithNames.filter(delegate => delegate.name);
+  const rawAlignedDelegates = allDelegatesWithNames.filter(delegate => !delegate.expired && delegate.name);
 
   const alignedDelegatesCount = new Set(rawAlignedDelegates.map(delegate => delegate.name)).size;
-  const shadowDelegatesCount = allDelegatesWithNames.length - rawAlignedDelegates.length;
+  const shadowDelegatesCount =
+    allDelegatesWithNames.filter(delegate => !delegate.expired).length - rawAlignedDelegates.length;
   const totalDelegatesCount = alignedDelegatesCount + shadowDelegatesCount;
 
   return { alignedDelegatesCount, shadowDelegatesCount, totalDelegatesCount };

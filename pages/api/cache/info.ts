@@ -13,7 +13,9 @@ import logger from 'lib/logger';
 import { getCacheInfo } from 'modules/cache/cache';
 import {
   delegatesGithubCacheKey,
+  allDelegatesCacheKey,
   executiveSupportersCacheKey,
+  getAllPollsCacheKey,
   executiveProposalsCacheKey
 } from 'modules/cache/constants/cache-keys';
 import { ApiError } from 'modules/app/api/ApiError';
@@ -34,7 +36,13 @@ export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse) 
   ) as SupportedNetworks;
 
   // keys to check
-  const allowedCacheKeys = [executiveProposalsCacheKey, executiveSupportersCacheKey, delegatesGithubCacheKey];
+  const allowedCacheKeys = [
+    getAllPollsCacheKey(),
+    executiveProposalsCacheKey,
+    executiveSupportersCacheKey,
+    delegatesGithubCacheKey,
+    allDelegatesCacheKey
+  ];
 
   try {
     const promises = await Promise.all(allowedCacheKeys.map(key => getCacheInfo(key, network)));

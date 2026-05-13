@@ -38,7 +38,7 @@ export const formatLocation = (location: string): string => {
     } else if (isNaN(parseInt(storKey))) {
       return location;
 
-      // Check if it is an ID
+      // Check if it's an ID
     } else if (typeof parseInt(storKey) === 'number') {
       return location;
     }

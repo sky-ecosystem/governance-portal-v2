@@ -6,87 +6,71 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { gql } from 'graphql-request';
-
-export const delegatesQuerySubsequentPages = gql`
-  query delegates(
-    $first: Int
-    $skip: Int
-    $orderBy: String
-    $orderDirection: String
-    $filter: Delegate_filter
-  ) {
-    delegates(
-      first: $first
-      skip: $skip
-      orderBy: $orderBy
-      orderDirection: $orderDirection
-      where: $filter
-    ) {
-      blockTimestamp
-      blockNumber
-      ownerAddress
-      delegations(
-        first: 1000
-        where: {delegator_not_in: ["0xce01c90de7fd1bcfa39e237fe6d8d9f569e8a6a3", "0xb1fc11f03b084fff8dae95fa08e8d69ad2547ec1"]}
-      ) {
-        amount
-      }
-      id
-      delegators
-      voter {
-        lastVotedTimestamp
-      }
+const delegateFields = `
+    blockTimestamp
+    blockNumber
+    ownerAddress
+    version
+    id
+    address
+    totalDelegated
+    delegators
+    voter {
+      lastVotedTimestamp
     }
-  }
 `;
 
-export const delegatesQueryFirstPage = gql`
-  query delegates(
-    $first: Int
-    $skip: Int
-    $orderBy: String
-    $orderDirection: String
-    $shadowFilter: Delegate_filter
-    $alignedFilter: Delegate_filter
+export const delegatesQuerySubsequentPages = ({
+  whereConditions,
+  orderBy,
+  orderDirection,
+  limit,
+  offset
+}: {
+  whereConditions: string[];
+  orderBy: string;
+  orderDirection: string;
+  limit: number;
+  offset: number;
+}): string => `
+{
+  delegates: Delegate(
+    limit: ${limit},
+    offset: ${offset},
+    order_by: { ${orderBy}: ${orderDirection} },
+    where: { ${whereConditions.join(', ')} }
   ) {
-    delegates(
-      first: $first
-      skip: $skip
-      orderBy: $orderBy
-      orderDirection: $orderDirection
-      where: $shadowFilter
-    ) {
-      blockTimestamp
-      blockNumber
-      ownerAddress
-      delegations(
-        first: 1000
-        where: {delegator_not_in: ["0xce01c90de7fd1bcfa39e237fe6d8d9f569e8a6a3", "0xb1fc11f03b084fff8dae95fa08e8d69ad2547ec1"]}
-      ) {
-        amount
-      }
-      id
-      delegators
-      voter {
-        lastVotedTimestamp
-      }
-    }
-    alignedDelegates: delegates(orderBy: $orderBy, orderDirection: $orderDirection, where: $alignedFilter) {
-      blockTimestamp
-      blockNumber
-      ownerAddress
-      delegations(
-        first: 1000
-        where: {delegator_not_in: ["0xce01c90de7fd1bcfa39e237fe6d8d9f569e8a6a3", "0xb1fc11f03b084fff8dae95fa08e8d69ad2547ec1"]}
-      ) {
-        amount
-      }
-      id
-      delegators
-      voter {
-        lastVotedTimestamp
-      }
-    }
+    ${delegateFields}
   }
+}
+`;
+
+export const delegatesQueryFirstPage = ({
+  shadowWhereConditions,
+  alignedWhereConditions,
+  orderBy,
+  orderDirection,
+  limit
+}: {
+  shadowWhereConditions: string[];
+  alignedWhereConditions: string[];
+  orderBy: string;
+  orderDirection: string;
+  limit: number;
+}): string => `
+{
+  delegates: Delegate(
+    limit: ${limit},
+    order_by: { ${orderBy}: ${orderDirection} },
+    where: { ${shadowWhereConditions.join(', ')} }
+  ) {
+    ${delegateFields}
+  }
+  alignedDelegates: Delegate(
+    order_by: { ${orderBy}: ${orderDirection} },
+    where: { ${alignedWhereConditions.join(', ')} }
+  ) {
+    ${delegateFields}
+  }
+}
 `;

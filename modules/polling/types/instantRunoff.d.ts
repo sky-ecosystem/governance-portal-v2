@@ -7,7 +7,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 */
 
 export type InstantRunoffOption = {
-  skySupport: bigint;
+  mkrSupport: bigint;
   transfer: bigint;
   winner: boolean;
   eliminated: boolean;

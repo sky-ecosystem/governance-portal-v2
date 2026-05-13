@@ -18,7 +18,7 @@ test.beforeAll(async () => {
   const address = TEST_ACCOUNTS.normal.address;
   await new Promise(resolve => setTimeout(resolve, 5000));
   await setEthBalance(address, '100');
-  await setErc20Balance(address, '0x56072C95FAA701256059aa122697B133aDEd9279', '150001', 18); //fund SKY balance
+  await setErc20Balance(address, '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2', '150001', 18); //fund MKR balance
 });
 
 test.beforeEach(async ({ page }) => {

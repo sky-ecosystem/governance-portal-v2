@@ -10,7 +10,7 @@ import { useBreakpointIndex } from '@theme-ui/match-media';
 import SkeletonThemed from 'modules/app/components/SkeletonThemed';
 import { useSpellData } from 'modules/executive/hooks/useSpellData';
 import { Proposal } from 'modules/executive/types';
-import { useLockedSky } from 'modules/sky/hooks/useLockedSky';
+import { useLockedMkr } from 'modules/mkr/hooks/useLockedMkr';
 import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import { Grid, Button, Flex, Close, Text, Box, Label, Checkbox } from 'theme-ui';
 import { useAccount } from 'modules/app/hooks/useAccount';
@@ -45,23 +45,23 @@ export default function DefaultVoteModalView({
   const network = useNetwork();
 
   const { votingAccount } = useAccount();
-  const { data: lockedSky, mutate: mutateLockedSky } = useLockedSky(votingAccount);
+  const { data: lockedMkr, mutate: mutateLockedMkr } = useLockedMkr(votingAccount);
   const { data: spellData, mutate: mutateSpellData } = useSpellData(spellAddress);
 
   // revalidate on mount
   useEffect(() => {
-    mutateLockedSky();
+    mutateLockedMkr();
     mutateSpellData();
   }, []);
 
-  const skySupporting = spellData ? BigInt(spellData.skySupport) : 0n;
-  const hasVotingWeight = !!lockedSky && lockedSky > 0n;
+  const mkrSupporting = spellData ? BigInt(spellData.mkrSupport) : 0n;
+  const hasVotingWeight = !!lockedMkr && lockedMkr > 0n;
 
   const afterVote =
     currentSlate && currentSlate.includes(spellAddress)
-      ? skySupporting
-      : lockedSky && spellData
-      ? lockedSky + BigInt(spellData.skySupport)
+      ? mkrSupporting
+      : lockedMkr && spellData
+      ? lockedMkr + BigInt(spellData.mkrSupport)
       : 0n;
 
   const GridBox = ({ bpi, children }) => (
@@ -78,9 +78,9 @@ export default function DefaultVoteModalView({
 
   const votingMessage =
     currentSlate && currentSlate.includes(spellAddress) && currentSlate.length > 1
-      ? 'Concentrate all my SKY on this proposal'
+      ? 'Concentrate all my MKR on this proposal'
       : currentSlate && !currentSlate.includes(spellAddress) && isHat
-      ? 'Add SKY to secure the protocol'
+      ? 'Add MKR to secure the protocol'
       : 'Submit Vote';
 
   return (
@@ -94,7 +94,7 @@ export default function DefaultVoteModalView({
       <Text variant="heading" sx={{ fontSize: 6 }}>
         Confirm Vote
       </Text>
-      <Text sx={{ display: ['none', 'block'], marginTop: 3, color: 'textSecondary', fontSize: [3, 4] }}>
+      <Text sx={{ display: ['none', 'block'], marginTop: 3, color: 'onSecondary', fontSize: [3, 4] }}>
         You are voting for the following executive proposal:
       </Text>
       <Flex
@@ -130,12 +130,12 @@ export default function DefaultVoteModalView({
         }}
       >
         <GridBox bpi={bpi}>
-          <Text as="p" color="textSecondary" sx={{ fontSize: 3 }}>
+          <Text as="p" color="onSecondary" sx={{ fontSize: 3 }}>
             Your voting weight
           </Text>
-          {lockedSky !== undefined ? (
+          {lockedMkr !== undefined ? (
             <Text as="p" color="text" mt={[0, 2]} sx={{ fontSize: 3, fontWeight: 'medium' }}>
-              {formatValue(lockedSky, 'wad', 6)} SKY
+              {formatValue(lockedMkr, 'wad', 6)} MKR
             </Text>
           ) : (
             <Box sx={{ mt: [0, 2] }}>
@@ -144,12 +144,12 @@ export default function DefaultVoteModalView({
           )}
         </GridBox>
         <GridBox bpi={bpi}>
-          <Text as="p" color="textSecondary" sx={{ fontSize: 3 }}>
-            SKY supporting
+          <Text as="p" color="onSecondary" sx={{ fontSize: 3 }}>
+            MKR supporting
           </Text>
           {spellData !== undefined ? (
             <Text as="p" color="text" mt={[0, 2]} sx={{ fontSize: 3, fontWeight: 'medium' }}>
-              {formatValue(skySupporting)} SKY
+              {formatValue(mkrSupporting)} MKR
             </Text>
           ) : (
             <Box sx={{ mt: [0, 2] }}>
@@ -158,12 +158,12 @@ export default function DefaultVoteModalView({
           )}
         </GridBox>
         <Box sx={{ height: ['64px', '78px'], p: 3, pt: 2 }}>
-          <Text as="p" color="textSecondary" sx={{ fontSize: 3 }}>
+          <Text as="p" color="onSecondary" sx={{ fontSize: 3 }}>
             After vote cast
           </Text>
-          {lockedSky !== undefined && spellData !== undefined ? (
+          {lockedMkr !== undefined && spellData !== undefined ? (
             <Text as="p" color="text" mt={[0, 2]} sx={{ fontSize: 3, fontWeight: 'medium' }}>
-              {formatValue(afterVote)} SKY
+              {formatValue(afterVote)} MKR
             </Text>
           ) : (
             <Box sx={{ mt: [0, 2] }}>
@@ -205,7 +205,7 @@ export default function DefaultVoteModalView({
                 setHatChecked(event.target.checked);
               }}
             />
-            Keep my SKY on old proposal to secure the Sky protocol
+            Keep my MKR on old proposal to secure the Maker protocol
           </Label>
         ) : null}
       </Box>

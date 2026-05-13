@@ -14,8 +14,8 @@ import { HeadComponent } from 'modules/app/components/layout/Head';
 const terms = `
 **Preamble**
 
-These terms of use (**“Terms”**) are entered into between Jetstream Association, a non-profit entity established under the laws of Switzerland and domiciled in Zug, Switzerland (**“Association”**) and the users of the Sky Governance Voting Portal (**“User”**, **“you”**).
-The following Terms together with any documents incorporated by reference herein, govern your access to and use of the Sky Governance Voting Portal (**“Voting Portal”**). 
+These terms of use (**“Terms”**) are entered into between Jetstream Association, a non-profit entity established under the laws of Switzerland and domiciled in Zug, Switzerland (**“Association”**) and the users of the Maker Governance Voting Portal (**“User”**, **“you”**).
+The following Terms together with any documents incorporated by reference herein, govern your access to and use of the Maker Governance Voting Portal (**“Voting Portal”**). 
 
 Please read these Terms carefully before using the Voting Portal. By using or otherwise accessing the Voting Portal or clicking to accept or agree to these Terms where that option is made available, you 
 
@@ -29,7 +29,7 @@ These Terms may be modified or replaced at the Association’s discretion at any
 
 **1. The Voting Portal**
 
-The Voting Portal is an independent user interface available at https://vote.sky.money allowing Users to interact with the governance mechanisms of the Sky Protocol, an autonomous system of smart contracts on the Ethereum Blockchain (**“Open-Source Protocol”**), and relying on the SKY Token (**“Token”**), a cryptographic token required for participation in the governance of the Open-Source Protocol (**“Governance”**). 
+The Voting Portal is an independent user interface available at https://vote.makerdao.com allowing Users to interact with the governance mechanisms of the Maker Protocol, an autonomous system of smart contracts on the Ethereum Blockchain (**“Open-Source Protocol”**), and relying on the MKR Token (**“Token”**), a cryptographic token required for participation in the governance of the Open-Source Protocol (**“Governance”**). 
 
 The Voting Portal serves as a graphical user interface that provides an easy way to access and interact with the Open-Source Protocol. 
 As the Governance is permissionless and autonomous, you can participate at any time via other user interfaces or by using smart contract frameworks such as Hardhat, Brownie or Truffle. This means that the accessibility does not depend on the Association and/or the availability of the Voting Portal. 
@@ -153,7 +153,7 @@ To the fullest extent permitted by any applicable law, the User waives any right
 
 **11. Contact**
 
-Any questions related to these Terms can be sent to hello@jetstream.gg.
+Any questions related to these Terms can be sent to hello@jetstream.gg
 
 **12. Miscellaneous**
 

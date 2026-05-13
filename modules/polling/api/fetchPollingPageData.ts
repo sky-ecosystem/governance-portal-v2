@@ -9,14 +9,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 import { getActivePollIds, getPollsPaginated } from 'modules/polling/api/fetchPolls';
 import { SupportedNetworks } from 'modules/web3/constants/networks';
 import { fetchJson } from 'lib/fetchJson';
-import {
-  PollInputFormat,
-  PollOrderByEnum,
-  PollStatusEnum,
-  SKY_PORTAL_START_DATE_MAINNET
-} from '../polling.constants';
-import { PollsPaginatedResponse } from '../types/pollsResponse';
-import { PollingPageProps } from 'pages/polling';
+import { PollInputFormat, PollOrderByEnum, PollStatusEnum } from '../polling.constants';
+import { PollsPaginatedResponse, PollingPageProps } from '../types/pollsResponse';
 import { PollListItem } from '../types';
 import { PollingReviewPageProps } from 'pages/polling/review';
 import { TagCount } from 'modules/app/types/tag';
@@ -49,7 +43,7 @@ export async function fetchPollingPageData(
 
   const { polls, tags, stats, paginationInfo }: PollsPaginatedResponse = useApi
     ? await fetchJson(
-        `/api/polling/all-polls?network=${network}&pageSize=${pageSize}&page=${page}&orderBy=${orderBy}&status=${status}${
+        `/api/polling/v2/all-polls?network=${network}&pageSize=${pageSize}&page=${page}&orderBy=${orderBy}&status=${status}${
           title ? '&title=' + title : ''
         }${queryTags?.length ? '&tags=' + queryTags.join(',') : ''}${type?.length ? '&type=' + type : ''}${
           startDate ? '&startDate=' + startDate : ''
@@ -92,7 +86,7 @@ export async function fetchPollingReviewPageData(
     title: null,
     tags: null,
     type: null,
-    startDate: SKY_PORTAL_START_DATE_MAINNET,
+    startDate: null,
     endDate: null
   };
 
@@ -107,7 +101,7 @@ export async function fetchPollingReviewPageData(
       tags: TagsRes
     }: PollsPaginatedResponse = useApi
       ? await fetchJson(
-          `/api/polling/all-polls?network=${network}&pageSize=${queryParams.pageSize}&page=${queryParams.page}&status=${queryParams.status}`
+          `/api/polling/v2/all-polls?network=${network}&pageSize=${queryParams.pageSize}&page=${queryParams.page}&status=${queryParams.status}`
         )
       : await getPollsPaginated(queryParams);
 

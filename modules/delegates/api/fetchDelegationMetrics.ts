@@ -7,27 +7,42 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 */
 
 import { gqlRequest } from 'modules/gql/gqlRequest';
-import { allDelegations } from 'modules/gql/queries/subgraph/allDelegations';
+import { allDelegateAddresses } from 'modules/gql/queries/subgraph/allDelegateAddresses';
 import { SupportedNetworks } from 'modules/web3/constants/networks';
 import { networkNameToChainId } from 'modules/web3/helpers/chain';
 import { formatEther } from 'viem';
 
 interface DelegationMetrics {
-  totalSkyDelegated: string;
+  totalMkrDelegated: string;
   delegatorCount: number;
 }
 
 export async function fetchDelegationMetrics(network: SupportedNetworks): Promise<DelegationMetrics> {
-  const res = await gqlRequest<any>({
-    chainId: networkNameToChainId(network),
-    query: allDelegations
-  });
-  const delegations = res.delegations;
-  const totalSkyDelegated = formatEther(delegations.reduce((acc, cur) => acc + BigInt(cur.amount), 0n));
-  const delegatorCount = delegations.filter(d => d.amount > 0n).length;
+  try {
+    const chainId = networkNameToChainId(network);
 
-  return {
-    totalSkyDelegated,
-    delegatorCount
-  };
+    const data = await gqlRequest<any>({
+      chainId,
+      query: allDelegateAddresses(chainId),
+      useSubgraph: true
+    });
+
+    const delegates = data.Delegate || [];
+
+    const totalMkrDelegated = formatEther(
+      delegates.reduce((acc: bigint, d: any) => acc + BigInt(d.totalDelegated || '0'), 0n)
+    );
+    const delegatorCount = delegates.reduce((acc: number, d: any) => acc + (d.delegators || 0), 0);
+
+    return {
+      totalMkrDelegated,
+      delegatorCount
+    };
+  } catch (error) {
+    console.error('Error fetching delegation metrics:', error);
+    return {
+      totalMkrDelegated: '0',
+      delegatorCount: 0
+    };
+  }
 }

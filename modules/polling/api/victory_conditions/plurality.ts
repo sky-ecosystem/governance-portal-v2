@@ -15,28 +15,28 @@ export function extractWinnerPlurality(currentVotes: PollTallyVote[]): number | 
   currentVotes.forEach(vote => {
     vote.ballot.forEach(votedOption => {
       if (votes[votedOption]) {
-        votes[votedOption] = votes[votedOption] + parseEther(vote.skySupport.toString());
+        votes[votedOption] = votes[votedOption] + parseEther(vote.mkrSupport.toString());
       } else {
-        votes[votedOption] = parseEther(vote.skySupport.toString());
+        votes[votedOption] = parseEther(vote.mkrSupport.toString());
       }
     });
   });
 
-  // Sort options by SKY support
+  // Sort options by MKR support
   const sortedOptions = Object.keys(votes)
     .map(option => {
       return {
         option: parseInt(option),
-        skySupport: votes[parseInt(option)]
+        mkrSupport: votes[parseInt(option)]
       };
     })
     .sort((prev, next) => {
-      return prev.skySupport >= next.skySupport ? -1 : 1;
+      return prev.mkrSupport >= next.mkrSupport ? -1 : 1;
     });
 
-  // if the 2 first options share the same SKY amount, return null
+  // if the 2 first options share the same MKR amount, return null
   if (sortedOptions.length >= 2) {
-    if (sortedOptions[0].skySupport === sortedOptions[1].skySupport) {
+    if (sortedOptions[0].mkrSupport === sortedOptions[1].mkrSupport) {
       return null;
     }
   }

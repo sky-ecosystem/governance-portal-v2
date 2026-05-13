@@ -10,10 +10,11 @@ import { useChainId } from 'wagmi';
 import { WriteHook, WriteHookParams } from 'modules/web3/types/hooks';
 import { useWriteContractFlow } from 'modules/web3/hooks/useWriteContractFlow';
 import { voteDelegateAbi } from 'modules/contracts/ethers/abis';
+import { config } from 'lib/config';
 
 export const useDelegateLock = ({
   voteDelegateAddress,
-  skyToDeposit,
+  mkrToDeposit,
   gas,
   enabled: paramEnabled = true,
   onSuccess,
@@ -21,7 +22,7 @@ export const useDelegateLock = ({
   onStart
 }: WriteHookParams & {
   voteDelegateAddress: string;
-  skyToDeposit: bigint;
+  mkrToDeposit: bigint;
 }): WriteHook => {
   const chainId = useChainId();
 
@@ -29,9 +30,9 @@ export const useDelegateLock = ({
     address: voteDelegateAddress as `0x${string}`,
     abi: voteDelegateAbi,
     functionName: 'lock',
-    args: [skyToDeposit],
+    args: [mkrToDeposit],
     chainId,
-    enabled: paramEnabled,
+    enabled: paramEnabled && !config.READ_ONLY,
     gas,
     onSuccess,
     onError,

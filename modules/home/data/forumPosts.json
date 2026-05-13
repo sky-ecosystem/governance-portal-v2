@@ -1,14 +1,14 @@
 [
   {
     "title": "Top Governance Discussions",
-    "summary": "An overview of the most popular and controversial governance discussions on the Sky forum.",
-    "link": "https://forum.sky.money/top",
+    "summary": "An overview of the most popular and controversial governance discussions on the MakerDAO forum.",
+    "link": "https://forum.makerdao.com/top",
     "image": "/home/participation/clean-money.png"
   },
   {
     "title": "Governance Forum Explorer",
     "summary": "A powerful tool for exploring the governance forum, powered by custom filters.",
-    "link": "https://forum.sky.money/explorer",
+    "link": "https://forum.makerdao.com/explorer",
     "image": "/home/participation/improve-participation.png"
   }
 ]

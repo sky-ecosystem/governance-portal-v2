@@ -25,7 +25,8 @@ import VotingStatus from '../PollVotingStatus';
 import { useAccount } from 'modules/app/hooks/useAccount';
 import { BallotContext } from '../../context/BallotContext';
 import ChooseFreeSelect from './ChooseFreeSelect';
-import { useSkyVotingWeight } from 'modules/sky/hooks/useSkyVotingWeight';
+import { useMKRVotingWeight } from 'modules/mkr/hooks/useMKRVotingWeight';
+import { config } from 'lib/config';
 
 type Props = {
   poll: PollListItem | Poll;
@@ -45,7 +46,7 @@ const QuickVote = ({
   buttonVariant
 }: Props): React.ReactElement => {
   const { account, voteDelegateContractAddress } = useAccount();
-  const { data: votingWeight, loading } = useSkyVotingWeight({ address: account });
+  const { data: votingWeight, loading } = useMKRVotingWeight({ address: account });
   const { data: allUserVotes } = useAllUserVotes(
     voteDelegateContractAddress ? voteDelegateContractAddress : account
   );
@@ -138,12 +139,12 @@ const QuickVote = ({
               submit();
             }}
             mt={2}
-            disabled={!isChoiceValid || !votingWeight || !(votingWeight > 0n)}
+            disabled={!isChoiceValid || !votingWeight || !(votingWeight.total > 0n) || config.READ_ONLY}
           >
             {loading
-              ? 'Loading SKY balance...'
-              : !votingWeight || !(votingWeight > 0n)
-              ? 'Deposit SKY to vote'
+              ? 'Loading MKR balance...'
+              : !votingWeight || !(votingWeight.total > 0n)
+              ? 'Deposit MKR to vote'
               : addedChoice
               ? 'Update vote'
               : 'Add vote to ballot'}

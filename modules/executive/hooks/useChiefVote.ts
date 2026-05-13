@@ -10,6 +10,7 @@ import { useChainId } from 'wagmi';
 import { WriteHook, WriteHookParams } from 'modules/web3/types/hooks';
 import { useWriteContractFlow } from 'modules/web3/hooks/useWriteContractFlow';
 import { chiefAbi, chiefAddress } from 'modules/contracts/generated';
+import { config } from 'lib/config';
 
 export const useChiefVote = ({
   slateOrProposals,
@@ -29,7 +30,7 @@ export const useChiefVote = ({
     functionName: 'vote',
     args: [slateOrProposals],
     chainId,
-    enabled: paramEnabled,
+    enabled: paramEnabled && !config.READ_ONLY,
     gas,
     onSuccess,
     onError,

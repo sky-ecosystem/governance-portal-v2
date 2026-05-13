@@ -8,10 +8,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 export enum DelegateStatusEnum {
   aligned = 'aligned',
+  expired = 'expired',
   shadow = 'shadow'
 }
 
-export enum SKYWeightTimeRanges {
+export enum MKRWeightTimeRanges {
   day = 'day',
   week = 'week',
   month = 'month'
@@ -25,7 +26,7 @@ export enum DelegateTypeEnum {
 
 export enum DelegateOrderByEnum {
   DATE = 'blockTimestamp',
-  SKY = 'totalDelegated',
+  MKR = 'totalDelegated',
   DELEGATORS = 'delegators',
   RANDOM = 'random'
 }

@@ -1,3 +1,106 @@
+export const voteProxyAbi = [
+  {
+    constant: true,
+    inputs: [],
+    name: 'gov',
+    outputs: [{ name: '', type: 'address' }],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: 'cold',
+    outputs: [{ name: '', type: 'address' }],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    constant: false,
+    inputs: [],
+    name: 'freeAll',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: 'iou',
+    outputs: [{ name: '', type: 'address' }],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    constant: false,
+    inputs: [{ name: 'slate', type: 'bytes32' }],
+    name: 'vote',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    constant: false,
+    inputs: [{ name: 'wad', type: 'uint256' }],
+    name: 'free',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    constant: false,
+    inputs: [{ name: 'wad', type: 'uint256' }],
+    name: 'lock',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: 'hot',
+    outputs: [{ name: '', type: 'address' }],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    constant: false,
+    inputs: [{ name: 'yays', type: 'address[]' }],
+    name: 'vote',
+    outputs: [{ name: '', type: 'bytes32' }],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: 'chief',
+    outputs: [{ name: '', type: 'address' }],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [
+      { name: '_chief', type: 'address' },
+      { name: '_cold', type: 'address' },
+      { name: '_hot', type: 'address' }
+    ],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'constructor'
+  }
+] as const;
+
 export const voteDelegateAbi = [
   {
     inputs: [
@@ -477,215 +580,6 @@ export const dsSpellAbi = [
         type: 'bytes32'
       }
     ],
-    stateMutability: 'view',
-    type: 'function'
-  }
-] as const;
-
-export const newChiefAbi = [
-  {
-    inputs: [
-      { internalType: 'address', name: 'gov_', type: 'address' },
-      { internalType: 'uint256', name: 'maxYays_', type: 'uint256' },
-      { internalType: 'uint256', name: 'launchThreshold_', type: 'uint256' },
-      { internalType: 'uint256', name: 'liftCooldown_', type: 'uint256' }
-    ],
-    stateMutability: 'nonpayable',
-    type: 'constructor'
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: 'bytes32', name: 'slate', type: 'bytes32' },
-      { indexed: false, internalType: 'address[]', name: 'yays', type: 'address[]' }
-    ],
-    name: 'Etch',
-    type: 'event'
-  },
-  {
-    anonymous: false,
-    inputs: [{ indexed: false, internalType: 'uint256', name: 'wad', type: 'uint256' }],
-    name: 'Free',
-    type: 'event'
-  },
-  { anonymous: false, inputs: [], name: 'Launch', type: 'event' },
-  {
-    anonymous: false,
-    inputs: [{ indexed: true, internalType: 'address', name: 'whom', type: 'address' }],
-    name: 'Lift',
-    type: 'event'
-  },
-  {
-    anonymous: false,
-    inputs: [{ indexed: false, internalType: 'uint256', name: 'wad', type: 'uint256' }],
-    name: 'Lock',
-    type: 'event'
-  },
-  {
-    anonymous: false,
-    inputs: [{ indexed: true, internalType: 'bytes32', name: 'slate', type: 'bytes32' }],
-    name: 'Vote',
-    type: 'event'
-  },
-  {
-    inputs: [],
-    name: 'EMPTY_SLATE',
-    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'GOV',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'MAX_YAYS',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [{ internalType: 'address', name: 'yay', type: 'address' }],
-    name: 'approvals',
-    outputs: [{ internalType: 'uint256', name: 'amt', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      { internalType: 'address', name: 'caller', type: 'address' },
-      { internalType: 'address', name: '', type: 'address' },
-      { internalType: 'bytes4', name: '', type: 'bytes4' }
-    ],
-    name: 'canCall',
-    outputs: [{ internalType: 'bool', name: 'ok', type: 'bool' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [{ internalType: 'address', name: 'usr', type: 'address' }],
-    name: 'deposits',
-    outputs: [{ internalType: 'uint256', name: 'amt', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [{ internalType: 'address[]', name: 'yays', type: 'address[]' }],
-    name: 'etch',
-    outputs: [{ internalType: 'bytes32', name: 'slate', type: 'bytes32' }],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'wad', type: 'uint256' }],
-    name: 'free',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'gov',
-    outputs: [{ internalType: 'contract GemLike', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'hat',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'last',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  { inputs: [], name: 'launch', outputs: [], stateMutability: 'nonpayable', type: 'function' },
-  {
-    inputs: [],
-    name: 'launchThreshold',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [{ internalType: 'bytes32', name: 'slate', type: 'bytes32' }],
-    name: 'length',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [{ internalType: 'address', name: 'whom', type: 'address' }],
-    name: 'lift',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'liftCooldown',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'live',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'wad', type: 'uint256' }],
-    name: 'lock',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'maxYays',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      { internalType: 'bytes32', name: 'slate', type: 'bytes32' },
-      { internalType: 'uint256', name: '', type: 'uint256' }
-    ],
-    name: 'slates',
-    outputs: [{ internalType: 'address', name: 'yays', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [{ internalType: 'bytes32', name: 'slate', type: 'bytes32' }],
-    name: 'vote',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  },
-  {
-    inputs: [{ internalType: 'address[]', name: 'yays', type: 'address[]' }],
-    name: 'vote',
-    outputs: [{ internalType: 'bytes32', name: 'slate', type: 'bytes32' }],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  },
-  {
-    inputs: [{ internalType: 'address', name: 'usr', type: 'address' }],
-    name: 'votes',
-    outputs: [{ internalType: 'bytes32', name: 'slate', type: 'bytes32' }],
     stateMutability: 'view',
     type: 'function'
   }

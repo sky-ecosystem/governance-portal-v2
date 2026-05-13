@@ -33,7 +33,6 @@ export default function TooltipComponent({ children, label, disable = false, ...
     <Tooltip
       sx={{
         bg: 'surface',
-        backdropFilter: 'blur(20px)',
         borderColor: 'secondary',
         color: 'text',
         fontSize: 3,

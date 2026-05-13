@@ -15,6 +15,7 @@ import '@reach/listbox/styles.css';
 import '@reach/menu-button/styles.css';
 import '@reach/tabs/styles.css';
 import '@reach/tooltip/styles.css';
+import 'react-loading-skeleton/dist/skeleton.css';
 import { fetchJson } from 'lib/fetchJson';
 import theme from 'lib/theme';
 import Header from 'modules/app/components/layout/Header';
@@ -22,16 +23,17 @@ import { HeadComponent } from 'modules/app/components/layout/Head';
 import { AccountProvider } from 'modules/app/context/AccountContext';
 import NextNprogress from 'nextjs-progressbar';
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { BallotProvider } from 'modules/polling/context/BallotContext';
 import debug from 'debug';
-import React from 'react';
+import Banner from 'modules/app/components/layout/header/Banner';
+import bannerContent from 'modules/home/data/bannerContent.json';
+import React, { useMemo } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { WagmiProvider } from 'wagmi';
 import { wagmiConfigDev, wagmiConfigProd } from 'modules/wagmi/config/config.default';
 import { mockWagmiConfig } from 'modules/wagmi/config/config.e2e';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeImage } from 'modules/app/components/ThemeImage';
-import { useMigrationToast } from 'modules/app/hooks/useMigrationToast';
 
 const vitalslog = debug('govpo:vitals');
 export const reportWebVitals = vitalslog;
@@ -44,9 +46,20 @@ const App = ({ Component, pageProps }: AppProps): React.ReactElement => {
   const wagmiConfig = useMockWallet ? mockWagmiConfig : isProduction ? wagmiConfigProd : wagmiConfigDev;
   const queryClient = new QueryClient();
 
-  // Show governance migration toast
-  useMigrationToast();
-
+  const activeBannerContent = bannerContent.find(({ active }) => active === true);
+  const banners = useMemo(() => {
+    return (
+      <React.Fragment>
+        {activeBannerContent && (
+          <Banner
+            content={activeBannerContent.content}
+            href={activeBannerContent.href}
+            variant={activeBannerContent.variant}
+          />
+        )}
+      </React.Fragment>
+    );
+  }, []);
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
@@ -55,7 +68,7 @@ const App = ({ Component, pageProps }: AppProps): React.ReactElement => {
           <Analytics />
 
           <NextNprogress
-            color="#504DFF"
+            color="#1aab9b"
             startPosition={0.3}
             stopDelayMs={200}
             height={3}
@@ -80,7 +93,7 @@ const App = ({ Component, pageProps }: AppProps): React.ReactElement => {
                       MozOsxFontSmoothing: 'grayscale'
                     },
                     '.progress-bar': {
-                      background: '#504DFF'
+                      background: '#1AAB9B'
                     }
                   }}
                 />
@@ -91,12 +104,11 @@ const App = ({ Component, pageProps }: AppProps): React.ReactElement => {
                     variant: 'layout.root',
 
                     paddingTop: '62px',
-                    position: 'relative',
                     overflowX: 'hidden'
                   }}
                 >
-                  <ThemeImage />
-                  <Box sx={{ px: [3, 4], pt: 3 }}>
+                  {banners && <Box sx={{ pb: 3 }}>{banners}</Box>}
+                  <Box sx={{ px: [3, 4] }}>
                     <Component {...pageProps} />
                   </Box>
                   <Header />

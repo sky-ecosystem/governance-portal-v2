@@ -24,7 +24,6 @@ import { useAccount as useAccountWagmi, useConnect, useDisconnect } from 'wagmi'
 import { useAccount } from 'modules/app/hooks/useAccount';
 import { SupportedConnectors } from 'modules/web3/constants/networks';
 import { ExternalLink } from 'modules/app/components/ExternalLink';
-import { SupportedChainId } from 'modules/web3/constants/chainID';
 import { icons } from 'lib/theme/icons';
 
 const closeButtonStyle: ThemeUICSSObject = {
@@ -85,15 +84,13 @@ const AccountSelect = (): React.ReactElement => {
   }, [router.pathname]);
 
   useEffect(() => {
-    const isPollingCreatePage = router.pathname === '/polling/create';
-    const unsupportedNetwork = chainId && !isSupportedChain(chainId) && !(isPollingCreatePage && (chainId === SupportedChainId.ARBITRUM || chainId === SupportedChainId.ARBITRUMTESTNET)); // allow connecting to arbitrum on the polling/create page
-    
+    const unsupportedNetwork = chainId && !isSupportedChain(chainId);
     if (unsupportedNetwork) {
       setChainIdError('unsupported network');
     } else {
       setChainIdError(null);
     }
-  }, [chainId, router.pathname]);
+  }, [chainId]);
 
   const walletOptions = connectors.map((connector, index) => (
     <Flex

@@ -90,15 +90,15 @@ const PollingReview = ({ polls: activePolls, activePollIds, tags }: PollingRevie
       url = `https://vote.makerdao.com/polling/${poll.slug}`;
       text = `I just voted ${
         option ? option + ' ' : ''
-      }on a Sky Ecosystem governance poll! Learn more about the poll on the Governance Portal:`;
+      }on a MakerDAO governance poll! Learn more about the poll on the Governance Portal:`;
     } else {
       // all votes
-      url = 'https://vote.sky.money';
+      url = 'https://vote.makerdao.com';
       text = `I just voted on ${
         previousVotesLength > 1 ? previousVotesLength : 'a'
-      } Sky Ecosystem governance poll${
+      } MakerDAO governance poll${
         previousVotesLength > 1 ? 's' : ''
-      }! Find my votes and all Sky governance proposals on the Governance Portal:`;
+      }! Find my votes and all Maker governance proposals on the Governance Portal:`;
     }
 
     return (

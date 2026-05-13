@@ -13,7 +13,7 @@ import { voteDelegateAbi } from 'modules/contracts/ethers/abis';
 
 export const useDelegateFree = ({
   voteDelegateAddress,
-  skyToWithdraw,
+  mkrToWithdraw,
   gas,
   enabled: paramEnabled = true,
   onSuccess,
@@ -21,7 +21,7 @@ export const useDelegateFree = ({
   onStart
 }: WriteHookParams & {
   voteDelegateAddress: string;
-  skyToWithdraw: bigint;
+  mkrToWithdraw: bigint;
 }): WriteHook => {
   const chainId = useChainId();
 
@@ -29,7 +29,7 @@ export const useDelegateFree = ({
     address: voteDelegateAddress as `0x${string}`,
     abi: voteDelegateAbi,
     functionName: 'free',
-    args: [skyToWithdraw],
+    args: [mkrToWithdraw],
     chainId,
     enabled: paramEnabled,
     gas,

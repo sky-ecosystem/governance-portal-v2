@@ -43,7 +43,7 @@ describe('Instant runoff calculation', () => {
   it('gives expected results for a tally with majority', () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: '60.025',
+        mkrSupport: '60.025',
         optionIdRaw: fromBuffer([1, 3].reverse()),
         ballot: [1, 3],
         blockTimestamp: 1,
@@ -53,7 +53,7 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: '200.598801867883985831',
+        mkrSupport: '200.598801867883985831',
         optionIdRaw: fromBuffer([3, 1].reverse()),
         ballot: [3, 1],
         blockTimestamp: 1,
@@ -63,7 +63,7 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: '64.068823529411764706',
+        mkrSupport: '64.068823529411764706',
         optionIdRaw: fromBuffer([2, 3].reverse()),
         ballot: [2, 3],
         blockTimestamp: 1,
@@ -81,19 +81,19 @@ describe('Instant runoff calculation', () => {
       winner: 3,
       options: {
         '1': {
-          skySupport: '60.025',
+          mkrSupport: '60.025',
           transfer: '0',
           winner: false,
           eliminated: false
         },
         '2': {
-          skySupport: '64.068823529411764706',
+          mkrSupport: '64.068823529411764706',
           transfer: '0',
           winner: false,
           eliminated: false
         },
         '3': {
-          skySupport: '200.598801867883985831',
+          mkrSupport: '200.598801867883985831',
           transfer: '0',
           winner: true,
           eliminated: false
@@ -107,7 +107,7 @@ describe('Instant runoff calculation', () => {
   it('gives expected results for a tally with no majority', () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: '60.025',
+        mkrSupport: '60.025',
         optionIdRaw: fromBuffer([1, 3].reverse()),
         ballot: [1, 3],
         blockTimestamp: 1,
@@ -117,7 +117,7 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: '102.598801867883985831',
+        mkrSupport: '102.598801867883985831',
         optionIdRaw: fromBuffer([3, 1].reverse()),
         ballot: [3, 1],
         blockTimestamp: 1,
@@ -127,7 +127,7 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: '64.068823529411764706',
+        mkrSupport: '64.068823529411764706',
         optionIdRaw: fromBuffer([2, 3].reverse()),
         ballot: [2, 3],
         blockTimestamp: 1,
@@ -145,19 +145,19 @@ describe('Instant runoff calculation', () => {
       winner: 3,
       options: {
         '1': {
-          skySupport: '60.025',
+          mkrSupport: '60.025',
           transfer: '-60.025',
           winner: false,
           eliminated: true
         },
         '2': {
-          skySupport: '64.068823529411764706',
+          mkrSupport: '64.068823529411764706',
           transfer: '0',
           winner: false,
           eliminated: false
         },
         '3': {
-          skySupport: '102.598801867883985831',
+          mkrSupport: '102.598801867883985831',
           transfer: '60.025',
           winner: true,
           eliminated: false
@@ -171,7 +171,8 @@ describe('Instant runoff calculation', () => {
   it('gives expected results for a tally with multiple rounds', () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: '60.025',
+        mkrSupport: '60.025',
+        optionIdRaw: fromBuffer([1, 3].reverse()),
         ballot: [1, 3],
         blockTimestamp: 1,
         chainId: 1,
@@ -180,7 +181,8 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: '102.598801867883985831',
+        mkrSupport: '102.598801867883985831',
+        optionIdRaw: fromBuffer([3, 1].reverse()),
         ballot: [3, 1],
         blockTimestamp: 1,
         chainId: 1,
@@ -189,7 +191,8 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: '64.068823529411764706',
+        mkrSupport: '64.068823529411764706',
+        optionIdRaw: fromBuffer([2, 3].reverse()),
         ballot: [2, 3],
         blockTimestamp: 1,
         chainId: 1,
@@ -198,7 +201,8 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: 4,
+        mkrSupport: 4,
+        optionIdRaw: fromBuffer([4, 1].reverse()),
         ballot: [4, 1],
         blockTimestamp: 1,
         chainId: 1,
@@ -214,25 +218,25 @@ describe('Instant runoff calculation', () => {
       winner: 3,
       options: {
         '1': {
-          skySupport: '60.025',
+          mkrSupport: '60.025',
           transfer: '-56.025',
           winner: false,
           eliminated: true
         },
         '2': {
-          skySupport: '64.068823529411764706',
+          mkrSupport: '64.068823529411764706',
           transfer: '0',
           winner: false,
           eliminated: false
         },
         '3': {
-          skySupport: '102.598801867883985831',
+          mkrSupport: '102.598801867883985831',
           transfer: '60.025',
           winner: true,
           eliminated: false
         },
         '4': {
-          skySupport: '4',
+          mkrSupport: '4',
           transfer: '-4',
           winner: false,
           eliminated: true
@@ -246,7 +250,8 @@ describe('Instant runoff calculation', () => {
   it('ranked choice tally verify eliminated options cant get votes', () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: '60.025',
+        mkrSupport: '60.025',
+        optionIdRaw: fromBuffer([1, 3].reverse()),
         ballot: [1, 3],
         blockTimestamp: 1,
         chainId: 1,
@@ -255,7 +260,8 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: '102.598801867883985831',
+        mkrSupport: '102.598801867883985831',
+        optionIdRaw: fromBuffer([3, 1].reverse()),
         ballot: [3, 1],
         blockTimestamp: 1,
         chainId: 1,
@@ -264,7 +270,8 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: '54.068823529411764706',
+        mkrSupport: '54.068823529411764706',
+        optionIdRaw: fromBuffer([2, 4].reverse()),
         ballot: [2, 4],
         blockTimestamp: 1,
         chainId: 1,
@@ -273,7 +280,8 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: 4,
+        mkrSupport: 4,
+        optionIdRaw: fromBuffer([4, 1].reverse()),
         ballot: [4, 1],
         blockTimestamp: 1,
         chainId: 1,
@@ -289,25 +297,25 @@ describe('Instant runoff calculation', () => {
       winner: 3,
       options: {
         '1': {
-          skySupport: '60.025',
+          mkrSupport: '60.025',
           transfer: '-56.025',
           winner: false,
           eliminated: true
         },
         '2': {
-          skySupport: '54.068823529411764706',
+          mkrSupport: '54.068823529411764706',
           transfer: '0',
           winner: false,
           eliminated: true
         },
         '3': {
-          skySupport: '102.598801867883985831',
+          mkrSupport: '102.598801867883985831',
           transfer: '60.025',
           winner: true,
           eliminated: false
         },
         '4': {
-          skySupport: '4',
+          mkrSupport: '4',
           transfer: '-4',
           winner: false,
           eliminated: true
@@ -321,7 +329,8 @@ describe('Instant runoff calculation', () => {
   it('ranked choice tally stop when 1 remains', () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: '101',
+        mkrSupport: '101',
+        optionIdRaw: fromBuffer([1].reverse()),
         ballot: [1],
         blockTimestamp: 1,
         chainId: 1,
@@ -330,7 +339,8 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: '100',
+        mkrSupport: '100',
+        optionIdRaw: fromBuffer([2, 1].reverse()),
         ballot: [2, 1],
         blockTimestamp: 1,
         chainId: 1,
@@ -339,7 +349,8 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: '50',
+        mkrSupport: '50',
+        optionIdRaw: fromBuffer([3].reverse()),
         ballot: [3],
         blockTimestamp: 1,
         chainId: 1,
@@ -348,7 +359,8 @@ describe('Instant runoff calculation', () => {
         pollId: 1
       },
       {
-        skySupport: 49,
+        mkrSupport: 49,
+        optionIdRaw: fromBuffer([4, 3].reverse()),
         ballot: [4, 3],
         blockTimestamp: 1,
         chainId: 1,
@@ -364,25 +376,25 @@ describe('Instant runoff calculation', () => {
       winner: 1,
       options: {
         '1': {
-          skySupport: '101',
+          mkrSupport: '101',
           transfer: '100',
           winner: true,
           eliminated: false
         },
         '2': {
-          skySupport: '100',
+          mkrSupport: '100',
           transfer: '-100',
           winner: false,
           eliminated: true
         },
         '3': {
-          skySupport: '50',
+          mkrSupport: '50',
           transfer: '49',
           winner: false,
           eliminated: true
         },
         '4': {
-          skySupport: '49',
+          mkrSupport: '49',
           transfer: '-49',
           winner: false,
           eliminated: true
@@ -393,10 +405,11 @@ describe('Instant runoff calculation', () => {
     expect(JSON.parse(JSON.stringify(winner, bigIntSerializer))).toEqual(expectedResult);
   });
 
-  it('Does not break with only 1 vote without sky', () => {
+  it('Does not break with only 1 vote without mkr', () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: '0',
+        optionIdRaw: '1',
+        mkrSupport: '0',
         ballot: [1],
         blockTimestamp: 1,
         chainId: 1,
@@ -412,7 +425,7 @@ describe('Instant runoff calculation', () => {
       winner: null,
       options: {
         '1': {
-          skySupport: '0',
+          mkrSupport: '0',
           transfer: '0',
           winner: false,
           eliminated: false

@@ -13,7 +13,7 @@ describe('Find options that satisfy condition comparison', () => {
   it('gives no options if no comparison is passed', async () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: 10,
+        mkrSupport: 10,
         optionIdRaw: 1,
         ballot: [1],
         blockTimestamp: 1,
@@ -23,7 +23,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 20,
+        mkrSupport: 20,
         optionIdRaw: 2,
         ballot: [2],
         blockTimestamp: 1,
@@ -33,7 +33,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 30,
+        mkrSupport: 30,
         optionIdRaw: 3,
         ballot: [3],
         blockTimestamp: 1,
@@ -48,10 +48,10 @@ describe('Find options that satisfy condition comparison', () => {
 
     expect(winner).toEqual([]);
   });
-  it('gives all options with > 1000 sky', async () => {
+  it('gives all options with > 1000 mkr', async () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: 1230,
+        mkrSupport: 1230,
         optionIdRaw: 1,
         ballot: [1],
         blockTimestamp: 1,
@@ -61,7 +61,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 1000,
+        mkrSupport: 1000,
         optionIdRaw: 2,
         ballot: [2],
         blockTimestamp: 1,
@@ -71,7 +71,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 30,
+        mkrSupport: 30,
         optionIdRaw: 3,
         ballot: [3],
         blockTimestamp: 1,
@@ -87,10 +87,10 @@ describe('Find options that satisfy condition comparison', () => {
     expect(winner).toEqual([1]);
   });
 
-  it('gives all options with >= 1000 sky', async () => {
+  it('gives all options with >= 1000 mkr', async () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: 1230,
+        mkrSupport: 1230,
         optionIdRaw: 1,
         ballot: [1],
         blockTimestamp: 1,
@@ -100,7 +100,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 1000,
+        mkrSupport: 1000,
         optionIdRaw: 2,
         ballot: [2],
         blockTimestamp: 1,
@@ -110,7 +110,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 30,
+        mkrSupport: 30,
         optionIdRaw: 3,
         ballot: [3],
         blockTimestamp: 1,
@@ -126,10 +126,10 @@ describe('Find options that satisfy condition comparison', () => {
     expect(winner).toEqual([1, 2]);
   });
 
-  it('gives all options with = 1000 sky', async () => {
+  it('gives all options with = 1000 mkr', async () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: 1230,
+        mkrSupport: 1230,
         optionIdRaw: 1,
         ballot: [1],
         blockTimestamp: 1,
@@ -139,7 +139,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 1000,
+        mkrSupport: 1000,
         optionIdRaw: 2,
         ballot: [2],
         blockTimestamp: 1,
@@ -149,7 +149,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 30,
+        mkrSupport: 30,
         optionIdRaw: 3,
         ballot: [3],
         blockTimestamp: 1,
@@ -165,10 +165,10 @@ describe('Find options that satisfy condition comparison', () => {
     expect(winner).toEqual([2]);
   });
 
-  it('gives all options with < 1000 sky', async () => {
+  it('gives all options with < 1000 mkr', async () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: 1230,
+        mkrSupport: 1230,
         optionIdRaw: 1,
         ballot: [1],
         blockTimestamp: 1,
@@ -178,7 +178,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 1000,
+        mkrSupport: 1000,
         optionIdRaw: 2,
         ballot: [2],
         blockTimestamp: 1,
@@ -188,7 +188,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 30,
+        mkrSupport: 30,
         optionIdRaw: 3,
         ballot: [3],
         blockTimestamp: 1,
@@ -204,10 +204,10 @@ describe('Find options that satisfy condition comparison', () => {
     expect(winner).toEqual([3]);
   });
 
-  it('gives all options with <= 1000 sky', async () => {
+  it('gives all options with <= 1000 mkr', async () => {
     const votes: PollTallyVote[] = [
       {
-        skySupport: 1230,
+        mkrSupport: 1230,
         optionIdRaw: 1,
         ballot: [1],
         blockTimestamp: 1,
@@ -217,7 +217,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 1000,
+        mkrSupport: 1000,
         optionIdRaw: 2,
         ballot: [2],
         blockTimestamp: 1,
@@ -227,7 +227,7 @@ describe('Find options that satisfy condition comparison', () => {
         pollId: 1
       },
       {
-        skySupport: 30,
+        mkrSupport: 30,
         optionIdRaw: 3,
         ballot: [3],
         blockTimestamp: 1,

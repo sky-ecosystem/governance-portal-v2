@@ -1,8 +1,8 @@
 {
-  "short_name": "Sky Governance Portal",
-  "name": "Sky Governance Portal",
-  "description": "Vote with or delegate your SKY tokens to help protect the integrity of the Sky protocol",
-  "iconPath": "sky.svg",
+  "short_name": "Maker Governance Portal",
+  "name": "Maker Governance Portal",
+  "description": "Vote with or delegate your MKR tokens to help protect the integrity of the Maker protocol",
+  "iconPath": "maker.svg",
   "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#000000",

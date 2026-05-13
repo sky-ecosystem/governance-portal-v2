@@ -10,8 +10,8 @@
   },
   "winner": "1",
   "rounds": 1,
-  "totalSkyParticipation": "70288579356787892861292",
-  "totalSkyActiveParticipation": "70288579356787892861292",
+  "totalMkrParticipation": "70288579356787892861292",
+  "totalMkrActiveParticipation": "70288579356787892861292",
   "numVoters": 13,
   "votesByAddress": [
     {
@@ -20,7 +20,7 @@
       "chainId": 1,
       "blockTimestamp": 1,
 
-      "skySupport": 28312.074392254362747305,
+      "mkrSupport": 28312.074392254362747305,
       "ballot": [1]
     },
     {
@@ -29,7 +29,7 @@
       "chainId": 1,
       "blockTimestamp": 1,
 
-      "skySupport": 25032.0,
+      "mkrSupport": 25032.0,
       "ballot": [1]
     },
     {
@@ -38,7 +38,7 @@
       "chainId": 1,
       "blockTimestamp": 1,
 
-      "skySupport": 7207.435367996405220986,
+      "mkrSupport": 7207.435367996405220986,
       "ballot": [1]
     },
     {
@@ -47,7 +47,7 @@
       "chainId": 1,
       "blockTimestamp": 1,
 
-      "skySupport": 5976.197480361166301154,
+      "mkrSupport": 5976.197480361166301154,
       "ballot": [1]
     },
     {
@@ -56,7 +56,7 @@
       "chainId": 1,
       "blockTimestamp": 1,
 
-      "skySupport": 2000.0,
+      "mkrSupport": 2000.0,
       "ballot": [1]
     },
     {
@@ -65,7 +65,7 @@
       "chainId": 1,
       "blockTimestamp": 1,
 
-      "skySupport": 1325.121561578451363619,
+      "mkrSupport": 1325.121561578451363619,
       "ballot": [1]
     },
     {
@@ -74,7 +74,7 @@
       "chainId": 1,
       "blockTimestamp": 1,
 
-      "skySupport": 239.5,
+      "mkrSupport": 239.5,
       "ballot": [1]
     },
     {
@@ -83,7 +83,7 @@
       "chainId": 1,
       "blockTimestamp": 1,
 
-      "skySupport": 102.258150844420618896,
+      "mkrSupport": 102.258150844420618896,
       "ballot": [1]
     },
     {
@@ -92,7 +92,7 @@
       "chainId": 1,
       "blockTimestamp": 1,
 
-      "skySupport": 48.829897397075800509,
+      "mkrSupport": 48.829897397075800509,
       "ballot": [1]
     },
     {
@@ -100,7 +100,7 @@
       "hash": "0x0",
       "chainId": 1,
       "blockTimestamp": 1,
-      "skySupport": 33.000066666531976857,
+      "mkrSupport": 33.000066666531976857,
       "ballot": [1]
     },
     {
@@ -108,7 +108,7 @@
       "hash": "0x0",
       "chainId": 1,
       "blockTimestamp": 1,
-      "skySupport": 9.406817049088377244,
+      "mkrSupport": 9.406817049088377244,
       "ballot": [1]
     },
     {
@@ -116,7 +116,7 @@
       "hash": "0x0",
       "chainId": 1,
       "blockTimestamp": 1,
-      "skySupport": 2.001309,
+      "mkrSupport": 2.001309,
       "ballot": []
     },
     {
@@ -124,7 +124,7 @@
       "hash": "0x0",
       "chainId": 1,
       "blockTimestamp": 1,
-      "skySupport": 0.754313640390454722,
+      "mkrSupport": 0.754313640390454722,
       "ballot": [1]
     }
   ],

@@ -17,11 +17,8 @@ export type SupportedChain = {
   chainId: SupportedChainId;
   label: string;
   network: SupportedNetworks;
-  defaultRpc: string;
+  spockUrl?: string;
   subgraphUrl?: string;
   type: 'gasless' | 'normal';
   showInProduction: boolean;
-  rpcs: {
-    [key: string]: string;
-  };
 };

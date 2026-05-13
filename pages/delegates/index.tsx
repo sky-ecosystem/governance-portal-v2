@@ -27,6 +27,7 @@ import { HeadComponent } from 'modules/app/components/layout/Head';
 import { DelegatesSystemInfo } from 'modules/delegates/components/DelegatesSystemInfo';
 import { DelegatesStatusFilter } from 'modules/delegates/components/filters/DelegatesStatusFilter';
 import { DelegatesSortFilter } from 'modules/delegates/components/filters/DelegatesSortFilter';
+import { DelegatesShowExpiredFilter } from 'modules/delegates/components/filters/DelegatesShowExpiredFilter';
 import { useAccount } from 'modules/app/hooks/useAccount';
 import { ErrorBoundary } from 'modules/app/components/ErrorBoundary';
 import { InternalLink } from 'modules/app/components/InternalLink';
@@ -47,7 +48,7 @@ const emptyStats = {
   total: 0,
   shadow: 0,
   aligned: 0,
-  totalSkyDelegated: '0',
+  totalMKRDelegated: '0',
   totalDelegators: 0
 };
 
@@ -62,6 +63,7 @@ const Delegates = ({
   const [
     showAligned,
     showShadow,
+    showExpired,
     sort,
     sortDirection,
     name,
@@ -73,6 +75,7 @@ const Delegates = ({
     state => [
       state.filters.showAligned,
       state.filters.showShadow,
+      state.filters.showExpired,
       state.sort,
       state.sortDirection,
       state.filters.name,
@@ -113,6 +116,7 @@ const Delegates = ({
     sort,
     sortDirection,
     searchTerm: name,
+    showExpired,
     delegateType:
       showAligned && showShadow
         ? DelegateTypeEnum.ALL
@@ -152,7 +156,8 @@ const Delegates = ({
           orderBy: filters.sort,
           orderDirection: filters.sortDirection,
           seed,
-          searchTerm: filters.searchTerm
+          searchTerm: filters.searchTerm,
+          includeExpired: filters.showExpired
         };
 
         const res = await fetchDelegatesPageData(network, true, queryParams);
@@ -187,6 +192,7 @@ const Delegates = ({
         sort,
         sortDirection,
         searchTerm: name,
+        showExpired,
         delegateType:
           showAligned && showShadow
             ? DelegateTypeEnum.ALL
@@ -195,7 +201,7 @@ const Delegates = ({
             : DelegateTypeEnum.ALIGNED
       });
     }
-  }, [sort, sortDirection, name, showAligned, showShadow]);
+  }, [sort, sortDirection, name, showAligned, showShadow, showExpired]);
 
   // only for mobile
   const [showFilters, setShowFilters] = useState(false);
@@ -213,18 +219,24 @@ const Delegates = ({
     '0px'
   );
 
-  const [alignedDelegates, shadowDelegates] = useMemo(() => {
-    const aligned = delegates.filter(delegate => delegate.status === DelegateStatusEnum.aligned);
-    const shadow = delegates.filter(delegate => delegate.status === DelegateStatusEnum.shadow);
+  const [alignedDelegates, shadowDelegates, expiredDelegates] = useMemo(() => {
+    const aligned = delegates.filter(
+      delegate => delegate.status === DelegateStatusEnum.aligned && !delegate.expired
+    );
 
-    return [aligned, shadow];
+    const shadow = delegates.filter(
+      delegate => delegate.status === DelegateStatusEnum.shadow && !delegate.expired
+    );
+
+    const expired = delegates.filter(delegate => delegate.expired === true);
+    return [aligned, shadow, expired];
   }, [delegates, propDelegates]);
 
   return (
     <PrimaryLayout sx={{ maxWidth: [null, null, null, 'page', 'dashboard'] }}>
       <HeadComponent
         title="Delegates"
-        description="Vote delegation allows for SKY holders to delegate their voting power to delegates, which increases the effectiveness and efficiency of the governance process."
+        description="Vote delegation allows for MKR holders to delegate their voting power to delegates, which increases the effectiveness and efficiency of the governance process."
         image={'https://vote.makerdao.com/seo/delegates.png'}
       />
       <Stack>
@@ -232,7 +244,7 @@ const Delegates = ({
           <Flex sx={{ alignItems: 'center' }}>
             <Button
               variant="textual"
-              sx={{ display: ['block', 'none'], color: 'text' }}
+              sx={{ display: ['block', 'none'], color: 'onSecondary' }}
               onClick={() => setShowFilters(!showFilters)}
             >
               <Text sx={{ mr: 1 }}>{showFilters ? 'Hide delegate filters' : 'Show delegate filters'}</Text>
@@ -258,6 +270,7 @@ const Delegates = ({
                 />
                 <DelegatesSortFilter />
                 <DelegatesStatusFilter stats={stats} />
+                <DelegatesShowExpiredFilter sx={{ ml: 2 }} />
               </Flex>
               <Button
                 variant={'outline'}
@@ -278,7 +291,7 @@ const Delegates = ({
         <SidebarLayout>
           <Box>
             <Stack gap={3}>
-              {[...alignedDelegates, ...shadowDelegates].length === 0 && !loading && (
+              {[...alignedDelegates, ...shadowDelegates, ...expiredDelegates].length === 0 && !loading && (
                 <Flex sx={{ flexDirection: 'column', alignItems: 'center', pt: [5, 5, 5, 6] }}>
                   <Flex
                     sx={{
@@ -343,6 +356,24 @@ const Delegates = ({
                 </Stack>
               )}
 
+              {expiredDelegates.length > 0 && (
+                <Stack gap={3}>
+                  <Heading as="h1">Expired Delegates</Heading>
+
+                  {expiredDelegates.map(delegate => (
+                    <Box key={delegate.voteDelegateAddress} sx={{ mb: 3 }}>
+                      <ErrorBoundary componentName="Delegate Card">
+                        <DelegateOverviewCard
+                          delegate={delegate}
+                          setStateDelegates={setDelegates}
+                          onVisitDelegate={onVisitDelegate}
+                        />
+                      </ErrorBoundary>
+                    </Box>
+                  ))}
+                </Stack>
+              )}
+
               {delegates.length && (
                 <Flex sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text as="p" sx={{ color: 'onSecondary' }}>
@@ -369,27 +400,24 @@ const Delegates = ({
           </Box>
 
           <Stack gap={3}>
-            <Box>
-              <Heading mt={3} mb={2} as="h3" variant="microHeading">
-                Delegate Contracts
-              </Heading>
-              <Card variant="compact">
-                <Text as="p" sx={{ mb: 3, color: 'textSecondary' }}>
-                  {voteDelegateContractAddress
-                    ? 'Looking for delegate contract information?'
-                    : 'Interested in creating a delegate contract?'}
-                </Text>
-                <Box>
-                  <InternalLink
-                    href={'/account'}
-                    title="My account"
-                    // TODO: onClick={() => trackButtonClick('viewAccount')}
-                  >
-                    <Text color="accentBlue">View Account Page</Text>
-                  </InternalLink>
-                </Box>
-              </Card>
-            </Box>
+            {/* only show this if the user has a vote delegate contract address */}
+            {voteDelegateContractAddress && (
+              <Box>
+                <Heading mt={3} mb={2} as="h3" variant="microHeading">
+                  Delegate Contracts
+                </Heading>
+                <Card variant="compact">
+                  <Text as="p" sx={{ mb: 3, color: 'textSecondary' }}>
+                    Looking for delegate contract information?
+                  </Text>
+                  <Box>
+                    <InternalLink href={'/account'} title="My account">
+                      <Text color="accentBlue">View Account Page</Text>
+                    </InternalLink>
+                  </Box>
+                </Card>
+              </Box>
+            )}
             <ResourceBox type={'delegates'} />
             {stats && (
               <ErrorBoundary componentName="Delegates System Info">
@@ -452,7 +480,7 @@ export default function DelegatesPage({
           total: 0,
           shadow: 0,
           aligned: 0,
-          totalSkyDelegated: '0',
+          totalMKRDelegated: '0',
           totalDelegators: 0
         },
     paginationInfo: isDefaultNetwork(network)
@@ -493,41 +521,11 @@ export const getStaticProps: GetStaticProps = async () => {
     { seed }
   );
 
-  // Convert Date objects to ISO strings with validation
-  const serializedDelegates = delegates.map(delegate => {
-    // Create a new object with all properties from delegate
-    const serialized = { ...delegate };
-
-    // Handle creationDate
-    if (serialized.creationDate instanceof Date) {
-      try {
-        // Test if the date is valid
-        serialized.creationDate.toISOString();
-      } catch (e) {
-        // If invalid date, use current date
-        serialized.creationDate = new Date();
-      }
-    }
-
-    // Handle lastVoteDate
-    if (serialized.lastVoteDate instanceof Date) {
-      try {
-        // Test if the date is valid
-        serialized.lastVoteDate.toISOString();
-      } catch (e) {
-        // If invalid date, set to undefined
-        serialized.lastVoteDate = undefined;
-      }
-    }
-
-    return serialized;
-  });
-
   return {
     revalidate: 60 * 30, // allow revalidation every 30 minutes
     props: {
       // Shuffle in the backend, this will be changed depending on the sorting order.
-      delegates: serializedDelegates,
+      delegates,
       stats,
       paginationInfo,
       seed

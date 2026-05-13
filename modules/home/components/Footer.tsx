@@ -59,7 +59,7 @@ export default function Footer(): React.ReactElement {
       header: 'Participate',
       list: [
         {
-          url: 'https://forum.sky.money/',
+          url: 'https://forum.makerdao.com/',
           title: 'Community'
         }
       ]
@@ -124,8 +124,17 @@ export default function Footer(): React.ReactElement {
           zIndex: -1,
           position: 'absolute',
           transform: 'translateX(-50%)',
-          bg: 'surface',
-          backdropFilter: 'blur(64px)'
+          backgroundImage:
+            renderedMode === 'dark'
+              ? bpi <= 2
+                ? 'url(/assets/bg_dark_medium.jpeg)'
+                : 'url(/assets/bg_footer_dark.jpeg)'
+              : bpi <= 2
+              ? 'url(/assets/bg_medium.jpeg)'
+              : 'url(/assets/bg_footer_light.jpeg)',
+          backgroundSize: ['1500px', '1500px', '1500px', '100% 600px', '100% 400px'],
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: ['-750px 100%', '-750px 100%', '-750px 100%', 'bottom', 'bottom']
         }}
       />
       <Flex

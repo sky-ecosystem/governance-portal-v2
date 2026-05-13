@@ -18,11 +18,12 @@ import { TxStatus } from 'modules/web3/constants/transaction';
 import { useAccount } from 'modules/app/hooks/useAccount';
 import { useVotedProposals } from 'modules/executive/hooks/useVotedProposals';
 import { useAllSlates } from 'modules/executive/hooks/useAllSlates';
-import { useSkyOnHat } from 'modules/executive/hooks/useSkyOnHat';
+import { useMkrOnHat } from 'modules/executive/hooks/useMkrOnHat';
 import { useHat } from 'modules/executive/hooks/useHat';
 import { sortBytesArray } from 'lib/utils';
 import { encodeAbiParameters, keccak256 } from 'viem';
 import { useDelegateVote } from 'modules/executive/hooks/useDelegateVote';
+import { useVoteProxyVote } from 'modules/executive/hooks/useVoteProxyVote';
 import { useChiefVote } from 'modules/executive/hooks/useChiefVote';
 
 type Props = {
@@ -35,7 +36,7 @@ const VoteModal = ({ close, proposal, address }: Props): JSX.Element => {
   const [txStatus, setTxStatus] = useState<TxStatus>(TxStatus.IDLE);
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
 
-  const { voteDelegateContractAddress } = useAccount();
+  const { voteProxyContractAddress, voteDelegateContractAddress } = useAccount();
 
   const spellAddress = proposal ? proposal.address : address ? address : '';
 
@@ -43,7 +44,7 @@ const VoteModal = ({ close, proposal, address }: Props): JSX.Element => {
   const { data: currentSlate, mutate: mutateVotedProposals } = useVotedProposals();
 
   const { data: allSlates } = useAllSlates();
-  const { mutate: mutateSkyOnHat } = useSkyOnHat();
+  const { mutate: mutateMkrOnHat } = useMkrOnHat();
 
   const { data: hat } = useHat();
 
@@ -68,7 +69,7 @@ const VoteModal = ({ close, proposal, address }: Props): JSX.Element => {
     },
     onSuccess: (hash: `0x${string}`) => {
       mutateVotedProposals();
-      mutateSkyOnHat();
+      mutateMkrOnHat();
       setTxStatus(TxStatus.SUCCESS);
       setTxHash(hash);
     },
@@ -81,15 +82,21 @@ const VoteModal = ({ close, proposal, address }: Props): JSX.Element => {
     ...voteHookParams,
     enabled: !!voteDelegateContractAddress
   });
+  const proxyVote = useVoteProxyVote({
+    ...voteHookParams,
+    enabled: !!voteProxyContractAddress
+  });
   const chiefVote = useChiefVote({
     ...voteHookParams,
-    enabled: !voteDelegateContractAddress
+    enabled: !voteDelegateContractAddress && !voteProxyContractAddress
   });
 
   const vote = () => {
     setTxStatus(TxStatus.INITIALIZED);
     if (voteDelegateContractAddress) {
       delegateVote.execute();
+    } else if (voteProxyContractAddress) {
+      proxyVote.execute();
     } else {
       chiefVote.execute();
     }
@@ -97,6 +104,8 @@ const VoteModal = ({ close, proposal, address }: Props): JSX.Element => {
 
   const voteDisabled = voteDelegateContractAddress
     ? delegateVote.isLoading || !delegateVote.prepared
+    : voteProxyContractAddress
+    ? proxyVote.isLoading || !proxyVote.prepared
     : chiefVote.isLoading || !chiefVote.prepared;
 
   return (

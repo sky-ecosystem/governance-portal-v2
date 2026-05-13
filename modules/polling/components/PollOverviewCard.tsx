@@ -18,7 +18,6 @@ import CountdownTimer from 'modules/app/components/CountdownTimer';
 import { InternalLink } from 'modules/app/components/InternalLink';
 import { PollListItem } from 'modules/polling/types';
 import { useBreakpointIndex } from '@theme-ui/match-media';
-import QuickVote from './poll-vote-input/QuickVote';
 import { PollCategoryTag } from './PollCategoryTag';
 import { PluralityVoteSummary } from './vote-summary/PluralityVoteSummary';
 import PollWinningOptionBox from './PollWinningOptionBox';
@@ -45,6 +44,7 @@ type Props = {
   hideTally?: boolean;
   disableTagFilter?: boolean;
   onVisitPoll?: () => void;
+  basePath?: string; // Allow customizing the base path for legacy polls
 };
 const PollOverviewCard = memo(
   function PollOverviewCard({
@@ -56,14 +56,14 @@ const PollOverviewCard = memo(
     children,
     onVisitPoll,
     hideTally = false,
-    disableTagFilter = false
+    disableTagFilter = false,
+    basePath = '/polling'
   }: Props): JSX.Element {
     const { account } = useAccount();
     const bpi = useBreakpointIndex({ defaultIndex: 2 });
     const canVote = !!account && isActivePoll(poll);
-    const showQuickVote = canVote && showVoting;
+    // const showQuickVote = canVote && showVoting;
     const { tally, error: errorTally, isValidating } = usePollTally(hideTally ? 0 : poll.pollId);
-    const pollEndDate = new Date(poll.endDate);
 
     return (
       <Card
@@ -104,7 +104,7 @@ const PollOverviewCard = memo(
                   <Box>
                     {bpi === 0 && (
                       <Box sx={{ justifyContent: 'space-between', flexDirection: 'row', flexWrap: 'nowrap' }}>
-                        <CountdownTimer endText="Poll ended" endDate={pollEndDate} />
+                        <CountdownTimer endText="Poll ended" endDate={poll.endDate} />
                       </Box>
                     )}
                     <Box>
@@ -138,13 +138,13 @@ const PollOverviewCard = memo(
                     <Flex mt={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
                       <Box>
                         <ErrorBoundary componentName="Countdown Timer">
-                          <CountdownTimer endText="Poll ended" endDate={pollEndDate} />
+                          <CountdownTimer endText="Poll ended" endDate={poll.endDate} />
                         </ErrorBoundary>
                       </Box>
                     </Flex>
                   )}
                 </Flex>
-                {showQuickVote && bpi > 0 && (
+                {/* {showQuickVote && bpi > 0 && (
                   <Box sx={{ ml: 2, minWidth: '265px' }}>
                     <ErrorBoundary componentName="Vote in Poll">
                       <Box sx={{ maxWidth: 7 }}>
@@ -152,7 +152,7 @@ const PollOverviewCard = memo(
                       </Box>
                     </ErrorBoundary>
                   </Box>
-                )}
+                )} */}
               </Flex>
 
               <Box>
@@ -187,13 +187,13 @@ const PollOverviewCard = memo(
                     {bpi === 0 && <PollVoteTypeIndicator poll={poll} />}
                   </Flex>
 
-                  {showQuickVote && bpi === 0 && (
+                  {/* {showQuickVote && bpi === 0 && (
                     <Box sx={{ mt: 3, width: '100%' }}>
                       <ErrorBoundary componentName="Vote in Poll">
                         <QuickVote poll={poll} showStatus={!reviewPage} disabled={disableVoting} />
                       </ErrorBoundary>
                     </Box>
-                  )}
+                  )} */}
 
                   <Box sx={{ width: bpi > 0 ? '265px' : '100%' }}>
                     {bpi > 0 && (
@@ -201,9 +201,9 @@ const PollOverviewCard = memo(
                         <PollVoteTypeIndicator poll={poll} />
                       </Flex>
                     )}
-                    {tally && +tally.totalSkyParticipation > 0 && (
+                    {tally && +tally.totalMkrParticipation > 0 && (
                       <InternalLink
-                        href={`/polling/${poll.slug}`}
+                        href={`${basePath}/${poll.slug}`}
                         hash="vote-breakdown"
                         title="View poll vote breakdown"
                       >

@@ -8,12 +8,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import { fetchDelegatedTo } from 'modules/delegates/api/fetchDelegatedTo';
-import { DelegationHistory } from 'modules/delegates/types';
+import { DelegationHistoryWithExpirationDate } from 'modules/delegates/types';
 import withApiHandler from 'modules/app/api/withApiHandler';
 import { DEFAULT_NETWORK, SupportedNetworks } from 'modules/web3/constants/networks';
+import { networkNameToChainId } from 'modules/web3/helpers/chain';
+import { getVoteProxyAddresses } from 'modules/app/helpers/getVoteProxyAddresses';
 import { ApiError } from 'modules/app/api/ApiError';
 import validateQueryParam from 'modules/app/api/validateQueryParam';
 import { validateAddress } from 'modules/web3/api/validateAddress';
+import { voteProxyFactoryAbi, voteProxyFactoryAddress } from 'modules/contracts/generated';
 import { formatEther } from 'viem';
 /**
  * @swagger
@@ -21,8 +24,8 @@ import { formatEther } from 'viem';
  *   get:
  *     tags:
  *       - "delegates"
- *     summary: Get information about the current delegate to SKY
- *     description: Get information about the current delegate to SKY
+ *     summary: Get information about the current delegate to MKR
+ *     description: Get information about the current delegate to MKR
  *     parameters:
  *       - name: address
  *         in: query
@@ -37,7 +40,7 @@ import { formatEther } from 'viem';
  *         required: false
  *         schema:
  *           type: string
- *           enum: [mainnet, tenderly]
+ *           enum: [mainnet]
  *           default: mainnet
  *     responses:
  *       200:
@@ -52,46 +55,36 @@ import { formatEther } from 'viem';
  *                   items:
  *                     type: object
  *                     properties:
- *                       address:
- *                         type: string
- *                         description: The address of the delegate
- *                         format: address
  *                       lockAmount:
  *                         type: number
- *                         description: The total amount of SKY delegated to this delegate by the queried address
  *                         format: float
- *                       events:
- *                         type: array
- *                         description: History of delegation events for this delegate from the queried address
- *                         items:
- *                           type: object
- *                           properties:
- *                             lockAmount:
- *                               type: string
- *                               description: The amount of SKY locked in this event
- *                             blockTimestamp:
- *                               type: string
- *                               description: Timestamp of the block in which the event occurred
- *                               format: date-time # Assuming it's an ISO string from new Date().toISOString()
- *                             hash:
- *                               type: string
- *                               description: Transaction hash of the delegation event
- *                             isStakingEngine:
- *                               type: boolean
- *                               description: Whether this event was a lockstake event
- *                               nullable: true
+ *                       owner:
+ *                         type: string
+ *                         format: address
+ *                       delegate:
+ *                         type: string
+ *                         format: address
+ *                       expirationDate:
+ *                         type: string
+ *                         format: date-time
+ *                       isAboutToExpire:
+ *                         type: boolean
+ *                       isExpired:
+ *                         type: boolean
+ *                       isRenewed:
+ *                         type: boolean
  *                 totalDelegated:
  *                   type: number
  *                   format: float
  *
  */
 
-export type SKYDelegatedToAPIResponse = {
-  delegatedTo: DelegationHistory[];
+export type MKRDelegatedToAPIResponse = {
+  delegatedTo: DelegationHistoryWithExpirationDate[];
   totalDelegated: number;
 };
 export default withApiHandler(
-  async (req: NextApiRequest, res: NextApiResponse<SKYDelegatedToAPIResponse>) => {
+  async (req: NextApiRequest, res: NextApiResponse<MKRDelegatedToAPIResponse>) => {
     // validate network
     const network = validateQueryParam(
       (req.query.network as SupportedNetworks) || DEFAULT_NETWORK.network,
@@ -109,8 +102,28 @@ export default withApiHandler(
       req.query.address as string,
       new ApiError('Invalid address', 400, 'Invalid address')
     );
+    const chainId = networkNameToChainId(network);
 
-    const delegatedTo = await fetchDelegatedTo(address, network);
+    const proxyInfo = await getVoteProxyAddresses(
+      voteProxyFactoryAddress[chainId],
+      voteProxyFactoryAbi,
+      address,
+      network
+    );
+
+    // if hasProxy, we need to combine the delegation history of hot, cold, proxy
+    let delegatedTo: DelegationHistoryWithExpirationDate[];
+
+    if (proxyInfo.hasProxy && proxyInfo.coldAddress && proxyInfo.hotAddress && proxyInfo.voteProxyAddress) {
+      const [coldHistory, hotHistory, proxyHistory] = await Promise.all([
+        fetchDelegatedTo(proxyInfo.coldAddress, network),
+        fetchDelegatedTo(proxyInfo.hotAddress, network),
+        fetchDelegatedTo(proxyInfo.voteProxyAddress, network)
+      ]);
+      delegatedTo = coldHistory.concat(hotHistory).concat(proxyHistory);
+    } else {
+      delegatedTo = await fetchDelegatedTo(address, network);
+    }
 
     // filter out duplicate txs for the same address
     const txHashes = {};

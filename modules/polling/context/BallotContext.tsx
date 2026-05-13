@@ -56,6 +56,7 @@ import {
 } from 'modules/contracts/generated';
 import { getGaslessPublicClient } from 'modules/web3/helpers/getPublicClient';
 import { SupportedChainId } from 'modules/web3/constants/chainID';
+import { config } from 'lib/config';
 
 interface ContextProps {
   ballot: Ballot;
@@ -300,7 +301,7 @@ export const BallotProvider = ({ children }: PropTypes): React.ReactElement => {
     functionName: 'votePoll',
     args: [pollIds, optionIds],
     chainId,
-    enabled: !!voteDelegateContractAddress,
+    enabled: !!voteDelegateContractAddress && !config.READ_ONLY,
     onStart: (txHash: string) => {
       onPendingHandler(txHash);
     },
@@ -318,7 +319,7 @@ export const BallotProvider = ({ children }: PropTypes): React.ReactElement => {
     functionName: 'vote',
     args: [pollIds, optionIds],
     chainId,
-    enabled: !voteDelegateContractAddress,
+    enabled: !voteDelegateContractAddress && !config.READ_ONLY,
     onStart: (txHash: string) => {
       onPendingHandler(txHash);
     },

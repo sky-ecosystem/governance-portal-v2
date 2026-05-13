@@ -1,0 +1,12 @@
+overwrite: true
+schema: 'https://polling-db-prod.makerdao.com/api/v1'
+# documents: 'src/**/*.graphql'
+generates:
+  modules/gql/generated/graphql.tsx:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'urql-introspection'
+  ./graphql.schema.json:
+    plugins:
+      - 'introspection'

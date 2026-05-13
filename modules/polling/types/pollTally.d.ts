@@ -10,7 +10,7 @@ import { PollParameters } from './poll';
 
 export type SpockVote = {
   optionIdRaw: number;
-  skySupport: number;
+  mkrSupport: number;
   voter: string;
   chainId: number;
   blockTimestamp: number;
@@ -21,14 +21,15 @@ export type PollTallyVote = {
   pollId: number;
   voter: string;
   ballot: number[];
-  skySupport: number | string;
+  mkrSupport: number | string;
   chainId: number;
   blockTimestamp: number;
   hash: string;
+  optionIdRaw: string | number;
 };
 
 export type PollTallyOption = {
-  skySupport: number | string;
+  mkrSupport: number | string;
   optionId: number;
   optionName: string;
   winner: boolean;
@@ -43,8 +44,8 @@ export type PollTally = {
   winner: number | null;
   numVoters: number;
   results: PollTallyOption[];
-  totalSkyParticipation: number | string;
-  totalSkyActiveParticipation: number | string;
+  totalMkrParticipation: number | string;
+  totalMkrActiveParticipation: number | string;
   winningOptionName: string;
   victoryConditionMatched: number | null;
   votesByAddress?: PollTallyVote[];

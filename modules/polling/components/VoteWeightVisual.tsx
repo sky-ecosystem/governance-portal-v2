@@ -67,7 +67,7 @@ export const CirclesSvg = ({ poll, tally, diameter }: CircleProps): JSX.Element 
     const bubble = pack().size([diameter, diameter]).padding(1);
 
     const nodes = hierarchy(data).sum(function (d) {
-      return d.skySupport;
+      return d.mkrSupport;
     });
 
     const node = svgElement

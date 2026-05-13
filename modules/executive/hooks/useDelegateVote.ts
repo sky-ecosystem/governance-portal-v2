@@ -11,6 +11,7 @@ import { useChainId } from 'wagmi';
 import { voteDelegateAbi } from 'modules/contracts/ethers/abis';
 import { WriteHook, WriteHookParams } from 'modules/web3/types/hooks';
 import { useWriteContractFlow } from 'modules/web3/hooks/useWriteContractFlow';
+import { config } from 'lib/config';
 
 export const useDelegateVote = ({
   slateOrProposals,
@@ -31,7 +32,7 @@ export const useDelegateVote = ({
     functionName: 'vote',
     args: [slateOrProposals],
     chainId,
-    enabled: paramEnabled,
+    enabled: paramEnabled && !config.READ_ONLY,
     gas,
     onSuccess,
     onError,

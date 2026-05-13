@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { SkyUpgradeToastContent } from '../components/SkyUpgradeToastContent';
+import { MkrUpgradeToastContent } from '../components/MkrUpgradeToastContent';
 import { useBreakpointIndex } from '@theme-ui/match-media';
 
 export function useMigrationToast(): void {
@@ -16,15 +16,14 @@ export function useMigrationToast(): void {
     if (!isClient) return;
 
     // Check if the toast has already been shown in this session
-    const toastShown = localStorage.getItem('skyUpgradeToastShown');
+    const toastShown = sessionStorage.getItem('mkrUpgradeToastShown');
 
     if (!toastShown) {
-      toast(<SkyUpgradeToastContent />, {
-        ariaLabel: 'Sky Governance Migration Notice',
+      toast(<MkrUpgradeToastContent />, {
         autoClose: false,
         closeOnClick: false,
         draggable: false,
-        toastId: 'sky-upgrade-banner-toast',
+        toastId: 'mkr-upgrade-banner-toast',
         progressClassName: 'progress-bar',
         style: {
           background: 'rgba(255, 255, 255, 0.6)',
@@ -38,7 +37,7 @@ export function useMigrationToast(): void {
       });
 
       // Mark the toast as shown for this session
-      localStorage.setItem('skyUpgradeToastShown', 'true');
+      sessionStorage.setItem('mkrUpgradeToastShown', 'true');
     }
   }, [isClient]);
 }

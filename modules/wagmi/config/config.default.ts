@@ -1,10 +1,12 @@
 import { createConfig, createStorage, http, noopStorage } from 'wagmi';
 import { arbitrum, arbitrumSepolia, mainnet } from 'wagmi/chains';
 import { SupportedChainId } from 'modules/web3/constants/chainID';
-import { coinbaseWallet, metaMask, safe, walletConnect } from 'wagmi/connectors';
+import { coinbaseWallet, metaMask, safe, walletConnect, injected } from 'wagmi/connectors';
 import { createPublicClient } from 'viem';
+import { createProxyTransport } from './proxyTransport';
 
-const tenderlyRpcUrl = `https://virtual.mainnet.rpc.tenderly.co/${process.env.NEXT_PUBLIC_TENDERLY_RPC_KEY}`;
+const RPC_TENDERLY = `https://virtual.mainnet.rpc.tenderly.co/${process.env.NEXT_PUBLIC_TENDERLY_RPC_KEY}`;
+const RPC_ARBITRUM_TESTNET = process.env.NEXT_PUBLIC_RPC_ARBITRUM_TESTNET || '';
 
 export const tenderly = {
   id: SupportedChainId.TENDERLY as const,
@@ -17,8 +19,8 @@ export const tenderly = {
     symbol: 'ETH'
   },
   rpcUrls: {
-    public: { http: [tenderlyRpcUrl] },
-    default: { http: [tenderlyRpcUrl] }
+    public: { http: [RPC_TENDERLY] },
+    default: { http: [RPC_TENDERLY] }
   },
   blockExplorers: {
     default: { name: '', url: '' }
@@ -32,14 +34,10 @@ const httpBatchTransport = (url: string) =>
   });
 
 const transports = {
-  [mainnet.id]: httpBatchTransport(`https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`),
-  [tenderly.id]: httpBatchTransport(tenderlyRpcUrl),
-  [arbitrum.id]: httpBatchTransport(
-    `https://arb-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ARBITRUM_KEY}`
-  ),
-  [arbitrumSepolia.id]: httpBatchTransport(
-    `https://arb-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ARBITRUM_TESTNET_KEY}`
-  )
+  [mainnet.id]: createProxyTransport(mainnet.id),
+  [tenderly.id]: httpBatchTransport(RPC_TENDERLY),
+  [arbitrum.id]: createProxyTransport(arbitrum.id),
+  [arbitrumSepolia.id]: httpBatchTransport(RPC_ARBITRUM_TESTNET)
 };
 
 const connectors = [
@@ -53,14 +51,12 @@ const connectors = [
 ];
 
 export const wagmiConfigDev = createConfig({
-  chains: [mainnet, tenderly, arbitrum, arbitrumSepolia],
+  chains: [mainnet, tenderly],
   ssr: true,
   connectors,
   transports: {
     [mainnet.id]: transports[mainnet.id],
-    [tenderly.id]: transports[tenderly.id],
-    [arbitrum.id]: transports[arbitrum.id],
-    [arbitrumSepolia.id]: transports[arbitrumSepolia.id]
+    [tenderly.id]: transports[tenderly.id]
   },
   multiInjectedProviderDiscovery: true,
   storage: createStorage({
@@ -70,12 +66,11 @@ export const wagmiConfigDev = createConfig({
 });
 
 export const wagmiConfigProd = createConfig({
-  chains: [mainnet, arbitrum],
+  chains: [mainnet],
   ssr: true,
   connectors,
   transports: {
-    [mainnet.id]: transports[mainnet.id],
-    [arbitrum.id]: transports[arbitrum.id]
+    [mainnet.id]: transports[mainnet.id]
   },
   multiInjectedProviderDiscovery: true
 });

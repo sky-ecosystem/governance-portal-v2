@@ -80,12 +80,13 @@ const CollapsableRow = ({ delegator, network, bpi, totalDelegated }: Collapsable
       </Flex>
       <Box as="td" sx={{ verticalAlign: 'top', pt: 2 }}>
         <Text sx={{ fontSize: [1, 3] }}>
-          {/*TODO why does the lock amount have decimal places? They all end in .0 */}
-          {`${formatValue(parseEther(lockAmount), 'wad')}${bpi > 0 ? ' SKY' : ''}`}
+          {parseEther(lockAmount) > 0 && parseEther(lockAmount) < 1
+            ? `${formatValue(parseEther(lockAmount), 'wad')}${bpi > 0 ? ' MKR' : ''}`
+            : `${formatValue(parseEther(lockAmount), 'wad', 3)}${bpi > 0 ? ' MKR' : ''}`}
         </Text>
         {expanded && (
           <Flex sx={{ flexDirection: 'column' }}>
-            {sortedEvents.map(({ blockTimestamp, lockAmount, isStakingEngine }) => {
+            {sortedEvents.map(({ blockTimestamp, lockAmount, isLockstake }) => {
               return (
                 <Flex
                   key={blockTimestamp}
@@ -104,10 +105,10 @@ const CollapsableRow = ({ delegator, network, bpi, totalDelegated }: Collapsable
                     {`${formatValue(
                       parseEther(lockAmount.indexOf('-') === 0 ? lockAmount.substring(1) : lockAmount),
                       'wad'
-                    )}${bpi > 0 ? ' SKY' : ''}`}
+                    )}${bpi > 0 ? ' MKR' : ''}`}
                   </Text>
                   <Text key={blockTimestamp} variant="smallCaps" sx={{ pl: 2 }}>
-                    {isStakingEngine ? '(Staking)' : ''}
+                    {isLockstake ? '(Seal)' : ''}
                   </Text>
                 </Flex>
               );
@@ -175,7 +176,7 @@ const DelegatedByAddress = ({ delegators, totalDelegated }: DelegatedByAddressPr
   const network = useNetwork();
 
   const [sortBy, setSortBy] = useState({
-    type: 'sky',
+    type: 'mkr',
     order: 1
   });
 
@@ -195,11 +196,11 @@ const DelegatedByAddress = ({ delegators, totalDelegated }: DelegatedByAddressPr
 
   const sortedDelegators = useMemo(() => {
     switch (sortBy.type) {
-      case 'sky':
+      case 'mkr':
         return delegators?.sort((a, b) => {
-          const aSKY = parseEther(a.lockAmount);
-          const bSKY = parseEther(b.lockAmount);
-          return sortBy.order === 1 ? (aSKY > bSKY ? -1 : 1) : aSKY > bSKY ? 1 : -1;
+          const aMKR = parseEther(a.lockAmount);
+          const bMKR = parseEther(b.lockAmount);
+          return sortBy.order === 1 ? (aMKR > bMKR ? -1 : 1) : aMKR > bMKR ? 1 : -1;
         });
       case 'address':
         return delegators?.sort((a, b) =>
@@ -225,7 +226,7 @@ const DelegatedByAddress = ({ delegators, totalDelegated }: DelegatedByAddressPr
           Delegators
         </Text>
         <Text as="p" variant="secondary" color="onSurface">
-          Addresses that have delegated SKY to this delegate
+          Addresses that have delegated MKR to this delegate
         </Text>
       </Box>
       <table
@@ -257,10 +258,10 @@ const DelegatedByAddress = ({ delegators, totalDelegated }: DelegatedByAddressPr
               as="th"
               sx={{ cursor: 'pointer', textAlign: 'left', pb: 2, width: '30%' }}
               variant="caps"
-              onClick={() => changeSort('sky')}
+              onClick={() => changeSort('mkr')}
             >
-              {bpi < 1 ? 'SKY' : 'SKY Delegated'}
-              {sortBy.type === 'sky' ? (
+              {bpi < 1 ? 'MKR' : 'MKR Delegated'}
+              {sortBy.type === 'mkr' ? (
                 sortBy.order === 1 ? (
                   <Icon name="chevron_down" size={2} sx={{ ml: 1 }} />
                 ) : (
@@ -270,15 +271,15 @@ const DelegatedByAddress = ({ delegators, totalDelegated }: DelegatedByAddressPr
                 ''
               )}
             </Text>
-            <Tooltip label={'This is the percentage of the total SKY delegated to this delegate.'}>
+            <Tooltip label={'This is the percentage of the total MKR delegated to this delegate.'}>
               <Text
                 as="th"
                 sx={{ cursor: 'pointer', textAlign: 'left', pb: 2, width: '20%' }}
                 variant="caps"
-                onClick={() => changeSort('sky')}
+                onClick={() => changeSort('mkr')}
               >
                 {bpi < 1 ? '%' : 'Voting Weight'}
-                {sortBy.type === 'sky' ? (
+                {sortBy.type === 'mkr' ? (
                   sortBy.order === 1 ? (
                     <Icon name="chevron_down" size={2} sx={{ ml: 1 }} />
                   ) : (

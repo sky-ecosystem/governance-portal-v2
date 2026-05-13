@@ -33,35 +33,36 @@ export function extractSatisfiesComparison(
   comparator: string,
   value: number
 ): number[] {
-  // Group votes by SKY support, remember that each vote has a ballot with possible many multiple options
+  // Group votes by MKR support, remember that each vote has a ballot with possible many multiple options
   const votes: { [key: number]: bigint } = {};
 
   currentVotes.forEach(vote => {
     vote.ballot.forEach(votedOption => {
       if (votes[votedOption]) {
-        votes[votedOption] = votes[votedOption] + parseEther(vote.skySupport.toString());
+        votes[votedOption] = votes[votedOption] + parseEther(vote.mkrSupport.toString());
       } else {
-        votes[votedOption] = parseEther(vote.skySupport.toString());
+        votes[votedOption] = parseEther(vote.mkrSupport.toString());
       }
     });
   });
 
-  // Sort options by SKY support
+  // Sort options by MKR support
   const sortedOptions = Object.keys(votes)
     .map(option => {
       return {
         option: parseInt(option),
-        skySupport: votes[parseInt(option)]
+        mkrSupport: votes[parseInt(option)]
       };
     })
     .sort((prev, next) => {
-      return prev.skySupport > next.skySupport ? -1 : 1;
+      return prev.mkrSupport > next.mkrSupport ? -1 : 1;
     });
 
   // Extract the first option that passes the comparator.
+
   const satisfies = sortedOptions
     .filter(vote => {
-      return passComparator(vote.skySupport, comparator, value);
+      return passComparator(vote.mkrSupport, comparator, value);
     })
     .map(v => v.option);
 

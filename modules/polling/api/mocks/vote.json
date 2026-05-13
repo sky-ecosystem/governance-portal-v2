@@ -3,7 +3,7 @@
   "option": 1,
   "blockTimestamp": 13217846,
   "ballot": [1],
-  "skySupport": 10,
+  "mkrSupport": 10,
   "chainId": 1,
   "hash": "QmbGPgxoAZeweVhmVGp2mQ4P4fa8hPbZN8ors9yZr9s4PR",
   "voter": "0x123123",

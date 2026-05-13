@@ -11,32 +11,23 @@ import { SupportedNetworks } from 'modules/web3/constants/networks';
 export type RepositoryInfo = {
   owner: string;
   repo: string;
-  branch: string;
+  page: string;
 };
 
 export function getDelegatesRepositoryInformation(network: SupportedNetworks): RepositoryInfo {
   const repoMainnet = {
-    owner: process.env.NEXT_PUBLIC_VERCEL_ENV === 'development' ? 'jetstreamgg' : 'makerdao',
-    repo: 'delegates',
-    branch: 'main'
+    owner: 'sky-ecosystem',
+    repo: 'community',
+    page: 'governance/delegates'
   };
 
   const repoTest = {
-    owner: 'jetstreamgg',
-    repo: 'delegates',
-    branch: 'testnet'
+    owner: 'sky-ecosystem',
+    repo: 'voting-delegates',
+    page: 'delegates'
   };
 
-  const delegatesRepositoryInfo = network === SupportedNetworks.MAINNET ? repoMainnet : repoTest;
+  const delegatesRepositoryInfo =
+    network === SupportedNetworks.MAINNET || SupportedNetworks.TENDERLY ? repoMainnet : repoTest;
   return delegatesRepositoryInfo;
-}
-
-export function getDelegatesIndexFileUrl(network: SupportedNetworks) {
-  const { owner, repo, branch } = getDelegatesRepositoryInformation(network);
-  return `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${branch}/index.json`;
-}
-
-export function getMetadataRepoBaseUrl(network: SupportedNetworks) {
-  const { owner, repo, branch } = getDelegatesRepositoryInformation(network);
-  return `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${branch}`;
 }

@@ -81,7 +81,6 @@ export const SearchBar = ({
           maxWidth: 250,
           borderRadius: 'round',
           px: 3,
-          bg: 'surface',
           borderColor: hasSearchTerm ? 'primary' : 'auto',
           '&:focus': {
             borderColor: hasSearchTerm ? 'primary' : 'auto'

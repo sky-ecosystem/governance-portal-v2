@@ -19,7 +19,7 @@ type props = {
 export default function ChooseFreeSelect({ poll, choice, setChoice }: props): React.ReactElement {
   const selectOption = (index: number) => {
     // Check if is abstain
-    const isAbstain = (poll?.parameters?.inputFormat?.abstain || [0]).indexOf(index) !== -1;
+    const isAbstain = poll.parameters.inputFormat.abstain.indexOf(index) !== -1;
 
     if (isAbstain) {
       setChoice([index]);
@@ -44,7 +44,7 @@ export default function ChooseFreeSelect({ poll, choice, setChoice }: props): Re
     // Add new selected option, but first remove exclusive and abstain
     const newChoices = choice
       ? choice.filter(c => {
-          const isAbstain = (poll?.parameters?.inputFormat?.abstain || [0]).indexOf(c) !== -1;
+          const isAbstain = poll.parameters.inputFormat.abstain.indexOf(c) !== -1;
           const isExclusive =
             poll.parameters.inputFormat.options.length > 0 &&
             poll.parameters.inputFormat.options.indexOf(c) === -1;

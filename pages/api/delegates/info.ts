@@ -47,45 +47,55 @@ import validateQueryParam from 'modules/app/api/validateQueryParam';
  *        type: string
  *      picture:
  *        type: string
- *        nullable: true
  *      address:
  *        type: string
- *        description: The delegate's contract address
  *      voteDelegateAddress:
  *        type: string
- *        description: The address the delegate uses for voting
  *      status:
  *        type: string
  *        enum:
  *          - aligned
+ *          - expired
  *          - shadow
+ *      cuMember:
+ *        type: boolean
  *      pollParticipation:
  *        type: string
- *        nullable: true
  *      executiveParticipation:
  *        type: string
- *        nullable: true
  *      combinedParticipation:
  *        type: string
- *        nullable: true
  *      communication:
  *        type: string
- *        nullable: true
  *      blockTimestamp:
  *        type: string
  *        format: date-time
- *        description: The timestamp when the delegate was last updated or created
- *      tags:
- *        type: array
- *        items:
- *          type: string
- *        nullable: true
+ *      expirationDate:
+ *        type: string
+ *        format: date-time
+ *      expired:
+ *        type: boolean
+ *      isAboutToExpire:
+ *        type: boolean
+ *      previous:
+ *        type: object
+ *        properties:
+ *          address:
+ *            type: string
+ *      next:
+ *        type: object
+ *        properties:
+ *          address:
+ *            type: string
  *    required:
  *      - name
  *      - address
  *      - voteDelegateAddress
  *      - status
  *      - blockTimestamp
+ *      - expirationDate
+ *      - expired
+ *      - isAboutToExpire
  */
 
 export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse<DelegateInfo[]>) => {
@@ -94,7 +104,7 @@ export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse<D
     validValues: [SupportedNetworks.TENDERLY, SupportedNetworks.MAINNET]
   }) as SupportedNetworks;
 
-  const delegates = await fetchDelegatesInfo(network, true);
+  const delegates = await fetchDelegatesInfo(network, false);
   res.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate');
   res.status(200).json(delegates);
 });

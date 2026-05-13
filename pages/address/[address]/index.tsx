@@ -26,7 +26,7 @@ import ManageDelegation from 'modules/delegates/components/ManageDelegation';
 import useSWR, { useSWRConfig } from 'swr';
 import { ErrorBoundary } from 'modules/app/components/ErrorBoundary';
 import { InternalLink } from 'modules/app/components/InternalLink';
-import { DelegatesApiStats, DelegatesPaginatedAPIResponse } from 'modules/delegates/types';
+import { DelegatesAPIStats, DelegatesPaginatedAPIResponse } from 'modules/delegates/types';
 import { useNetwork } from 'modules/app/hooks/useNetwork';
 
 const AddressView = ({
@@ -34,7 +34,7 @@ const AddressView = ({
   delegationStats
 }: {
   addressInfo: AddressApiResponse;
-  delegationStats: DelegatesApiStats | undefined;
+  delegationStats: DelegatesAPIStats | undefined;
 }) => {
   const bpi = useBreakpointIndex({ defaultIndex: 2 });
 
@@ -46,7 +46,7 @@ const AddressView = ({
         } Information`}
         description={`See all the voting activity of ${
           addressInfo.delegateInfo?.name || addressInfo.address
-        } in Sky Governance. `}
+        } in Maker Governance. `}
         image={addressInfo.delegateInfo?.picture}
       />
 
@@ -81,7 +81,7 @@ const AddressView = ({
         </Stack>
         <Stack gap={3}>
           {addressInfo.isDelegate && addressInfo.delegateInfo && (
-            <ErrorBoundary componentName="Delegate SKY">
+            <ErrorBoundary componentName="Delegate MKR">
               <ManageDelegation delegate={addressInfo.delegateInfo} />
             </ErrorBoundary>
           )}
@@ -93,10 +93,11 @@ const AddressView = ({
             <ErrorBoundary componentName="System Info">
               <SystemStatsSidebar
                 fields={[
-                  'mainnet polling contract',
+                  'polling contract v2',
+                  'polling contract v1',
                   'arbitrum polling contract',
                   'savings rate',
-                  'total usds',
+                  'total dai',
                   'debt ceiling',
                   'system surplus'
                 ]}
@@ -124,7 +125,7 @@ export default function AddressPage(): JSX.Element {
     revalidateOnReconnect: false
   });
 
-  const dataKeyDelegationInfo = `/api/delegates?network=${network}`;
+  const dataKeyDelegationInfo = `/api/delegates/v2?network=${network}`;
   const { data: delegationData } = useSWR<DelegatesPaginatedAPIResponse>(
     data?.isDelegate ? dataKeyDelegationInfo : null,
     fetchJson,

@@ -11,8 +11,22 @@ export const contracts: { name: string; address: Record<ChainId, `0x${string}`> 
   {
     name: 'chief',
     address: {
-      [mainnet.id]: '0x929d9A1435662357F54AdcF64DcEE4d6b867a6f9',
-      [TENDERLY_CHAIN_ID]: '0x81a5186946ce055a5ceeC93cd97C7e7EDe7Da922'
+      [mainnet.id]: '0x0a3f6849f78076aefaDf113F5BED87720274dDC0',
+      [TENDERLY_CHAIN_ID]: '0x0a3f6849f78076aefaDf113F5BED87720274dDC0'
+    }
+  },
+  {
+    name: 'chiefOld',
+    address: {
+      [mainnet.id]: '0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5',
+      [TENDERLY_CHAIN_ID]: '0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5'
+    }
+  },
+  {
+    name: 'dai',
+    address: {
+      [mainnet.id]: '0x6b175474e89094c44da98b954eedeac495271d0f',
+      [TENDERLY_CHAIN_ID]: '0x6b175474e89094c44da98b954eedeac495271d0f'
     }
   },
   {
@@ -24,17 +38,38 @@ export const contracts: { name: string; address: Record<ChainId, `0x${string}`> 
     }
   },
   {
-    name: 'mkr',
+    name: 'end',
     address: {
-      [mainnet.id]: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
-      [TENDERLY_CHAIN_ID]: '0x56072C95FAA701256059aa122697B133aDEd9279' //SKY address
+      [mainnet.id]: '0x0e2e8F1D1326A4B9633D96222Ce399c708B19c28',
+      [TENDERLY_CHAIN_ID]: '0x0e2e8F1D1326A4B9633D96222Ce399c708B19c28'
     }
   },
   {
-    name: 'sky',
+    name: 'esm',
     address: {
-      [mainnet.id]: '0x56072c95faa701256059aa122697b133aded9279',
-      [TENDERLY_CHAIN_ID]: '0x56072c95faa701256059aa122697b133aded9279'
+      [mainnet.id]: '0x09e05fF6142F2f9de8B6B65855A1d56B6cfE4c58',
+      [TENDERLY_CHAIN_ID]: '0x09e05fF6142F2f9de8B6B65855A1d56B6cfE4c58'
+    }
+  },
+  {
+    name: 'iou',
+    address: {
+      [mainnet.id]: '0xa618e54de493ec29432ebd2ca7f14efbf6ac17f7',
+      [TENDERLY_CHAIN_ID]: '0xa618e54de493ec29432ebd2ca7f14efbf6ac17f7'
+    }
+  },
+  {
+    name: 'iouOld',
+    address: {
+      [mainnet.id]: '0x496C67A4CEd9C453A60F3166AB4B329870c8E355',
+      [TENDERLY_CHAIN_ID]: '0x496C67A4CEd9C453A60F3166AB4B329870c8E355'
+    }
+  },
+  {
+    name: 'mkr',
+    address: {
+      [mainnet.id]: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
+      [TENDERLY_CHAIN_ID]: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2'
     }
   },
   {
@@ -45,10 +80,24 @@ export const contracts: { name: string; address: Record<ChainId, `0x${string}`> 
     }
   },
   {
+    name: 'pauseProxy',
+    address: {
+      [mainnet.id]: '0xBE8E3e3618f7474F8cB1d074A26afFef007E98FB',
+      [TENDERLY_CHAIN_ID]: '0xBE8E3e3618f7474F8cB1d074A26afFef007E98FB'
+    }
+  },
+  {
     name: 'polling',
     address: {
       [mainnet.id]: '0xD3A9FE267852281a1e6307a1C37CDfD76d39b133',
       [TENDERLY_CHAIN_ID]: '0xD3A9FE267852281a1e6307a1C37CDfD76d39b133'
+    }
+  },
+  {
+    name: 'pollingOld',
+    address: {
+      [mainnet.id]: '0xF9be8F0945acDdeeDaA64DFCA5Fe9629D0CF8E5D',
+      [TENDERLY_CHAIN_ID]: '0xF9be8F0945acDdeeDaA64DFCA5Fe9629D0CF8E5D'
     }
   },
   {
@@ -68,8 +117,29 @@ export const contracts: { name: string; address: Record<ChainId, `0x${string}`> 
   {
     name: 'voteDelegateFactory',
     address: {
-      [mainnet.id]: '0x4Cf3DaeFA2683Cd18df00f7AFF5169C00a9EccD5',
-      [TENDERLY_CHAIN_ID]: '0x98F74b7C96497070ba5052E02832EF9892962e62'
+      [mainnet.id]: '0xC3D809E87A2C9da4F6d98fECea9135d834d6F5A0',
+      [TENDERLY_CHAIN_ID]: '0x093d305366218d6d09ba10448922f10814b031dd'
+    }
+  },
+  {
+    name: 'voteDelegateFactoryOld',
+    address: {
+      [mainnet.id]: '0xD897F108670903D1d6070fcf818f9db3615AF272',
+      [TENDERLY_CHAIN_ID]: '0xD897F108670903D1d6070fcf818f9db3615AF272'
+    }
+  },
+  {
+    name: 'voteProxyFactory',
+    address: {
+      [mainnet.id]: '0x6FCD258af181B3221073A96dD90D1f7AE7eEc408',
+      [TENDERLY_CHAIN_ID]: '0x6FCD258af181B3221073A96dD90D1f7AE7eEc408'
+    }
+  },
+  {
+    name: 'voteProxyFactoryOld',
+    address: {
+      [mainnet.id]: '0xa63E145309cadaa6A903a19993868Ef7E85058BE',
+      [TENDERLY_CHAIN_ID]: '0xa63E145309cadaa6A903a19993868Ef7E85058BE'
     }
   },
   {

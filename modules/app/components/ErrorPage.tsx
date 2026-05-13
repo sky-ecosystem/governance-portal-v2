@@ -31,14 +31,14 @@ export default function ErrorPage({
           <Text sx={{ ml: 2 }}>{title}</Text>
         </Flex>
         <Box pt={3}>{children}</Box>
-        <Flex pt={3} sx={{ justifyContent: 'center' }}>
+        <Box pt={3}>
           <Text sx={{ textAlign: 'center' }}>
-            For more information or help, please join the{' '}
-            <ExternalLink href="https://discord.gg/skyecosystem" title="Discord">
-              <Text>Sky Discord</Text>
+            For more information or help, please contact the Development &amp; UX core unit on{' '}
+            <ExternalLink href="https://discord.gg/tQ5wnN6Ms4" title="Discord">
+              <Text>Discord</Text>
             </ExternalLink>
           </Text>
-        </Flex>
+        </Box>
       </Box>
     </Box>
   );

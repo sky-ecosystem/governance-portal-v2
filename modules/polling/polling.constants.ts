@@ -13,9 +13,9 @@ import { SupportedNetworks } from 'modules/web3/constants/networks';
 
 export const ABSTAIN = 0;
 
-export const MIN_SKY_REQUIRED_FOR_GASLESS_VOTING = parseEther('20');
-export const MIN_SKY_REQUIRED_FOR_GASLESS_VOTING_DISPLAY = parseFloat(
-  formatEther(MIN_SKY_REQUIRED_FOR_GASLESS_VOTING)
+export const MIN_MKR_REQUIRED_FOR_GASLESS_VOTING = parseEther('0.1');
+export const MIN_MKR_REQUIRED_FOR_GASLESS_VOTING_DISPLAY = parseFloat(
+  formatEther(MIN_MKR_REQUIRED_FOR_GASLESS_VOTING)
 ).toLocaleString();
 export const GASLESS_RATE_LIMIT_IN_MS = TEN_MINUTES_IN_MS;
 
@@ -66,28 +66,16 @@ export enum PollStatusEnum {
   ended = 'ENDED'
 }
 
-export const AGGREGATED_POLLS_FILE_URL = {
-  [SupportedNetworks.MAINNET]: process.env.NEXT_PUBLIC_VERCEL_ENV === 'development' ? 
-  'https://raw.githubusercontent.com/jetstreamgg/polls/refs/heads/main/index.json'
-  : 'https://raw.githubusercontent.com/makerdao/polls/refs/heads/main/index.json',
+export const POLLS_HASH_FILE_URL = {
+  [SupportedNetworks.MAINNET]:
+    'https://raw.githubusercontent.com/makerdao/community/master/governance/polls/meta/hashed-polls.json',
   [SupportedNetworks.TENDERLY]:
-    'https://raw.githubusercontent.com/jetstreamgg/polls/refs/heads/testnet/index.json'
+    'https://raw.githubusercontent.com/makerdao-dux/community/tenderly-polls/governance/polls/meta/hashed-polls.json'
 };
 
-
-export const SKY_PORTAL_START_DATE_TENDERLY = new Date('2025-03-17');
-export const SKY_PORTAL_START_DATE_MAINNET = process.env.NEXT_PUBLIC_VERCEL_ENV === 'development' ? SKY_PORTAL_START_DATE_TENDERLY : new Date('2025-05-19');
-
-export function getSkyPortalStartDate(network?: SupportedNetworks): Date {
-  if (network === SupportedNetworks.TENDERLY) {
-    return SKY_PORTAL_START_DATE_TENDERLY;
-  }
-  return SKY_PORTAL_START_DATE_MAINNET;
-}
-
-export const POLL_CREATOR_WHITELIST = [
-  '0x9f8046bDfbF4B65ad12D6Bcf37Fc2745706dFFa1',
-  '0xdc7ee5da5d011bc98cf030968659f3ee92232843',
-  '0x8541cCfc6E7EAcEbD233C6789a0FbF7C708B0E68',
-  '0x777CC2b5ec4c50b5aec0C0d9f8d1b8599Ef2A54C'
-];
+export const AGGREGATED_POLLS_FILE_URL = {
+  [SupportedNetworks.MAINNET]:
+    'https://raw.githubusercontent.com/makerdao/community/master/governance/polls/meta/polls.json',
+  [SupportedNetworks.TENDERLY]:
+    'https://raw.githubusercontent.com/makerdao-dux/community/tenderly-polls/governance/polls/meta/polls.json'
+};

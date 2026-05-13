@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 export * from './modals/Approval';
 export * from './modals/Confirm';
 export * from './modals/DelegateModal';
-export * from './modals/InputDelegateSky';
+export * from './modals/InputDelegateMkr';
 export * from './modals/TxDisplay';
 export * from './modals/UndelegateModal';
 export * from './DelegateOverviewCard';

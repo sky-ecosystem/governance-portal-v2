@@ -51,8 +51,8 @@ const moduleExports = {
   // everything in here gets exposed to the frontend.
   // prefer NEXT_PUBLIC_* instead, which makes this behavior more explicit
   env: {
-    INFURA_KEY: process.env.INFURA_KEY || '84842078b09946638c03157f83405213', // ethers default infura key
-    ALCHEMY_KEY: process.env.ALCHEMY_KEY || '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC' // ethers default alchemy key
+    GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+    READ_ONLY: process.env.READ_ONLY
   },
 
   // Opt-in SWC minification (next 12.0.2)
@@ -70,6 +70,8 @@ const moduleExports = {
         tls: false
       };
     }
+    // @metamask/sdk (via @wagmi/connectors) lazily imports react-native async storage; not used in web.
+    config.resolve.alias['@react-native-async-storage/async-storage'] = false;
     config.resolve.alias['lib'] = path.join(__dirname, 'lib');
     config.resolve.alias['components'] = path.join(__dirname, 'components');
     config.resolve.alias['stores'] = path.join(__dirname, 'stores');
@@ -82,6 +84,10 @@ const moduleExports = {
       {
         source: '/delegates/:address',
         destination: '/address/:address'
+      },
+      {
+        source: '/api/delegates',
+        destination: '/api/delegates/v1'
       }
     ];
   },

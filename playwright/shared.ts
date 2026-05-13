@@ -31,9 +31,6 @@ export async function connectWallet(page: Page) {
   }
 }
 
-export async function closeModal(page: Page) {
-  const closeButtons = await page.locator('[aria-label="close"]').all();
-  for (const button of closeButtons) {
-    await button.click();
-  }
+export function closeModal(page) {
+  page.locator('[aria-label="close"]').click();
 }

@@ -28,7 +28,7 @@ function Circle({
   return (
     <Box
       sx={{
-        background: `linear-gradient(180deg, ${color} 0%, #A273FF 100%);`,
+        background: `linear-gradient(180deg, ${color} 0%, #f3efbd 100%);`,
         borderRadius: '100%',
         filter: 'blur(2px)',
         transformOrigin: '80% 20%',

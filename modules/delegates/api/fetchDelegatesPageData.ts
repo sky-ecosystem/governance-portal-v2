@@ -14,6 +14,7 @@ import { fetchDelegatesPaginated } from './fetchDelegates';
 
 export type DelegatesQueryParams = {
   page?: number;
+  includeExpired?: boolean;
   orderBy?: DelegateOrderByEnum;
   orderDirection?: OrderDirectionEnum;
   seed?: number;
@@ -26,8 +27,9 @@ export async function fetchDelegatesPageData(
   useApi = false,
   queryParams?: DelegatesQueryParams
 ): Promise<DelegatesPaginatedAPIResponse> {
-  const pageSize = 10;
+  const pageSize = 30;
   const page = queryParams?.page || 1;
+  const includeExpired = queryParams?.includeExpired || false;
   const orderBy = queryParams?.orderBy || DelegateOrderByEnum.RANDOM;
   const orderDirection = queryParams?.orderDirection || OrderDirectionEnum.DESC;
   const seed = queryParams?.seed || null;
@@ -36,7 +38,7 @@ export async function fetchDelegatesPageData(
 
   const { delegates, stats, paginationInfo } = useApi
     ? await fetchJson(
-        `/api/delegates?network=${network}&pageSize=${pageSize}&page=${page}&orderBy=${orderBy}&orderDirection=${orderDirection}&delegateType=${delegateType}${
+        `/api/delegates/v2?network=${network}&pageSize=${pageSize}&page=${page}&includeExpired=${includeExpired}&orderBy=${orderBy}&orderDirection=${orderDirection}&delegateType=${delegateType}${
           searchTerm ? '&searchTerm=' + searchTerm : ''
         }${seed ? '&seed=' + seed : ''}`
       )
@@ -44,16 +46,17 @@ export async function fetchDelegatesPageData(
         network,
         pageSize,
         page,
+        includeExpired,
         orderBy,
         orderDirection,
         seed,
         delegateType,
-        searchTerm
+        searchTerm,
       });
 
   return {
     delegates,
     stats,
-    paginationInfo
+    paginationInfo,
   };
 }

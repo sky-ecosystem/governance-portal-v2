@@ -17,7 +17,7 @@ type VotedProposalsResponse = {
   data: string[];
   loading: boolean;
   error: Error;
-  mutate: () => void;
+  mutate: any;
 };
 
 export const useVotedProposals = (passedAddress?: string): VotedProposalsResponse => {

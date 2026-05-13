@@ -11,9 +11,8 @@ export const cards = {
     border: 'none',
     boxShadow: theme => `0px 20px 40px ${theme.colors.shadowFloater}, 0px 1px 3px #bebebe40`,
     p: 3,
-    borderRadius: 'round',
-    bg: 'surface',
-    backdropFilter: 'blur(50px)'
+    borderRadius: 'medium',
+    bg: 'surface'
   },
   compact: {
     variant: 'cards.primary',

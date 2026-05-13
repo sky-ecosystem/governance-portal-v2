@@ -6,10 +6,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { PollListItem } from './poll';
+import { Poll } from './poll';
 import { PollTallyVote } from './pollTally';
 
 export type PollVoteHistory = PollTallyVote & {
-  poll: PollListItem;
+  poll: Poll;
   optionValue: string[];
 };

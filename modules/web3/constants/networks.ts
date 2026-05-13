@@ -6,18 +6,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 */
 
-import { config } from 'lib/config';
 import { SupportedChain } from '../types/chain';
 import { SupportedChainId } from './chainID';
-import tenderlyTestnetData from '../../../tenderlyTestnetData.json';
 
 import {
-  TENDERLY_SUBGRAPH_URL,
-  MAINNET_STAGING_SUBGRAPH_URL,
-  MAINNET_PROD_SUBGRAPH_URL,
-  ARBITRUM_PROD_SUBGRAPH_URL,
-  ARBITRUM_STAGING_SUBGRAPH_URL,
-  ARBITRUM_TENDERLY_SUBGRAPH_URL
+  MAINNET_SPOCK_URL,
+  STAGING_MAINNET_SPOCK_URL,
+  TENDERLY_SPOCK_URL,
+  STAGING_SUBGRAPH_URL,
+  PROD_SUBGRAPH_URL
 } from 'modules/gql/gql.constants';
 
 export enum SupportedConnectors {
@@ -36,23 +33,11 @@ export enum SupportedNetworks {
   TENDERLY = 'tenderly'
 }
 
-export enum NodeProviders {
-  INFURA = 'infura',
-  ALCHEMY = 'alchemy',
-  LOCAL = 'local',
-  TENDERLY = 'tenderly'
-}
-
 type ChainInfo = {
   [key in SupportedChainId]: SupportedChain;
 };
 
-const { TENDERLY_RPC_URL } = tenderlyTestnetData;
 const TENDERLY_CONTAINER_ID = 'da404f7a-d40d-4c75-928f-308835f9e0e3';
-
-// Constants for API URLs
-export const URL_BA_LABS_API_MAINNET = 'https://info-sky.blockanalitica.com/api/v1';
-export const URL_BA_LABS_API_TENDERLY = 'https://sky-tenderly.blockanalitica.com/api/v1';
 
 //todo: change name to SUPPORTED_CHAIN_INFO
 export const CHAIN_INFO: ChainInfo = {
@@ -63,15 +48,12 @@ export const CHAIN_INFO: ChainInfo = {
     label: 'Mainnet',
     type: 'normal',
     network: SupportedNetworks.MAINNET,
-    defaultRpc: NodeProviders.ALCHEMY,
+    spockUrl:
+      process.env.NEXT_PUBLIC_VERCEL_ENV === 'development' ? STAGING_MAINNET_SPOCK_URL : MAINNET_SPOCK_URL,
     subgraphUrl:
       process.env.NEXT_PUBLIC_VERCEL_ENV === 'development'
-        ? MAINNET_STAGING_SUBGRAPH_URL
-        : MAINNET_PROD_SUBGRAPH_URL,
-    rpcs: {
-      [NodeProviders.INFURA]: `https://mainnet.infura.io/v3/${config.INFURA_KEY}`,
-      [NodeProviders.ALCHEMY]: `https://eth-mainnet.g.alchemy.com/v2/${config.ALCHEMY_KEY}`
-    },
+        ? STAGING_SUBGRAPH_URL
+        : PROD_SUBGRAPH_URL,
     showInProduction: true
   },
   [SupportedChainId.ARBITRUMTESTNET]: {
@@ -81,11 +63,7 @@ export const CHAIN_INFO: ChainInfo = {
     label: 'ArbitrumTestnet',
     type: 'gasless',
     network: SupportedNetworks.ARBITRUMTESTNET,
-    defaultRpc: NodeProviders.ALCHEMY,
-    subgraphUrl: ARBITRUM_TENDERLY_SUBGRAPH_URL,
-    rpcs: {
-      [NodeProviders.ALCHEMY]: `https://arb-sepolia.g.alchemy.com/v2/${config.ALCHEMY_ARBITRUM_TESTNET_KEY}`
-    },
+    subgraphUrl: STAGING_SUBGRAPH_URL,
     showInProduction: false
   },
   [SupportedChainId.ARBITRUM]: {
@@ -95,14 +73,7 @@ export const CHAIN_INFO: ChainInfo = {
     label: 'Arbitrum',
     type: 'gasless',
     network: SupportedNetworks.ARBITRUM,
-    defaultRpc: NodeProviders.ALCHEMY,
-    subgraphUrl:
-      process.env.NEXT_PUBLIC_VERCEL_ENV === 'development'
-        ? ARBITRUM_STAGING_SUBGRAPH_URL
-        : ARBITRUM_PROD_SUBGRAPH_URL,
-    rpcs: {
-      [NodeProviders.ALCHEMY]: `https://arb-mainnet.g.alchemy.com/v2/${config.ALCHEMY_ARBITRUM_KEY}`
-    },
+    subgraphUrl: PROD_SUBGRAPH_URL,
     showInProduction: false
   },
   [SupportedChainId.TENDERLY]: {
@@ -112,14 +83,8 @@ export const CHAIN_INFO: ChainInfo = {
     label: 'Tenderly',
     type: 'normal',
     network: SupportedNetworks.TENDERLY,
-    defaultRpc: NodeProviders.TENDERLY,
-    subgraphUrl: TENDERLY_SUBGRAPH_URL,
-    rpcs: {
-      [NodeProviders.TENDERLY]:
-        config.USE_MOCK_WALLET && TENDERLY_RPC_URL
-          ? TENDERLY_RPC_URL
-          : `https://virtual.mainnet.rpc.tenderly.co/${config.TENDERLY_RPC_KEY}`
-    },
+    spockUrl: TENDERLY_SPOCK_URL,
+    subgraphUrl: STAGING_SUBGRAPH_URL,
     showInProduction: false
   }
 };
@@ -140,6 +105,3 @@ export const SIMULATE_TX_VALUE = '0';
 export const SIMULATE_TX_FROM = '0x5cab1e5286529370880776461c53a0e47d74fb63'; // The chief-keeper EOA, owned by TO, used to cast spells
 
 export const AVG_BLOCKS_PER_DAY = 6500;
-
-export const GASNOW_ENDPOINT = 'https://beaconcha.in/api/v1/execution/gasnow';
-export const GASNOW_URL = 'https://beaconcha.in/gasnow';

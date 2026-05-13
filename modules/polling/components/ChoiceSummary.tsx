@@ -15,6 +15,7 @@ import { useContext } from 'react';
 import { BallotContext } from '../context/BallotContext';
 import { InternalLink } from 'modules/app/components/InternalLink';
 import { isInputFormatChooseFree, isInputFormatRankFree, isInputFormatSingleChoice } from '../helpers/utils';
+import { config } from 'lib/config';
 
 const ChoiceSummary = ({
   choice,
@@ -106,7 +107,11 @@ const ChoiceSummary = ({
       </Flex>
       {showReviewButton && onBallot && (
         <InternalLink href="/polling/review" title="Review & submit your ballot">
-          <Button variant="primaryLarge" sx={{ width: '100%', cursor: 'pointer', mt: 3 }}>
+          <Button
+            variant="primaryLarge"
+            sx={{ width: '100%', cursor: 'pointer', mt: 3 }}
+            disabled={config.READ_ONLY}
+          >
             Review & Submit Your Ballot
           </Button>
         </InternalLink>

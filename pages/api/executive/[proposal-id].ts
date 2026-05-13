@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 import { NextApiRequest, NextApiResponse } from 'next';
 import validateQueryParam from 'modules/app/api/validateQueryParam';
 import { getExecutiveProposal } from 'modules/executive/api/fetchExecutives';
-import { Proposal as ExecutiveProposalType } from 'modules/executive/types'; // Renamed to avoid conflict
+import { CMSProposal } from 'modules/executive/types';
 import { NotFoundResponse } from 'modules/app/types/genericApiResponse';
 import withApiHandler from 'modules/app/api/withApiHandler';
 import { DEFAULT_NETWORK, SupportedNetworks } from 'modules/web3/constants/networks';
@@ -18,155 +18,64 @@ import { ApiError } from 'modules/app/api/ApiError';
 /**
  * @swagger
  * definitions:
- *   SpellData:
+ *   Executive:
  *     type: object
  *     properties:
- *       hasBeenCast:
- *         type: boolean
- *         nullable: true
- *         description: Whether the spell has been cast
- *       hasBeenScheduled:
- *         type: boolean
- *         description: Whether the spell has been scheduled for execution
- *       eta:
+ *       about:
  *         type: string
- *         format: date-time
- *         nullable: true
- *         description: Estimated time of arrival for execution (if scheduled)
- *       expiration:
- *         type: string
- *         format: date-time
- *         nullable: true
- *         description: Time when the spell expires if not executed
- *       nextCastTime:
- *         type: string
- *         format: date-time
- *         nullable: true
- *         description: Next possible time the spell can be cast
- *       datePassed:
- *         type: string
- *         format: date-time
- *         nullable: true
- *         description: Date when the proposal achieved enough support
- *       dateExecuted:
- *         type: string
- *         format: date-time
- *         nullable: true
- *         description: Date when the spell was executed
- *       skySupport:
- *         type: string
- *         description: Amount of SKY supporting this spell
- *       executiveHash:
- *         type: string
- *         nullable: true
- *         description: The hash of the executive spell
- *       officeHours:
- *         type: boolean
- *         nullable: true
- *         description: Whether the spell is subject to office hours restrictions
- *   ExecutiveProposal:
- *     type: object
- *     properties:
- *       active:
- *         type: boolean
- *         description: Whether the proposal is currently active
- *       address:
- *         type: string
- *         format: address
- *         description: The address of the executive proposal
- *       key:
- *         type: string
- *         description: Unique key for the proposal (slugified title)
- *       proposalBlurb:
- *         type: string
- *         description: A short summary or blurb for the proposal
- *       title:
- *         type: string
- *         description: The title of the proposal
- *       date:
- *         type: string
- *         description: Publication date of the proposal
- *       proposalLink:
- *         type: string
- *         format: url
- *         description: Link to the raw proposal content (e.g., GitHub markdown file)
  *       content:
  *         type: string
- *         nullable: true
- *         description: HTML content of the proposal
- *       spellData:
- *         $ref: '#/definitions/SpellData'
- *     required:
- *       - active
- *       - address
- *       - key
- *       - title
- *       - date
- *       - proposalLink
- *       - spellData
+ *       title:
+ *         type: string
+ *       proposalBlurb:
+ *         type: string
+ *       key:
+ *         type: string
+ *       address:
+ *         type: string
+ *       date:
+ *         type: string
+ *       active:
+ *         type: boolean
+ *       proposalLink:
+ *         type: string
  *     example:
- *       active: true
- *       address: "0x123abc456def7890123abc456def7890123abc45"
- *       key: "mip100-super-cool-feature"
- *       proposalBlurb: "This proposal introduces a super cool feature"
- *       title: "MIP100: Super Cool Feature Implementation"
- *       date: "2023-10-26T10:00:00Z"
- *       proposalLink: "https://raw.githubusercontent.com/makerdao/executive-votes/main/SOMETHING.md"
- *       content: "<h1>Hello World</h1><p>This is the content.</p>"
- *       spellData:
- *         hasBeenScheduled: true
- *         skySupport: "150000.75"
- *         eta: "2023-10-28T12:00:00Z"
+ *       - about: "markdown"
+ *         content: 'markdown'
+ *         title: "The example executive"
+ *         proposalBlurb: "Example"
+ *         key: "executive-number-3"
+ *         address: '0x000000'
+ *         date: "Fri Sep 17 2021 00:00:00 GMT+0000 (Coordinated Universal Time)"
+ *         active: false
+ *         proposalLink: 'https://linktogithubrawcontent'
  *
- * /api/executive/{proposal-id}:
+ * /api/executive/{key}:
  *   get:
  *     tags:
- *       - "executive"
- *     summary: Returns an executive proposal detail by its ID
- *     description: Fetches the details of a specific executive proposal, including its content and spell data. The proposal can be identified by its key/slug or contract address.
+ *     - "executive"
+ *     summary: Returns a executive detail
+ *     description: Returns a executive detail
  *     produces:
- *       - "application/json"
+ *     - "application/json"
  *     parameters:
- *       - name: proposal-id
- *         in: path
- *         description: The unique identifier of the executive proposal (can be its key/slug or contract address)
+ *       - in: path
+ *         name: key
+ *         schema:
+ *           type: string
  *         required: true
- *         schema:
- *           type: string
- *       - name: network
- *         in: query
- *         description: The Ethereum network to query
- *         required: false
- *         schema:
- *           type: string
- *           enum: [mainnet, tenderly]
- *           default: mainnet
+ *         description: Key of the executive
  *     responses:
  *       '200':
- *         description: Detailed information about the executive proposal
+ *         description: "Detail of a Executive"
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/definitions/ExecutiveProposal'
- *       '404':
- *         description: Proposal not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/definitions/NotFoundResponse'
- * definitions:
- *   NotFoundResponse:
- *     type: object
- *     properties:
- *       message:
- *         type: string
- *         description: Error message explaining why the proposal was not found
- *       code:
- *         type: integer
- *         description: HTTP status code (404)
+ *               type: object
+ *               $ref: '#/definitions/Executive'
  */
 export default withApiHandler(
-  async (req: NextApiRequest, res: NextApiResponse<ExecutiveProposalType | NotFoundResponse>) => {
+  async (req: NextApiRequest, res: NextApiResponse<CMSProposal | NotFoundResponse>) => {
     // validate network
     const network = validateQueryParam(
       (req.query.network as SupportedNetworks) || DEFAULT_NETWORK.network,

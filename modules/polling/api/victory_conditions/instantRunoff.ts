@@ -17,12 +17,12 @@ import { parseEther } from 'viem';
 const MAX_ROUNDS = 32;
 
 export function extractWinnerInstantRunoff(currentVotes: PollTallyVote[]): InstantRunoffResults | null {
-  let totalSky = 0n;
+  let totalMKR = 0n;
   let winner;
   let rounds = 1;
 
   const defaultOptionObj: InstantRunoffOption = {
-    skySupport: 0n,
+    mkrSupport: 0n,
     transfer: 0n,
     winner: false,
     eliminated: false
@@ -36,7 +36,7 @@ export function extractWinnerInstantRunoff(currentVotes: PollTallyVote[]): Insta
 
   // Run the first round
   const choiceVotes = currentVotes.map(vote => {
-    totalSky = totalSky + parseEther(vote.skySupport.toString());
+    totalMKR = totalMKR + parseEther(vote.mkrSupport.toString());
 
     // take the highest preference option from each voter's ballot
     // Copy ballot to avoid modifications of the same object
@@ -52,15 +52,15 @@ export function extractWinnerInstantRunoff(currentVotes: PollTallyVote[]): Insta
         options[newVote.choice] = { ...defaultOptionObj };
       }
 
-      options[newVote.choice].skySupport =
-        options[newVote.choice].skySupport + parseEther((newVote.skySupport || 0).toString());
+      options[newVote.choice].mkrSupport =
+        options[newVote.choice].mkrSupport + parseEther((newVote.mkrSupport || 0).toString());
     }
 
     return newVote;
   });
 
-  // No SKY, return no winner
-  if (totalSky === 0n) {
+  // No MKR, return no winner
+  if (totalMKR === 0n) {
     return {
       options,
       winner: null,
@@ -69,8 +69,8 @@ export function extractWinnerInstantRunoff(currentVotes: PollTallyVote[]): Insta
   }
 
   // does any candidate have the majority after the first round?
-  Object.entries(options).forEach(([option, { skySupport }]) => {
-    if (skySupport > totalSky / 2n) {
+  Object.entries(options).forEach(([option, { mkrSupport }]) => {
+    if (mkrSupport > totalMKR / 2n) {
       winner = parseInt(option);
     }
   });
@@ -93,7 +93,7 @@ export function extractWinnerInstantRunoff(currentVotes: PollTallyVote[]): Insta
     const [optionToEliminate] = filteredOptions.reduce((prv, cur) => {
       const [, prvVotes] = prv;
       const [, curVotes] = cur;
-      if (curVotes.skySupport + curVotes.transfer < prvVotes.skySupport + prvVotes.transfer) return cur;
+      if (curVotes.mkrSupport + curVotes.transfer < prvVotes.mkrSupport + prvVotes.transfer) return cur;
       return prv;
     });
 
@@ -141,16 +141,16 @@ export function extractWinnerInstantRunoff(currentVotes: PollTallyVote[]): Insta
       if (!options[choiceVotes[vote.index].choice as number].eliminated) {
         options[choiceVotes[vote.index].choice as number].transfer =
           options[choiceVotes[vote.index].choice as number].transfer +
-          parseEther((vote.skySupport || 0).toString());
+          parseEther((vote.mkrSupport || 0).toString());
 
         options[prevChoice as number].transfer =
-          options[prevChoice as number].transfer - parseEther((vote.skySupport || 0).toString());
+          options[prevChoice as number].transfer - parseEther((vote.mkrSupport || 0).toString());
       }
     });
 
     // look for a candidate with the majority
-    Object.entries(options).forEach(([option, { skySupport, transfer }]) => {
-      if (skySupport + transfer > totalSky / 2n) {
+    Object.entries(options).forEach(([option, { mkrSupport, transfer }]) => {
+      if (mkrSupport + transfer > totalMKR / 2n) {
         winner = parseInt(option);
       }
     });

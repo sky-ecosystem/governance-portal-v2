@@ -12,31 +12,36 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - test: executives.spec
+          - test: executive.spec
+          - test: legacy-executives.spec
           - test: delegates.spec
           - test: polling.spec
+          - test: legacy-polling.spec
           - test: wallet.spec
+          # Sky governance tests (currently skipped)
+          # - test: sky-executives.spec
+          # - test: sky-polling.spec
     runs-on: ubuntu-latest
     env:
-      INFURA_KEY: ${{ secrets.INFURA_KEY }}
-      ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REDIS_URL: ${{ secrets.REDIS_URL }}
       USE_CACHE: true
       TENDERLY_API_KEY: ${{ secrets.TENDERLY_API_KEY }}
       DEFENDER_API_SECRET_TESTNET: $${{ secrets.DEFENDER_API_SECRET_TESTNET}}
       DEFENDER_API_KEY_TESTNET: ${{ secrets.DEFENDER.API_KEY_TESTNET}}
+      READ_ONLY: ${{ secrets.READ_ONLY }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9.9.0
+          version: 10.17.0
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - run: pnpm exec playwright install --with-deps
 

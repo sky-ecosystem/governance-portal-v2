@@ -22,7 +22,7 @@ describe('Poll vote history item', () => {
       tally: {
         rounds: 1,
         winner: 1,
-        totalSkyParticipation: '70288.579356787892861292',
+        totalMkrParticipation: '70288.579356787892861292',
         results: [
           {
             firstChoice: 2.001309,

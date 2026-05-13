@@ -23,156 +23,63 @@ import { validateAddress } from 'modules/web3/api/validateAddress';
 /**
  * @swagger
  * definitions:
- *   Poll: # Based on PollListItem
- *     type: object
- *     properties:
- *       pollId:
- *         type: integer
- *         description: Unique identifier for the poll.
- *       multiHash:
- *         type: string
- *         description: IPFS multihash of the poll content.
- *       slug:
- *         type: string
- *         description: Short URL-friendly identifier for the poll.
- *       title:
- *         type: string
- *         description: Title of the poll.
- *       summary:
- *         type: string
- *         nullable: true
- *         description: A brief summary of the poll.
- *       discussionLink:
- *         type: string
- *         nullable: true
- *         description: Link to the discussion forum for the poll.
- *       parameters:
- *         type: object
- *         description: Parameters defining how the poll works (e.g., input format, victory conditions).
- *       options:
- *         type: object
- *         description: Key-value pairs of option identifiers and their text.
- *         additionalProperties:
- *           type: string
- *         example:
- *           "0": "Abstain"
- *           "1": "Yes"
- *           "2": "No"
- *       startDate:
- *         type: string
- *         format: date-time
- *         description: ISO8601 string representing the start date of the poll.
- *       endDate:
- *         type: string
- *         format: date-time
- *         description: ISO8601 string representing the end date of the poll.
- *       url:
- *         type: string
- *         nullable: true
- *         description: URL to the full content of the poll, often a raw GitHub link.
- *       type:
- *         type: string
- *         description: The input format type for the poll (e.g., singleChoice, rankFree).
- *       tags:
- *         type: array
- *         items:
- *           type: string
- *         nullable: true
- *         description: Tags associated with the poll.
- *   VoteHistory: # Based on PollVoteHistory (PollTallyVote & { poll, optionValue })
- *     type: object
- *     properties:
- *       pollId:
- *         type: integer
- *         description: Identifier of the poll this vote belongs to.
- *       voter:
- *         type: string
- *         format: address
- *         description: Address of the voter.
- *       ballot:
- *         type: array
- *         items:
- *           type: integer
- *         description: Array of chosen option indices by the voter.
- *       skySupport:
- *         type: string # Represents number | string, string is safer for large numbers
- *         description: SKY voting weight associated with this vote.
- *       chainId:
- *         type: integer
- *         description: Chain ID where the vote was cast.
- *       blockTimestamp:
- *         type: string
- *         format: date-time
- *         description: Timestamp of the block when the vote was cast (ISO8601 string).
- *       hash:
- *         type: string
- *         description: Transaction hash of the vote.
- *       poll:
- *         $ref: '#/definitions/Poll'
- *       optionValue:
- *         type: array
- *         items:
- *           type: string
- *         description: Textual representation of the chosen option(s).
- *     example:
- *       pollId: 1
- *       voter: "0x123abc456def7890123abc456def7890123abc45"
- *       ballot: [1]
- *       skySupport: "100.50"
- *       chainId: 1
- *       blockTimestamp: "2021-11-20T19:25:47Z"
- *       hash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
- *       poll:
- *         pollId: 1
- *         title: "Sample Poll: Should we implement feature X?"
- *         startDate: "2021-11-18T16:00:00Z"
- *         endDate: "2021-11-25T16:00:00Z"
- *         options:
- *           "0": "Abstain"
- *           "1": "Yes"
- *           "2": "No"
- *         # ... other poll fields as per Poll definition
- *       optionValue: ["Yes"]
  *   ArrayOfVoteHistory:
  *     type: array
  *     items:
  *       $ref: '#/definitions/VoteHistory'
- *   AddressStats: # Based on AddressAPIStats
+ *   VoteHistory:
+ *     type: object
+ *     properties:
+ *       pollId:
+ *         type: integer
+ *       blockTimestamp:
+ *         type: string
+ *       option:
+ *         type: number
+ *       optionValue:
+ *         type: array
+ *         items:
+ *           type: string
+ *       ballot:
+ *         type: array
+ *         items:
+ *           type: integer
+ *       poll:
+ *         $ref: '#/definitions/Poll'
+ *     example:
+ *       - pollId: 1
+ *         blockTimestamp: "2021-11-20T19:25:47+00:00"
+ *         option: 1
+ *         optionValue: ["Yes"]
+ *         ballot: [1]
+ *         poll:
+ *           pollId: 1
+ *   AddressStats:
  *     type: object
  *     properties:
  *       pollVoteHistory:
  *         $ref: '#/definitions/ArrayOfVoteHistory'
  *       lastVote:
  *         $ref: '#/definitions/VoteHistory'
- *         nullable: true # lastVote can be undefined if pollVoteHistory is empty
  *
  * /api/address/stats:
  *   get:
  *     tags:
  *     - "address"
- *     summary: Returns polling stats for a given address (or multiple addresses).
- *     description: Retrieves poll vote history and the last vote cast by the specified Ethereum address(es).
+ *     summary: Returns stats for address
+ *     description: Returns stats for address
  *     produces:
  *     - "application/json"
  *     parameters:
  *       - in: query
  *         name: address
  *         schema:
- *           type: string # While the API can handle string[], Swagger defines as string for simplicity.
- *                        # For multiple addresses, they can be passed as repeated query params: address=0x1&address=0x2
- *         required: true
- *         description: Ethereum address to check. Can be supplied multiple times for multiple addresses.
- *       - in: query
- *         name: network
- *         schema:
  *           type: string
- *           enum: [mainnet, tenderly]
- *           default: mainnet
- *         required: false
- *         description: The Ethereum network to query.
+ *         required: true
+ *         description: Address to check
  *     responses:
  *       '200':
- *         description: "Polling statistics for the address(es)."
+ *         description: "Stats of the address"
  *         content:
  *           application/json:
  *             schema:

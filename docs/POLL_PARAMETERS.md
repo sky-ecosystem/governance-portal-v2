@@ -1,6 +1,6 @@
 # Poll Parameters
 
-The governance portal reads and parses the poll parameters defined on each poll on the [MakerDAO community repo](https://github.com/makerdao/community/tree/master/governance/polls).
+The governance portal reads and parses the poll parameters defined on each poll on the [MakerDAO community repo](https://github.com/sky-ecosystem/community/tree/master/governance/polls).
 
 Each poll file includes some markdown on the header, currently (July 2022) there are 2 kinds of poll parameters, the legacy ones and the new ones that describe the voting options in more detail.
 The legacy poll parameters only determine if a poll is ranked-choice (IRV) or plurality. The new poll parameters have more options.
@@ -84,26 +84,26 @@ Victory conditions is an array of values that determine the winning condition of
 
 Currently we support plurality, majority, approval, instant-runoff (IRV), "and", and comparison (comparison acts as a safe check).
 
-| victory_conditions                                                 | summary                                                                                                                            |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| majority                                                           | Condition returns true for the option with more than 50% of the total vote-weight - false for others                               |
-| plurality                                                          | Condition returns true for the option with more vote weight than any other option - false for others                                |
-| instant-runoff                                                     | Condition returns true for the option winning when applying the IRV algorithm - false for others                                   |
-| "comparison"  | Condition returns true for <option(s)> if expression <option/value><comparator><option/value> evaluates to true - false for others |
-| no-victor                                                          | Condition returns false for every option (marking a poll that is not supposed to result in a winning option)                       |
-| default-<option>                                                   | Condition returns true for <option> if no other option returns true on all other victory conditions                                |
-| approval                                                           | Condition returns true for the option with the most approval - false for others                                                     |
+| victory_conditions | summary                                                                                                                            |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| majority           | Condition returns true for the option with more than 50% of the total vote-weight - false for others                               |
+| plurality          | Condition returns true for the option with more vote weight than any other option - false for others                               |
+| instant-runoff     | Condition returns true for the option winning when applying the IRV algorithm - false for others                                   |
+| "comparison"       | Condition returns true for <option(s)> if expression <option/value><comparator><option/value> evaluates to true - false for others |
+| no-victor          | Condition returns false for every option (marking a poll that is not supposed to result in a winning option)                       |
+| default-<option>   | Condition returns true for <option> if no other option returns true on all other victory conditions                                |
+| approval           | Condition returns true for the option with the most approval - false for others                                                    |
 
 ### Result display:
 
-| result_display                               |                                                                                                                    |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| single-vote-breakdown                        | Displays current breakdown UI for Plurality                                                                        |
-| instant-runoff-breakdown                     | Displays current breakdown UI for Ranked Choice                                                                    |
-| condition-summary (Not implemented)                           | Displays a table that lists each victory condition and shows whether it evaluates to true or false for each option |
+| result_display                                                 |                                                                                                                    |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| single-vote-breakdown                                          | Displays current breakdown UI for Plurality                                                                        |
+| instant-runoff-breakdown                                       | Displays current breakdown UI for Ranked Choice                                                                    |
+| condition-summary (Not implemented)                            | Displays a table that lists each victory condition and shows whether it evaluates to true or false for each option |
 | score-<option/value><operator><option/value> (Not implemented) | Displays an output score where score = <option/value><operator><option/value>                                      |
-| approval-breakdown                           | Displays current breakdown UI for Plurality - but with approval scores.                                            |
-| weight-breakdown  (Not implemented)                           | Displays current breakdown UI for Plurality - but with weighted scores.                                            |
+| approval-breakdown                                             | Displays current breakdown UI for Plurality - but with approval scores.                                            |
+| weight-breakdown (Not implemented)                             | Displays current breakdown UI for Plurality - but with weighted scores.                                            |
 
 ### New plurality voting:
 
@@ -138,10 +138,10 @@ summary: something
 discussion_link: link
 parameters:
   input_format: rank-free
-  victory_conditions: 
+  victory_conditions:
     - { type : instant-runoff }
   result_display: instant-runoff-breakdown
-version: v2.0.0  
+version: v2.0.0
 options:
   0: Option 1
   1: Option 2
@@ -161,8 +161,8 @@ Approval voting allows user to select multiple options but should only allow the
 Example:
 
 - input_format
-    type: approval
-    options: [1,2,3] : Determine that the user can only select multiple 1,2,3. Option number 4 or 0 will be exclusive.
+  type: approval
+  options: [1,2,3] : Determine that the user can only select multiple 1,2,3. Option number 4 or 0 will be exclusive.
 - { type: 'approval', options: [1,2,3] } : Determine the options that will count as "approved", in theory it should match the input format options.
 
 ```

@@ -33,12 +33,12 @@ export function YesNoAbstainBar({
       marginBottom: 2
     },
     yesBar: {
-      backgroundColor: 'bull',
+      backgroundColor: 'primary',
       height: '4px',
       width: `${yesPercent}%`
     },
     noBar: {
-      backgroundColor: 'bear',
+      backgroundColor: 'notice',
       height: '4px',
       width: `${noPercent}%`
     },
@@ -53,13 +53,13 @@ export function YesNoAbstainBar({
       mt: 1
     },
     yesPercentage: {
-      color: 'bull',
+      color: 'primary',
       fontSize: 1,
       fontWeight: 'semiBold',
       mr: 1
     },
     noPercentage: {
-      color: 'bear',
+      color: 'notice',
       fontSize: 1,
       fontWeight: 'semiBold',
       ml: 1

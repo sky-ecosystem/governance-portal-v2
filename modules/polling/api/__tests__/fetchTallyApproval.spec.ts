@@ -40,32 +40,33 @@ describe('Fetch tally approval', () => {
     }
   } as any as Poll;
 
-  it('gives first option as winner if it has most sky', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: '258' },
-            { voter: { id: '0x456' }, choice: '258' },
-            { voter: { id: '0x789' }, choice: '1' },
-            { voter: { id: '0xabc' }, choice: '4' },
-            { voter: { id: '0xdef' }, choice: '4' }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '820212580000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '17363000000000000000' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '10000000000000000000' }] },
-          { id: '0xabc', v2VotingPowerChanges: [{ newBalance: '14000000000000000000' }] },
-          { id: '0xdef', v2VotingPowerChanges: [{ newBalance: '0' }] }
+  it('gives first option as winner if it has most mkr', async () => {
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            optionIdRaw: '258',
+            mkrSupport: '820.2125800'
+          },
+          {
+            optionIdRaw: '258',
+            mkrSupport: '17.3630'
+          },
+          {
+            optionIdRaw: '1',
+            mkrSupport: '10'
+          },
+          {
+            optionIdRaw: '4',
+            mkrSupport: '14'
+          },
+          {
+            optionIdRaw: '4',
+            mkrSupport: '0'
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPoll, SupportedNetworks.MAINNET);
 
@@ -73,8 +74,8 @@ describe('Fetch tally approval', () => {
       parameters: mockPoll.parameters,
       winner: 1,
       winningOptionName: 'Approve Existing Budget',
-      totalSkyActiveParticipation: '861.57558',
-      totalSkyParticipation: '861.57558',
+      totalMkrActiveParticipation: '861575580000000000000',
+      totalMkrParticipation: '861575580000000000000',
       numVoters: 5,
       victoryConditionMatched: 0,
       results: [
@@ -82,51 +83,41 @@ describe('Fetch tally approval', () => {
           optionId: 1,
           optionName: 'Approve Existing Budget',
           firstPct: 98.3751,
-          skySupport: '847.57558',
-          transfer: '0',
+          mkrSupport: '847575580000000000000',
           transferPct: 0,
-          winner: true,
-          eliminated: undefined
+          winner: true
         },
         {
           optionId: 2,
           optionName: 'Approve Increase',
           firstPct: 97.2144,
-          skySupport: '837.57558',
-          transfer: '0',
+          mkrSupport: '837575580000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 4,
           optionName: 'None of the above',
           firstPct: 1.6249,
-          skySupport: '14',
-          transfer: '0',
+          mkrSupport: '14000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 0,
           optionName: 'Abstain',
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           firstPct: 0,
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 3,
           optionName: 'Reject',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         }
       ]
     };
@@ -134,30 +125,29 @@ describe('Fetch tally approval', () => {
     expect(result).toEqual(expect.objectContaining(expectedResult));
   });
 
-  it('gives no option as winner if both have the same SKY voting weight', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [
-            { voter: { id: '0x123' }, choice: '258' },
-            { voter: { id: '0x456' }, choice: '258' },
-            { voter: { id: '0x789' }, choice: '4' },
-            { voter: { id: '0xabc' }, choice: '4' }
-          ]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [
-          { id: '0x123', v2VotingPowerChanges: [{ newBalance: '820212580000000000000' }] },
-          { id: '0x456', v2VotingPowerChanges: [{ newBalance: '17363000000000000000' }] },
-          { id: '0x789', v2VotingPowerChanges: [{ newBalance: '14000000000000000000' }] },
-          { id: '0xabc', v2VotingPowerChanges: [{ newBalance: '0' }] }
+  it('gives no option as winner if both have the same MKR voting weight', async () => {
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            optionIdRaw: '258',
+            mkrSupport: '820.2125800'
+          },
+          {
+            optionIdRaw: '258',
+            mkrSupport: '17.3630'
+          },
+          {
+            optionIdRaw: '4',
+            mkrSupport: '14'
+          },
+          {
+            optionIdRaw: '4',
+            mkrSupport: '0'
+          }
         ]
-      });
+      }
+    });
 
     const result = await fetchPollTally(mockPoll, SupportedNetworks.MAINNET);
 
@@ -165,8 +155,8 @@ describe('Fetch tally approval', () => {
       parameters: mockPoll.parameters,
       winner: null,
       winningOptionName: 'None found',
-      totalSkyActiveParticipation: '851.57558',
-      totalSkyParticipation: '851.57558',
+      totalMkrActiveParticipation: '851575580000000000000',
+      totalMkrParticipation: '851575580000000000000',
       numVoters: 4,
       victoryConditionMatched: null,
       results: [
@@ -174,51 +164,41 @@ describe('Fetch tally approval', () => {
           optionId: 1,
           optionName: 'Approve Existing Budget',
           firstPct: 98.356,
-          skySupport: '837.57558',
-          transfer: '0',
+          mkrSupport: '837575580000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 2,
           optionName: 'Approve Increase',
           firstPct: 98.356,
-          skySupport: '837.57558',
-          transfer: '0',
+          mkrSupport: '837575580000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 4,
           optionName: 'None of the above',
           firstPct: 1.644,
-          skySupport: '14',
-          transfer: '0',
+          mkrSupport: '14000000000000000000',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 0,
           optionName: 'Abstain',
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           firstPct: 0,
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 3,
           optionName: 'Reject',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         }
       ]
     };
@@ -227,19 +207,16 @@ describe('Fetch tally approval', () => {
   });
 
   it('Ignores abstain', async () => {
-    (gqlRequest as Mock)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({
-        pollVotes: []
-      })
-      .mockResolvedValueOnce({
-        arbitrumPoll: {
-          votes: [{ voter: { id: '0x123' }, choice: '0' }]
-        }
-      })
-      .mockResolvedValueOnce({
-        voters: [{ id: '0x123', v2VotingPowerChanges: [{ newBalance: '400000000000000000000' }] }]
-      });
+    (gqlRequest as Mock).mockResolvedValueOnce({
+      voteAddressMkrWeightsAtTime: {
+        nodes: [
+          {
+            optionIdRaw: '0',
+            mkrSupport: '400'
+          }
+        ]
+      }
+    });
 
     const result = await fetchPollTally(mockPoll, SupportedNetworks.MAINNET);
 
@@ -247,61 +224,51 @@ describe('Fetch tally approval', () => {
       parameters: mockPoll.parameters,
       winner: null,
       winningOptionName: 'None found',
-      totalSkyParticipation: '400',
-      totalSkyActiveParticipation: '0',
+      totalMkrParticipation: '400000000000000000000',
+      totalMkrActiveParticipation: '0',
       numVoters: 1,
       victoryConditionMatched: null,
       results: [
         {
           optionId: 0,
           optionName: 'Abstain',
-          skySupport: '400',
-          transfer: '0',
+          mkrSupport: '400000000000000000000',
           firstPct: 100,
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 1,
           optionName: 'Approve Existing Budget',
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           firstPct: 0,
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 2,
           optionName: 'Approve Increase',
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           firstPct: 0,
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
         {
           optionId: 4,
           optionName: 'None of the above',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         },
 
         {
           optionId: 3,
           optionName: 'Reject',
           firstPct: 0,
-          skySupport: '0',
-          transfer: '0',
+          mkrSupport: '0',
           transferPct: 0,
-          winner: false,
-          eliminated: undefined
+          winner: false
         }
       ]
     };

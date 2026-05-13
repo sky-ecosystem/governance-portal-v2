@@ -27,6 +27,7 @@
 
 cypress/screenshots/*
 types/ethers-contracts
+CLAUDE.md
 
 # debug
 npm-debug.log*

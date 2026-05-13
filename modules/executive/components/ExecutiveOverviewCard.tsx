@@ -22,14 +22,15 @@ import { CardSummary } from 'modules/app/components/Card/CardSummary';
 import { ZERO_ADDRESS } from 'modules/web3/constants/addresses';
 import { StatBox } from 'modules/app/components/StatBox';
 import { StatusText } from 'modules/app/components/StatusText';
-import { parseEther } from 'viem';
+import { config } from 'lib/config';
 
 type Props = {
   proposal: Proposal;
   isHat: boolean;
   account?: string;
   votedProposals: string[];
-  skyOnHat?: bigint;
+  mkrOnHat?: bigint;
+  isLegacy?: boolean;
 };
 
 export default function ExecutiveOverviewCard({
@@ -37,7 +38,8 @@ export default function ExecutiveOverviewCard({
   isHat,
   account,
   votedProposals,
-  skyOnHat
+  mkrOnHat,
+  isLegacy = false
 }: Props): JSX.Element {
   const [voting, setVoting] = useState(false);
   const [postedDateString, setPostedDateString] = useState('');
@@ -52,7 +54,18 @@ export default function ExecutiveOverviewCard({
       proposalAddress => proposalAddress.toLowerCase() === proposal.address.toLowerCase()
     );
 
+  if (!('about' in proposal)) {
+    return (
+      <Card sx={{ p: [0, 0] }}>
+        <Box sx={{ p: 3 }}>
+          <Text>spell address {proposal.address}</Text>
+        </Box>
+      </Card>
+    );
+  }
+
   const canVote = !!account;
+  const executiveUrl = isLegacy ? `/executive/${proposal.key}` : `/sky-executive/${proposal.key}`;
 
   return (
     <Card
@@ -72,7 +85,7 @@ export default function ExecutiveOverviewCard({
         <Flex sx={{ justifyContent: 'space-between' }}>
           <Box>
             <Flex sx={{ flexDirection: 'column' }}>
-              <InternalLink href={`/executive/${proposal.key}`} title="View executive details">
+              <InternalLink href={executiveUrl} title="View executive details">
                 <>
                   <CardHeader text={postedDateString} />
                   <CardTitle title={proposal.title} styles={{ mt: 2 }} />
@@ -88,8 +101,8 @@ export default function ExecutiveOverviewCard({
                       padding: '4px 8px',
                       display: 'flex',
                       alignItems: 'center',
-                      color: 'primaryAlt',
-                      backgroundColor: 'primaryMuted',
+                      color: 'tagColorThree',
+                      backgroundColor: 'tagColorThreeBg',
                       my: 2
                     }}
                   >
@@ -117,7 +130,7 @@ export default function ExecutiveOverviewCard({
                 gap: [0, 3]
               }}
             >
-              <InternalLink href={`/executive/${proposal.key}`} title="View executive details">
+              <InternalLink href={executiveUrl} title="View executive details">
                 <Button
                   variant="outline"
                   sx={{
@@ -132,7 +145,9 @@ export default function ExecutiveOverviewCard({
                 <Button
                   variant="primaryOutline"
                   sx={{ width: 122 }}
-                  disabled={hasVotedFor && votedProposals && votedProposals.length === 1}
+                  disabled={
+                    config.READ_ONLY || (hasVotedFor && votedProposals && votedProposals.length === 1)
+                  }
                   onClick={ev => {
                     setVoting(true);
                     ev.stopPropagation();
@@ -163,14 +178,14 @@ export default function ExecutiveOverviewCard({
               )}
             </Flex>
             <Flex sx={{ flexShrink: 0 }}>
-              {proposal.spellData?.skySupport === undefined ? (
+              {proposal.spellData?.mkrSupport === undefined ? (
                 <Box sx={{ width: 6, ml: 'auto', height: '100%' }}>
                   <Skeleton />
                 </Box>
               ) : (
                 <StatBox
-                  value={formatValue(parseEther(proposal.spellData?.skySupport.toString()))}
-                  label="SKY Supporting"
+                  value={formatValue(BigInt(proposal.spellData?.mkrSupport))}
+                  label="MKR Supporting"
                   styles={{ textAlign: 'right' }}
                 />
               )}
@@ -179,13 +194,11 @@ export default function ExecutiveOverviewCard({
         </Flex>
       </Flex>
 
-      {voting && <VoteModal proposal={proposal} close={() => setVoting(false)} />}
-
       <Flex sx={{ flexDirection: 'column' }}>
         <Divider my={0} />
         <Flex sx={{ py: 2, justifyContent: 'center' }}>
           <StatusText testId="proposal-status">
-            {getStatusText({ proposalAddress: proposal.address, spellData: proposal.spellData, skyOnHat })}
+            {getStatusText({ proposalAddress: proposal.address, spellData: proposal.spellData, mkrOnHat })}
           </StatusText>
         </Flex>
       </Flex>

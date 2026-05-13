@@ -8,17 +8,19 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { DEFAULT_NETWORK, SupportedNetworks } from 'modules/web3/constants/networks';
 import { cacheGet, cacheSet } from 'modules/cache/cache';
-import { CMSProposal, Proposal, GithubProposal } from 'modules/executive/types';
+import { fetchGithubGraphQL } from 'lib/github';
+import { CMSProposal, Proposal } from 'modules/executive/types';
 import { parseExecutive } from './parseExecutive';
 import invariant from 'tiny-invariant';
 import { markdownToHtml } from 'lib/markdown';
-import { analyzeSpell, getExecutiveSkySupport } from './analyzeSpell';
+import { EXEC_PROPOSAL_INDEX } from '../executive.constants';
+import { analyzeSpell, getExecutiveMKRSupport } from './analyzeSpell';
 import { ZERO_ADDRESS } from 'modules/web3/constants/addresses';
 import logger from 'lib/logger';
 import { getExecutiveProposalsCacheKey, githubExecutivesCacheKey } from 'modules/cache/constants/cache-keys';
 import { ONE_HOUR_IN_MS } from 'modules/app/constants/time';
+import { allGithubExecutives } from 'modules/gql/queries/github/allGithubExecutives';
 import { trimProposalKey } from '../helpers/trimProposalKey';
-import { matterWrapper } from 'lib/matter';
 
 export async function getGithubExecutives(network: SupportedNetworks): Promise<CMSProposal[]> {
   const cachedProposals = await cacheGet(githubExecutivesCacheKey, network);
@@ -26,69 +28,31 @@ export async function getGithubExecutives(network: SupportedNetworks): Promise<C
     return JSON.parse(cachedProposals);
   }
 
+  const proposalIndex = await (await fetch(EXEC_PROPOSAL_INDEX)).json();
+
   const githubRepo = {
-    owner:
-      network === SupportedNetworks.MAINNET && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'development'
-        ? 'makerdao'
-        : 'jetstreamgg',
-    repo: 'executive-votes',
-    branch: network === SupportedNetworks.MAINNET ? 'main' : 'testnet'
+    owner: 'sky-ecosystem',
+    repo: 'community',
+    page: 'governance/votes'
   };
 
-  const githubIndexUrl = `https://raw.githubusercontent.com/${githubRepo.owner}/${githubRepo.repo}/refs/heads/${githubRepo.branch}/index.json`;
-  const activeExecsUrl = `https://raw.githubusercontent.com/${githubRepo.owner}/${githubRepo.repo}/refs/heads/${githubRepo.branch}/active/proposals.json`;
-
-  let activeProposals: { mainnet: string[] } | null = null;
-  let githubProposals: GithubProposal[] | null = null;
-
-  try {
-    const [activeExecsResponse, githubProposalsResponse] = await Promise.all([
-      fetch(activeExecsUrl),
-      fetch(githubIndexUrl)
-    ]);
-
-    if (!activeExecsResponse.ok) {
-      throw new Error(`Failed to fetch proposal index: ${activeExecsResponse.statusText}`);
-    }
-    if (!githubProposalsResponse.ok) {
-      throw new Error(`Failed to fetch github proposals: ${githubProposalsResponse.statusText}`);
-    }
-
-    try {
-      activeProposals = await activeExecsResponse.json();
-    } catch (e) {
-      logger.error('getGithubExecutives: Failed to parse proposal index JSON', e);
-      throw new Error('Failed to parse proposal index JSON');
-    }
-
-    try {
-      githubProposals = await githubProposalsResponse.json();
-    } catch (e) {
-      logger.error('getGithubExecutives: Failed to parse github proposals JSON', e);
-      throw new Error('Failed to parse github proposals JSON');
-    }
-  } catch (error) {
-    logger.error(`getGithubExecutives: Error fetching executive data for network ${network}`, error);
-    // Return empty array or re-throw, depending on desired upstream handling
-    return [];
-  }
-
-  // Ensure activeProposals and githubProposals are not null before proceeding
-  if (!activeProposals || !githubProposals) {
-    logger.error(`getGithubExecutives: Failed to fetch necessary data for network ${network}`);
-    return [];
-  }
-
-  const proposals = githubProposals.map(proposal => {
-    try {
-      const path = `https://raw.githubusercontent.com/${githubRepo.owner}/${githubRepo.repo}/refs/heads/${githubRepo.branch}/${proposal.path}`;
-      return parseExecutive(proposal, activeProposals, path, network);
-    } catch (e) {
-      logger.error(`getGithubExecutives: network ${network}`, e);
-      // Catch error and return null if failed fetching one proposal
-      return null;
-    }
-  });
+  const githubResponse = await fetchGithubGraphQL(githubRepo, allGithubExecutives);
+  const proposals = githubResponse.repository.object.entries
+    .filter(entry => entry.type === 'blob')
+    .map(file => {
+      try {
+        const pathParts = file.path.split('/');
+        const last = pathParts.pop();
+        const path = `https://raw.githubusercontent.com/${githubRepo.owner}/${
+          githubRepo.repo
+        }/master/${pathParts.join('/')}/${encodeURIComponent(last)}`;
+        return parseExecutive(file.object.text, proposalIndex, path, SupportedNetworks.MAINNET); //always use mainnet proposal index for now
+      } catch (e) {
+        logger.error(`getGithubExecutives: network ${network}`, e);
+        // Catch error and return null if failed fetching one proposal
+        return null;
+      }
+    });
 
   const filteredProposals: CMSProposal[] = proposals
     .filter(x => !!x)
@@ -104,22 +68,22 @@ export async function getGithubExecutives(network: SupportedNetworks): Promise<C
   return sortedProposals;
 }
 
-async function getGithubExecutivesWithSky(network: SupportedNetworks): Promise<CMSProposal[]> {
+async function getGithubExecutivesWithMKR(network: SupportedNetworks): Promise<CMSProposal[]> {
   const proposals = await getGithubExecutives(network);
 
-  const skySupports = await Promise.all(
+  const mkrSupports = await Promise.all(
     proposals.map(async proposal => {
-      const skySupport = await getExecutiveSkySupport(proposal.address, network);
+      const mkrSupport = await getExecutiveMKRSupport(proposal.address, network);
       return {
         ...proposal,
         spellData: {
-          skySupport
+          mkrSupport
         }
       };
     })
   );
 
-  return skySupports;
+  return mkrSupports;
 }
 
 export async function getExecutiveProposals({
@@ -132,12 +96,12 @@ export async function getExecutiveProposals({
 }: {
   start?: number;
   limit?: number;
-  sortBy?: 'date' | 'sky' | 'active';
+  sortBy?: 'date' | 'mkr' | 'active';
   startDate?: number;
   endDate?: number;
   network?: SupportedNetworks;
 }): Promise<Proposal[]> {
-  const currentNetwork = network;
+  const currentNetwork = network === SupportedNetworks.TENDERLY ? SupportedNetworks.MAINNET : network;
 
   const cacheKey = getExecutiveProposalsCacheKey(start, limit, sortBy, startDate, endDate);
 
@@ -148,13 +112,14 @@ export async function getExecutiveProposals({
     return JSON.parse(cachedProposals);
   }
   const proposals =
-    sortBy === 'sky'
-      ? await getGithubExecutivesWithSky(currentNetwork)
+    sortBy === 'mkr'
+      ? await getGithubExecutivesWithMKR(currentNetwork)
       : await getGithubExecutives(currentNetwork);
+
   const sorted = proposals.sort((a, b) => {
-    if (sortBy === 'sky') {
-      const bSupport = b.spellData ? b.spellData?.skySupport || 0 : 0;
-      const aSupport = a.spellData ? a.spellData?.skySupport || 0 : 0;
+    if (sortBy === 'mkr') {
+      const bSupport = b.spellData ? b.spellData?.mkrSupport || 0 : 0;
+      const aSupport = a.spellData ? a.spellData?.mkrSupport || 0 : 0;
       return BigInt(bSupport) > BigInt(aSupport) ? 1 : -1;
     } else if (sortBy === 'date') {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -176,6 +141,8 @@ export async function getExecutiveProposals({
     subset.map(async p => {
       return {
         ...p,
+        content: p.content?.substring(0, 100) + '...',
+        about: p.about?.substring(0, 100) + '...',
         spellData: await analyzeSpell(p.address, currentNetwork)
       };
     })
@@ -192,7 +159,7 @@ export async function getExecutiveProposal(
 ): Promise<Proposal | null> {
   const net = network ? network : DEFAULT_NETWORK.network;
 
-  const currentNetwork = net;
+  const currentNetwork = net === SupportedNetworks.TENDERLY ? SupportedNetworks.MAINNET : net;
 
   const proposals = await getGithubExecutives(currentNetwork);
 
@@ -205,14 +172,8 @@ export async function getExecutiveProposal(
   if (!proposal) return null;
   invariant(proposal, `proposal not found for proposal id ${proposalId}`);
 
-  const [spellText, spellData] = await Promise.all([
-    (await fetch(proposal.proposalLink)).text(),
-    analyzeSpell(proposal.address, currentNetwork)
-  ]);
-
-  const { content: contentText } = matterWrapper(spellText);
-  const content = await markdownToHtml(contentText || '');
-
+  const spellData = await analyzeSpell(proposal.address, currentNetwork);
+  const content = await markdownToHtml(proposal.about || '');
   return {
     ...proposal,
     spellData,
