@@ -105,6 +105,3 @@ export const SIMULATE_TX_VALUE = '0';
 export const SIMULATE_TX_FROM = '0x5cab1e5286529370880776461c53a0e47d74fb63'; // The chief-keeper EOA, owned by TO, used to cast spells
 
 export const AVG_BLOCKS_PER_DAY = 6500;
-
-export const GASNOW_ENDPOINT = 'https://beaconcha.in/api/v1/execution/gasnow';
-export const GASNOW_URL = 'https://beaconcha.in/gasnow';
