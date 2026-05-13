@@ -10,9 +10,6 @@ type SystemConfig = {
   USE_CACHE: string;
   TRACING_RPC_NODE: string;
   NODE_ENV: 'development' | 'production' | 'test';
-  RPC_MAINNET: string;
-  RPC_ARBITRUM: string;
-  RPC_ARBITRUM_TESTNET: string;
   GITHUB_TOKEN: string;
   GITHUB_TOKEN_2: string;
   GITHUB_TOKEN_3: string;
@@ -37,9 +34,6 @@ export const config: SystemConfig = {
   USE_CACHE: process.env.USE_CACHE || '',
   TRACING_RPC_NODE: process.env.TRACING_RPC_NODE || '',
   NODE_ENV: process.env.NODE_ENV || 'development',
-  RPC_MAINNET: process.env.NEXT_PUBLIC_RPC_MAINNET || '',
-  RPC_ARBITRUM: process.env.NEXT_PUBLIC_RPC_ARBITRUM || '',
-  RPC_ARBITRUM_TESTNET: process.env.NEXT_PUBLIC_RPC_ARBITRUM_TESTNET || '',
   GITHUB_TOKEN: process.env.GITHUB_TOKEN || '',
   GITHUB_TOKEN_2: process.env.GITHUB_TOKEN_2 || '',
   GITHUB_TOKEN_3: process.env.GITHUB_TOKEN_3 || '',
