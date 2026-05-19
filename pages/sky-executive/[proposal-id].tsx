@@ -145,6 +145,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
   // In the future, we could pre-generate paths for the most recent Sky executives
   return {
     paths: [],
-    fallback: true
+    fallback: 'blocking'
   };
 };
