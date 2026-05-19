@@ -1,7 +1,7 @@
 {
   "name": "governance-portal-v2",
   "license": "AGPL-3.0-only",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "engines": {
     "node": ">=24.0.0"
   },

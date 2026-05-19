@@ -457,6 +457,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const proposal: Proposal | null = await getExecutiveProposal(proposalId, DEFAULT_NETWORK.network);
 
+  if (!proposal) {
+    return { notFound: true, revalidate: 60 };
+  }
+
   /**Disabling spell-effects until multi-transactions endpoint is ready */
   // // Only fetch at build time if spell has been cast, and it's not older than two months (to speed up builds)
   // const spellDiffs: SpellDiff[] =

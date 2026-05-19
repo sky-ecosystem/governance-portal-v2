@@ -128,6 +128,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     console.log(`Sky executive ${proposalId} not found during static generation`);
   }
 
+  if (!executive) {
+    return { notFound: true, revalidate: 60 };
+  }
+
   return {
     revalidate: 60, // Revalidate every minute for Sky executives
     props: {
