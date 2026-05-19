@@ -19,6 +19,7 @@ import { CardSummary } from 'modules/app/components/Card/CardSummary';
 import { ZERO_ADDRESS } from 'modules/web3/constants/addresses';
 import { StatBox } from 'modules/app/components/StatBox';
 import { StatusText } from 'modules/app/components/StatusText';
+import { trimProposalKey } from 'modules/executive/helpers/trimProposalKey';
 
 type Props = {
   proposal: SkyProposal;
@@ -53,7 +54,7 @@ export default function SkyExecutiveOverviewCardLanding({ proposal, isHat, skyOn
           <Box>
             <Flex sx={{ flexDirection: 'column' }}>
               <ExternalLink
-                href={`https://vote.sky.money/executive/${proposal.key}`}
+                href={`https://vote.sky.money/executive/${trimProposalKey(proposal.key)}`}
                 title="View executive details"
               >
                 <>
@@ -102,7 +103,7 @@ export default function SkyExecutiveOverviewCardLanding({ proposal, isHat, skyOn
               }}
             >
               <ExternalLink
-                href={`https://vote.sky.money/executive/${proposal.key}`}
+                href={`https://vote.sky.money/executive/${trimProposalKey(proposal.key)}`}
                 title="View executive details on Sky portal"
               >
                 <Button

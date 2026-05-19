@@ -455,26 +455,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   // fetch proposal contents at build-time if on the default network
   const proposalId = (params || {})['proposal-id'] as string;
 
-  console.log('[exec-debug] getStaticProps called', {
-    proposalId,
-    proposalIdLen: proposalId?.length,
-    network: DEFAULT_NETWORK.network,
-    hasGithubToken: !!process.env.GITHUB_TOKEN
-  });
-
-  let proposal: Proposal | null = null;
-  try {
-    proposal = await getExecutiveProposal(proposalId, DEFAULT_NETWORK.network);
-  } catch (e) {
-    console.error('[exec-debug] getExecutiveProposal threw', e);
-  }
-
-  console.log('[exec-debug] getStaticProps result', {
-    proposalId,
-    found: !!proposal,
-    key: proposal?.key,
-    keyLen: proposal?.key?.length
-  });
+  const proposal: Proposal | null = await getExecutiveProposal(proposalId, DEFAULT_NETWORK.network);
 
   if (!proposal) {
     return { notFound: true, revalidate: 60 };

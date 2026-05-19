@@ -23,6 +23,7 @@ import { ZERO_ADDRESS } from 'modules/web3/constants/addresses';
 import { StatBox } from 'modules/app/components/StatBox';
 import { StatusText } from 'modules/app/components/StatusText';
 import { config } from 'lib/config';
+import { trimProposalKey } from 'modules/executive/helpers/trimProposalKey';
 
 type Props = {
   proposal: Proposal;
@@ -65,7 +66,9 @@ export default function ExecutiveOverviewCard({
   }
 
   const canVote = !!account;
-  const executiveUrl = isLegacy ? `/executive/${proposal.key}` : `/sky-executive/${proposal.key}`;
+  const executiveUrl = isLegacy
+    ? `/executive/${trimProposalKey(proposal.key)}`
+    : `/sky-executive/${trimProposalKey(proposal.key)}`;
 
   return (
     <Card
