@@ -455,7 +455,11 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   // fetch proposal contents at build-time if on the default network
   const proposalId = (params || {})['proposal-id'] as string;
 
+  console.log('[exec-debug]', { proposalId, len: proposalId?.length });
+
   const proposal: Proposal | null = await getExecutiveProposal(proposalId, DEFAULT_NETWORK.network);
+
+  console.log('[exec-debug] result', { found: !!proposal, key: proposal?.key });
 
   if (!proposal) {
     return { notFound: true, revalidate: 60 };
