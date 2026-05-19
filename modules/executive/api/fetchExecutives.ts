@@ -163,12 +163,24 @@ export async function getExecutiveProposal(
 
   const proposals = await getGithubExecutives(currentNetwork);
 
-  const proposal = proposals.find(
-    proposal =>
-      trimProposalKey(proposal.key) === proposalId ||
-      proposal.key === proposalId ||
-      proposal.address.toLowerCase() === proposalId.toLowerCase()
+  const matchByFullKey = proposals.find(p => p.key === proposalId);
+  const matchByTrimmedKey = proposals.find(p => trimProposalKey(p.key) === proposalId);
+  const matchByAddress = proposals.find(
+    p => p.address.toLowerCase() === proposalId.toLowerCase()
   );
+
+  console.log('[exec-debug] getExecutiveProposal lookup', {
+    proposalId,
+    proposalIdLen: proposalId?.length,
+    network: currentNetwork,
+    proposalsLen: proposals.length,
+    firstFew: proposals.slice(0, 3).map(p => ({ key: p.key, addr: p.address })),
+    matchByFullKey: matchByFullKey?.address,
+    matchByTrimmedKey: matchByTrimmedKey?.address,
+    matchByAddress: matchByAddress?.address
+  });
+
+  const proposal = matchByTrimmedKey || matchByFullKey || matchByAddress;
   if (!proposal) return null;
   invariant(proposal, `proposal not found for proposal id ${proposalId}`);
 
