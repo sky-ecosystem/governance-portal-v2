@@ -8,7 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 import useSWR from 'swr';
 import { fetchJson } from 'lib/fetchJson';
-import { SkyPollTallyResponse } from 'pages/api/sky/polls/tally/[poll-id]';
+import { SkyPollTallyResponse } from 'pages/api/sky/polls/tally/[pollId]';
 
 type UseSkyPollTallyResponse = {
   tally?: SkyPollTallyResponse;

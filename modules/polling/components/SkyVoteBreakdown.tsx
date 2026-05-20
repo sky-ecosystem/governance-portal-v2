@@ -7,7 +7,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 */
 
 import { Box, Flex, Text, Progress } from 'theme-ui';
-import { SkyPollDetailResponse } from 'pages/api/sky/polls/[poll-id-or-slug]';
+import { SkyPollDetailResponse } from 'pages/api/sky/polls/[pollIdOrSlug]';
 
 type SkyVoteBreakdownProps = {
   poll: SkyPollDetailResponse;

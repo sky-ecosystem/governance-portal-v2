@@ -28,7 +28,7 @@ import { HeadComponent } from 'modules/app/components/layout/Head';
 import { ErrorBoundary } from 'modules/app/components/ErrorBoundary';
 import { InternalLink } from 'modules/app/components/InternalLink';
 import { ExternalLink } from 'modules/app/components/ExternalLink';
-import { SkyPollDetailResponse } from '../api/sky/polls/[poll-id-or-slug]';
+import { SkyPollDetailResponse } from '../api/sky/polls/[pollIdOrSlug]';
 import SkyVoteBreakdown from 'modules/polling/components/SkyVoteBreakdown';
 import SkyPollWinningOptionBox from 'modules/polling/components/SkyPollWinningOptionBox';
 import SkyVotesByAddress from 'modules/polling/components/SkyVotesByAddress';
@@ -301,9 +301,9 @@ export default function SkyPollPage({
 
   // Client-side fetching fallback if SSR fails
   useEffect(() => {
-    if (!poll && !error && query['poll-hash']) {
+    if (!poll && !error && query.pollHash) {
       setLoading(true);
-      fetch(`/api/sky/polls/${query['poll-hash']}`)
+      fetch(`/api/sky/polls/${query.pollHash}`)
         .then(response => {
           if (!response.ok) {
             throw new Error(`Failed to fetch poll: ${response.status}`);
@@ -321,7 +321,7 @@ export default function SkyPollPage({
           setLoading(false);
         });
     }
-  }, [query['poll-hash'], poll, error]);
+  }, [query.pollHash, poll, error]);
 
   if (loading) {
     return (
@@ -350,7 +350,7 @@ export default function SkyPollPage({
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const pollIdOrSlug = params?.['poll-hash'] as string;
+  const pollIdOrSlug = params?.pollHash as string;
 
   if (!pollIdOrSlug) {
     return {
