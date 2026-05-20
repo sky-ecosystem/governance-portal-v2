@@ -28,7 +28,6 @@ import { parseUnits } from 'viem';
 import { useSkyExecutiveSupportersForSpell } from 'modules/executive/hooks/useSkyExecutiveSupporters';
 import AddressIconBox from 'modules/address/components/AddressIconBox';
 import SkyExecutiveStatusBox from './SkyExecutiveStatusBox';
-import { trimProposalKey } from 'modules/executive/helpers/trimProposalKey';
 
 const editMarkdown = (content: string) => {
   // hide the duplicate proposal title
@@ -82,7 +81,7 @@ const SkyExecutiveDetailView = ({ executive, skyOnHat }: SkyExecutiveDetailViewP
             <Flex sx={{ justifyContent: 'space-between' }}>
               {executive.ctx?.prev?.key && (
                 <InternalLink
-                  href={`/sky-executive/${trimProposalKey(executive.ctx.prev.key)}`}
+                  href={`/sky-executive/${executive.ctx.prev.key}`}
                   title="View previous executive"
                   scroll={false}
                 >
@@ -96,7 +95,7 @@ const SkyExecutiveDetailView = ({ executive, skyOnHat }: SkyExecutiveDetailViewP
               )}
               {executive.ctx?.next?.key && (
                 <InternalLink
-                  href={`/sky-executive/${trimProposalKey(executive.ctx.next.key)}`}
+                  href={`/sky-executive/${executive.ctx.next.key}`}
                   title="View next executive"
                   scroll={false}
                   styles={{ ml: 2 }}
