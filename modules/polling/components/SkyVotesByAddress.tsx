@@ -12,8 +12,8 @@ import { InternalLink } from 'modules/app/components/InternalLink';
 import AddressIconBox from 'modules/address/components/AddressIconBox';
 import { useMemo, useState } from 'react';
 import Icon from 'modules/app/components/Icon';
-import { SkyPollTallyResponse } from 'pages/api/sky/polls/tally/[poll-id]';
-import { SkyPollDetailResponse } from 'pages/api/sky/polls/[poll-id-or-slug]';
+import { SkyPollTallyResponse } from 'pages/api/sky/polls/tally/[pollId]';
+import { SkyPollDetailResponse } from 'pages/api/sky/polls/[pollIdOrSlug]';
 import EtherscanLink from 'modules/web3/components/EtherscanLink';
 import { chainIdToNetworkName } from 'modules/web3/helpers/chain';
 

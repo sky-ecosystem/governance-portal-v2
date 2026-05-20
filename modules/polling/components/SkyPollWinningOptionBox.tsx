@@ -13,8 +13,8 @@ import { parseEther } from 'viem';
 import { StatusText } from 'modules/app/components/StatusText';
 import { ErrorBoundary } from 'modules/app/components/ErrorBoundary';
 import { SkyPoll } from './SkyPollOverviewCard';
-import { SkyPollDetailResponse } from 'pages/api/sky/polls/[poll-id-or-slug]';
-import { SkyPollTallyResponse } from 'pages/api/sky/polls/tally/[poll-id]';
+import { SkyPollDetailResponse } from 'pages/api/sky/polls/[pollIdOrSlug]';
+import { SkyPollTallyResponse } from 'pages/api/sky/polls/tally/[pollId]';
 
 export default function SkyPollWinningOptionBox({
   tally,

@@ -113,14 +113,14 @@ export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse<P
     validValues: [SupportedNetworks.TENDERLY, SupportedNetworks.MAINNET]
   }) as SupportedNetworks;
 
-  const pollId = validateQueryParam(req.query['poll-id-or-slug'], 'number', {
+  const pollId = validateQueryParam(req.query.pollIdOrSlug, 'number', {
     defaultValue: null
   }) as number | null;
 
   let pollSlug: string | null = null;
 
   if (!pollId) {
-    pollSlug = validateQueryParam(req.query['poll-id-or-slug'], 'string', {
+    pollSlug = validateQueryParam(req.query.pollIdOrSlug, 'string', {
       defaultValue: null
     }) as string | null;
   }

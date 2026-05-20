@@ -80,7 +80,7 @@ export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse) 
     throw new ApiError('Method not allowed', 405, 'Method not allowed');
   }
 
-  const { 'proposal-id-or-key': proposalIdOrKey } = req.query;
+  const { proposalIdOrKey } = req.query;
 
   if (!proposalIdOrKey || typeof proposalIdOrKey !== 'string') {
     throw new ApiError('Proposal ID or key is required', 400, 'Invalid request');

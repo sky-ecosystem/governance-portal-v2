@@ -42,7 +42,7 @@ export default function SkyExecutivePage({
   const router = useRouter();
   const { query } = router;
   const network = useNetwork();
-  const proposalId = query['proposal-id'] as string;
+  const proposalId = query.proposalId as string;
 
   // Use the Sky executive detail hook
   const { executive: skyExecutive, error: skyError, isValidating } = useSkyExecutiveDetail(
@@ -52,14 +52,14 @@ export default function SkyExecutivePage({
   // fetch executive contents at run-time if on any network other than the default
   useEffect(() => {
     if (!network) return;
-    if (!isDefaultNetwork(network) && query['proposal-id']) {
-      fetchJson(`/api/sky/executives/${query['proposal-id']}?network=${network}`)
+    if (!isDefaultNetwork(network) && query.proposalId) {
+      fetchJson(`/api/sky/executives/${query.proposalId}?network=${network}`)
         .then(response => {
           _setExecutive(response);
         })
         .catch(setError);
     }
-  }, [query['proposal-id'], network]);
+  }, [query.proposalId, network]);
 
   // Check for fallback state first
   if (router.isFallback) {
@@ -116,16 +116,20 @@ export default function SkyExecutivePage({
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   // For Sky executives, we'll try to fetch from the Sky API
-  const proposalId = (params || {})['proposal-id'] as string;
-  
+  const proposalId = (params || {}).proposalId as string;
+
   let executive: SkyExecutiveDetailResponse | null = null;
-  
+
   try {
     // Try to fetch Sky executive data
     executive = await fetchJson(`/api/sky/executives/${proposalId}`);
   } catch (error) {
     // If Sky executive not found, that's okay - we'll handle it in the component
     console.log(`Sky executive ${proposalId} not found during static generation`);
+  }
+
+  if (!executive) {
+    return { notFound: true, revalidate: 60 };
   }
 
   return {

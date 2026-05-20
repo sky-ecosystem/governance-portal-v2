@@ -149,7 +149,7 @@ export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse) 
 
   // validate pollId
   const pollId = validateQueryParam(
-    req.query['poll-id'],
+    req.query.pollId,
     'number',
     {
       defaultValue: null,

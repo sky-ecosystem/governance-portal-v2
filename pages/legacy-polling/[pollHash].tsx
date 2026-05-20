@@ -120,7 +120,7 @@ const PollView = ({ poll }: { poll: Poll }) => {
             </InternalLink>
             <Flex sx={{ justifyContent: 'space-between' }}>
               {prevSlug && (
-                <InternalLink href={`/polling/${prevSlug}`} title="View previous poll" scroll={false}>
+                <InternalLink href={`/legacy-polling/${prevSlug}`} title="View previous poll" scroll={false}>
                   <Button variant="mutedOutline">
                     <Flex sx={{ alignItems: 'center', whiteSpace: 'nowrap' }}>
                       <Icon name="chevron_left" sx={{ size: 2, mr: 2 }} />
@@ -131,7 +131,7 @@ const PollView = ({ poll }: { poll: Poll }) => {
               )}
               {nextSlug && (
                 <InternalLink
-                  href={`/polling/${nextSlug}`}
+                  href={`/legacy-polling/${nextSlug}`}
                   title="View next poll"
                   scroll={false}
                   styles={{ ml: 2 }}
@@ -408,14 +408,14 @@ export default function PollPage({ poll: prefetchedPoll }: { poll?: Poll }): JSX
   // fetch poll contents at run-time if on any network other than the default
   useEffect(() => {
     if (!network) return;
-    if (query['poll-hash'] && !isDefaultNetwork(network)) {
-      fetchJson(`/api/polling/${query['poll-hash']}?network=${network}`)
+    if (query.pollHash && !isDefaultNetwork(network)) {
+      fetchJson(`/api/polling/${query.pollHash}?network=${network}`)
         .then(response => {
           _setPoll(response);
         })
         .catch(setError);
     }
-  }, [query['poll-hash'], network]);
+  }, [query.pollHash, network]);
 
   const poll = (isDefaultNetwork(network) ? prefetchedPoll : _poll) as Poll;
 
@@ -446,13 +446,13 @@ export default function PollPage({ poll: prefetchedPoll }: { poll?: Poll }): JSX
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   // fetch poll contents at build-time if on the default network
-  const pollIdOrSlug = params?.['poll-hash'] as string;
+  const pollIdOrSlug = params?.pollHash as string;
   // invariant(pollSlug, 'getStaticProps poll hash not found in params');
 
   const poll = await fetchSinglePoll(DEFAULT_NETWORK.network, pollIdOrSlug);
 
   if (!poll) {
-    return { revalidate: 30, props: { poll: null } };
+    return { notFound: true, revalidate: 60 };
   }
 
   return {
@@ -478,7 +478,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     endDate: null
   });
 
-  const paths = pollsResponse.polls.map(p => `/polling/${p.slug}`);
+  const paths = pollsResponse.polls.map(p => `/legacy-polling/${p.slug}`);
 
   return {
     paths,
