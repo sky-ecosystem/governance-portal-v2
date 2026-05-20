@@ -381,7 +381,7 @@ export default function ProposalPage({
   const router = useRouter();
   const { query } = router;
   const network = useNetwork();
-  const proposalId = query['proposal-id'] as string;
+  const proposalId = query.proposalId as string;
 
   /**Disabling spell-effects until multi-transactions endpoint is ready */
   // const spellAddress = prefetchedProposal?.address;
@@ -398,14 +398,14 @@ export default function ProposalPage({
   // fetch proposal contents at run-time if on any network other than the default
   useEffect(() => {
     if (!network) return;
-    if (!isDefaultNetwork(network) && query['proposal-id']) {
-      fetchJson(`/api/executive/${query['proposal-id']}?network=${network}`)
+    if (!isDefaultNetwork(network) && query.proposalId) {
+      fetchJson(`/api/executive/${query.proposalId}?network=${network}`)
         .then(response => {
           _setProposal(response);
         })
         .catch(setError);
     }
-  }, [query['proposal-id'], network]);
+  }, [query.proposalId, network]);
 
   // Check for fallback state first
   if (router.isFallback) {
@@ -453,9 +453,13 @@ export default function ProposalPage({
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   // fetch proposal contents at build-time if on the default network
-  const proposalId = (params || {})['proposal-id'] as string;
+  const proposalId = (params || {}).proposalId as string;
 
   const proposal: Proposal | null = await getExecutiveProposal(proposalId, DEFAULT_NETWORK.network);
+
+  if (!proposal) {
+    return { notFound: true, revalidate: 60 };
+  }
 
   /**Disabling spell-effects until multi-transactions endpoint is ready */
   // // Only fetch at build time if spell has been cast, and it's not older than two months (to speed up builds)

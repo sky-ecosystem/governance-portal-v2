@@ -113,7 +113,7 @@ export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse) 
     throw new ApiError('Method not allowed', 405, 'Method not allowed');
   }
 
-  const { 'poll-id-or-slug': pollIdOrSlug } = req.query;
+  const { pollIdOrSlug } = req.query;
 
   if (!pollIdOrSlug || typeof pollIdOrSlug !== 'string') {
     throw new ApiError('Poll ID or slug is required', 400, 'Invalid request');

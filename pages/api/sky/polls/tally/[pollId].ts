@@ -79,7 +79,7 @@ export default withApiHandler(async (req: NextApiRequest, res: NextApiResponse) 
     throw new ApiError('Method not allowed', 405, 'Method not allowed');
   }
 
-  const { 'poll-id': pollId, network = 'mainnet' } = req.query;
+  const { pollId, network = 'mainnet' } = req.query;
 
   if (!pollId || typeof pollId !== 'string') {
     throw new ApiError('Poll ID is required', 400, 'Invalid request');

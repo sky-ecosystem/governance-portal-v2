@@ -89,7 +89,7 @@ export default withApiHandler(
     ) as SupportedNetworks;
 
     // TODO what kind of validation can we apply on the proposal-id?
-    const proposalId = req.query['proposal-id'] as string;
+    const proposalId = req.query.proposalId as string;
 
     const response = await getExecutiveProposal(proposalId, network);
 
