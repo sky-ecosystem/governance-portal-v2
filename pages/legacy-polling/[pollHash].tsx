@@ -452,7 +452,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const poll = await fetchSinglePoll(DEFAULT_NETWORK.network, pollIdOrSlug);
 
   if (!poll) {
-    return { notFound: true, revalidate: 30 };
+    return { notFound: true, revalidate: 60 };
   }
 
   return {

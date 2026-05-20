@@ -458,7 +458,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const proposal: Proposal | null = await getExecutiveProposal(proposalId, DEFAULT_NETWORK.network);
 
   if (!proposal) {
-    return { notFound: true, revalidate: 60 * 60 };
+    return { notFound: true, revalidate: 60 };
   }
 
   /**Disabling spell-effects until multi-transactions endpoint is ready */
