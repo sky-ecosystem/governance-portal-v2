@@ -1,0 +1,43 @@
+# pnpm v11 reads project-wide settings only from this file.
+# - .npmrc is auth/registry only.
+# - The `pnpm` and `resolutions` fields of package.json are no longer read.
+
+# Supply-chain buffer: only install dependency versions published >= 7 days ago.
+# (v11 defaults to 1 day; we keep the 7-day window inherited from .npmrc.)
+minimumReleaseAge: 10080
+
+# Use bash for `scripts` (preserves prior .npmrc behaviour).
+scriptShell: bash
+
+# Security overrides. Migrated from `package.json#pnpm.overrides`, with
+# `elliptic` folded in from the top-level `resolutions` block (pnpm v11
+# no longer applies `resolutions`).
+overrides:
+  elliptic: ^6.6.1
+  axios: ^1.12.0
+  dompurify: ^3.2.4
+  minimatch: ^9.0.5
+  node-forge: ^1.3.1
+  tar-fs: ^2.1.4
+  ws: ^8.18.3
+  cross-spawn: ^7.0.5
+  brace-expansion: ^2.0.2
+  picomatch: ^4.0.3
+
+# pnpm v11 defaults `strictDepBuilds: true`, so any dependency with an
+# install/build script now fails the install unless it has an entry here.
+# Under v10 these were silently ignored — denying them preserves that
+# production behavior. Flip to `true` later if a runtime gap appears.
+allowBuilds:
+  '@scarf/scarf': false
+  '@tree-sitter-grammars/tree-sitter-yaml': false
+  bufferutil: false
+  core-js-pure: false
+  esbuild: false
+  fsevents: false
+  keccak: false
+  protobufjs: false
+  sharp: false
+  tree-sitter: false
+  tree-sitter-json: false
+  utf-8-validate: false
