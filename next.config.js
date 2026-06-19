@@ -51,7 +51,6 @@ const moduleExports = {
   // everything in here gets exposed to the frontend.
   // prefer NEXT_PUBLIC_* instead, which makes this behavior more explicit
   env: {
-    GITHUB_TOKEN: process.env.GITHUB_TOKEN,
     READ_ONLY: process.env.READ_ONLY
   },
 
