@@ -19,6 +19,7 @@ import { useSkyExecutiveDetail } from 'modules/executive/hooks/useSkyExecutiveDe
 import SkyExecutiveDetailView from 'modules/executive/components/SkyExecutiveDetailView';
 import { ErrorBoundary } from 'modules/app/components/ErrorBoundary';
 import { fetchJson } from 'lib/fetchJson';
+import { fetchSkyExecutiveDetail } from 'modules/executive/api/fetchSkyExecutiveDetail';
 import { SkyExecutiveDetailResponse } from 'modules/executive/types';
 
 const LoadingIndicator = () => (
@@ -121,8 +122,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   let executive: SkyExecutiveDetailResponse | null = null;
 
   try {
-    // Try to fetch Sky executive data
-    executive = await fetchJson(`/api/sky/executives/${proposalId}`);
+    // Fetch the Sky executive data directly from the shared server-side function.
+    // getStaticProps runs in Node, where relative URLs (e.g. `/api/...`) cannot be
+    // resolved, so we must not fetch our own API route over HTTP here.
+    executive = await fetchSkyExecutiveDetail(proposalId);
   } catch (error) {
     // If Sky executive not found, that's okay - we'll handle it in the component
     console.log(`Sky executive ${proposalId} not found during static generation`);
