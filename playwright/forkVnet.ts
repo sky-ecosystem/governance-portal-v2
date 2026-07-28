@@ -12,8 +12,6 @@ import { mockRpcCalls } from './mock-rpc-call';
 dotenv.config();
 
 const displayName = process.env.CI ? 'ci-tests-testnet' : 'local-tests-testnet';
-// id of the `e2e-testing-apr-15-fork_apr_29` vnet, used as the source of every test fork
-const DEFAULT_FORK_VNET_ID = 'bf27af19-1335-404a-9257-18affa774f5a';
 const RPC_READY_RETRIES = 5;
 
 const sendTenderlyRpc = async (rpcUrl: string, body: Record<string, unknown>) => {
