@@ -92,7 +92,7 @@ const forkVnet = async (displayName: string) => {
   if (!displayName.length) {
     throw new Error('A display name is required for the virtual testnet');
   }
-  const sourceVnetId = process.env.TENDERLY_MAINNET_FORK_VNET_ID || DEFAULT_FORK_VNET_ID;
+  const sourceVnetId = process.env.TENDERLY_MAINNET_FORK_VNET_ID;
 
   const res = await fetch('https://api.tenderly.co/api/v1/account/jetstreamgg/project/jetstream/vnets/fork', {
     headers: [
